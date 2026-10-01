@@ -24,7 +24,7 @@
       </span>
       <div>
         <h1 id="puertaTitulo">Taller de Programación Visual con Scratch</h1>
-        <p id="puertaSub" class="puerta-sub">Cuatro sesiones para construir un recurso interactivo de su propia asignatura.</p>
+        <p id="puertaSub" class="puerta-sub">Una sesión de dos horas para construir un recurso interactivo de su propia asignatura.</p>
       </div>
     </div>
 
@@ -105,6 +105,7 @@
         <nav class="tabs-docente" aria-label="Vistas">
           <button class="tab-docente activa" id="tabEnVivo" type="button">📺 En vivo</button>
           <button class="tab-docente" id="tabMateriales" type="button">📄 Materiales <span class="tab-punto" id="tabPuntoMat" hidden></span></button>
+          <button class="tab-docente" id="tabScratch" type="button" hidden>🐱 Scratch</button>
         </nav>
 
         <!-- Vista 1: lo que el facilitador está mostrando ahora -->
@@ -119,6 +120,12 @@
           </section>
 
           <div class="progreso" id="progresoSesion" aria-label="Avance de la sesión"></div>
+
+          <!-- Piso / Palabra (participante) -->
+          <div class="piso-participante" id="pisoParticipante" hidden>
+            <div class="piso-estado" id="pisoEstado"></div>
+            <div class="piso-acciones" id="pisoAcciones"></div>
+          </div>
 
           <footer class="pie-docente">
             <p id="pieTexto"></p>
@@ -136,6 +143,14 @@
           <section class="bloque">
             <h2 class="bloque-tit">Proyectos base de Scratch</h2>
             <div id="listaProyectos" class="lista-materiales"></div>
+          </section>
+        </div>
+
+        <!-- Vista 3: Scratch embebido -->
+        <div id="vistaScratch" hidden>
+          <section class="bloque slide">
+            <div id="scratchIframeContenedor" class="scratch-iframe-contenedor"></div>
+            <p id="scratchInfo" class="bloque-nota" hidden></p>
           </section>
         </div>
       </section>
@@ -198,6 +213,35 @@
             <button class="btn primary" id="btnCopiarLink" type="button">Copiar link para docentes</button>
             <button class="btn ghost" id="btnDebug" type="button">Probar conexión</button>
           </div>
+        </section>
+
+        <!-- Botón Finalizar taller + Certificados -->
+        <section class="bloque bloque-panel" id="seccionFinalizar" hidden>
+          <h2 class="bloque-tit">Finalizar taller y generar certificados</h2>
+          <p class="bloque-nota">Al pulsar, se genera el certificado para cada participante conectado con su nombre.</p>
+          <div class="fila-form">
+            <button class="btn primary" id="btnFinalizarTaller" type="button">🎓 Finalizar taller y generar certificados</button>
+          </div>
+          <div id="certificadosGenerados" class="certificados-lista"></div>
+        </section>
+
+        <!-- Piso / Palabra (facilitador) -->
+        <section class="bloque bloque-panel" id="seccionPiso" hidden>
+          <h2 class="bloque-tit">🎤 Piso / Palabra</h2>
+          <p class="bloque-nota">Gestiona quién tiene la palabra. Tú puedes invitar o conceder/quitar el piso.</p>
+          <div id="listaPiso" class="lista-piso"></div>
+        </section>
+
+        <!-- Scratch embebido (facilitador configura el project ID) -->
+        <section class="bloque bloque-panel" id="seccionScratch" hidden>
+          <h2 class="bloque-tit">🐱 Scratch en vivo</h2>
+          <p class="bloque-nota">Pega el ID del proyecto de Scratch para embeber el editor en la vista de los docentes.</p>
+          <div class="fila-form">
+            <input id="inpScratchProjectId" type="text" placeholder="Ej: 123456789 (solo números)" inputmode="numeric" maxlength="20">
+            <button class="btn primary" id="btnCargarScratch" type="button">Cargar en vista docentes</button>
+            <button class="btn ghost" id="btnLimpiarScratch" type="button">Quitar</button>
+          </div>
+          <p id="scratchEstado" class="bloque-nota"></p>
         </section>
       </section>
 
