@@ -8,12 +8,14 @@ Webapp que acompaña el taller de programación visual con Scratch. Los docentes
 
 | Vista | Para quién | Qué ve |
 |---|---|---|
-| **Docente** | Participantes | Escribe su nombre y entra directo. Ve la sesión abierta, el paso actual, los materiales liberados y tus avisos. |
-| **Facilitador** | Tú, con PIN | Notas privadas, cronómetro, botón para abrir secciones y avanzar slides, mensaje general, lista de conectados. |
+| **Docente** | Participantes | Escribe su nombre y entra directo. **Modo presentación**: una sola pantalla con el paso actual, que avanza solo cuando tú avanzas. Pestaña «Materiales» para descargas. Sin scroll infinito. |
+| **Facilitador** | Tú, con PIN | Vista previa de lo que ven los docentes, mensaje general, cronómetro, botones para abrir secciones y avanzar paso a paso, lista de conectados. Notas privadas colapsadas. |
 
 **Los docentes no pueden ser facilitadores.** No hay botón de rol: entran, escriben su nombre y ya están dentro del taller. El panel de control está detrás de un PIN que solo tú conoces.
 
-Si un docente ve la opción de facilitador, es normal: es tu propio link. El PIN es lo que protege el panel, no que el botón esté escondido.
+La sincronización usa **Broadcast de Supabase**: cuando avanzas, el cambio llega en menos de un segundo. La base de datos queda como respaldo para quien entra tarde. **No hay que activar Replication ni nada en el dashboard**: con crear la tabla basta.
+
+> Si quieres ver la pantalla del docente en tu misma computadora, ábrela en una ventana de incógnito. Si la abres normal, el navegador recuerda tu PIN y te mete directo al panel de facilitador.
 
 ---
 
@@ -144,8 +146,8 @@ Abre `js/supabase.js` y reemplaza:
 
 ```js
 const CFG = {
-  url: 'PEGAR_AQUI',        // ← tu Project URL
-  anonKey: 'PEGAR_AQUI',    // ← tu anon public
+  url: 'https://pjnvhdxytjxbaiwvlylj.supabase.co',        // ← tu Project URL
+  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqbnZoZHh5dGp4YmFpd3ZseWxqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4MDI4OTMsImV4cCI6MjEwNjM3ODg5M30.lotSgYcgFJH2OqbkXje7NyaLpZh3ura2kDkDxHYMjns',    // ← tu anon public
 };
 ```
 
@@ -323,9 +325,11 @@ La seguridad no está en el código del navegador (que cualquiera puede ver), si
 |---|---|---|
 | El PIN no entra | Hash desactualizado en config.js | Recalcula el hash con la consola y pégalo en `pinHash` |
 | El PIN entra pero no guarda secciones | El PIN de la app no es el mismo de la fila en Supabase | Abre `estado_sala` en Supabase y revisa la columna `clave` |
-| Los docentes no ven los cambios | Supabase no configurado | Abre la app: si arriba dice «Sin sincronizar», falta el paso 4 del README |
+| Los docentes no ven los cambios | La app no está conectada a Supabase | Si arriba dice «Sin sincronizar», falta pegar URL y anonKey en `js/supabase.js`. Si dice «En vivo» y aun así no llega, recarga la pestaña del docente |
 | El mensaje «Rechazado: 401» | La anon key está mal copiada | Vuelve a copiarla en Project Settings → API |
-| Los docentes ven el panel de facilitador | No deberían. Avísame. | Verifica que el PIN esté configurado en `config.js` |
+| El mensaje «Could not find the ... column» | La tabla se creó con otro esquema | Borra la tabla en Supabase y vuelve a correr `supabase.sql` completo |
+| Conectados en 0 aunque haya gente dentro | El websocket se suspendió (móviles en segundo plano) | Al volver a la pestaña la app re-lee el estado sola. Si persiste, recarga |
+| Veo el panel de facilitador queriendo ver el de docente | El navegador recuerda tu PIN | Usa ventana de incógnito para la vista de docente, o dale **Salir** primero |
 | El dominio no carga | Certificado HTTPS pendiente | Espera. Puede tardar hasta 24 horas. Verifica que el CNAME esté en el registro. |
 | La página se ve sin estilos | Archivo CSS no subido | Revisa que `css/styles.css` esté en el repositorio |
 | El link del proyecto base da 404 | El ID cambió en Scratch | Reemplaza la URL en `config.js` |
