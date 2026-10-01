@@ -100,47 +100,58 @@
   <main id="main">
     <div class="wrap">
 
-      <!-- ============ DOCENTE: sesión en vivo ============ -->
+      <!-- ============ DOCENTE: modo presentación ============ -->
       <section class="panel" id="panelDocente" hidden>
-        <div class="sesion-actual" id="sesionActual">
-          <!-- se llena con JS -->
+        <nav class="tabs-docente" aria-label="Vistas">
+          <button class="tab-docente activa" id="tabEnVivo" type="button">📺 En vivo</button>
+          <button class="tab-docente" id="tabMateriales" type="button">📄 Materiales <span class="tab-punto" id="tabPuntoMat" hidden></span></button>
+        </nav>
+
+        <!-- Vista 1: lo que el facilitador está mostrando ahora -->
+        <div id="vistaEnVivo">
+          <div class="sesion-actual" id="sesionActual">
+            <!-- se llena con JS -->
+          </div>
+
+          <section class="bloque slide">
+            <div id="bloqueActual" class="bloque-cuerpo"></div>
+            <div id="materialDelPaso"></div>
+          </section>
+
+          <div class="progreso" id="progresoSesion" aria-label="Avance de la sesión"></div>
+
+          <footer class="pie-docente">
+            <p id="pieTexto"></p>
+          </footer>
         </div>
 
-        <section class="bloque">
-          <h2 class="bloque-tit">Ahora mismo estamos en</h2>
-          <div id="bloqueActual" class="bloque-cuerpo"></div>
-        </section>
+        <!-- Vista 2: descargas -->
+        <div id="vistaMateriales" hidden>
+          <section class="bloque">
+            <h2 class="bloque-tit">Material para descargar</h2>
+            <p class="bloque-nota">Lo marcado como «Libre» siempre está disponible. Lo demás aparece cuando el facilitador lo habilita.</p>
+            <div id="listaMateriales" class="lista-materiales"></div>
+          </section>
 
-        <section class="bloque">
-          <h2 class="bloque-tit">Todas las secciones</h2>
-          <p class="bloque-nota">El facilitador abre cada sección en el momento en que la groupa está lista. No se puede abrir antes.</p>
-          <div id="listaSecciones" class="lista-secciones"></div>
-        </section>
-
-        <section class="bloque">
-          <h2 class="bloque-tit">Material para descargar</h2>
-          <p class="bloque-nota">Lo que está marcado como «Libre» lo puedes bajar cuando quieras. Lo demás aparece cuando el facilitador lo habilita.</p>
-          <div id="listaMateriales" class="lista-materiales"></div>
-        </section>
-
-        <section class="bloque">
-          <h2 class="bloque-tit">Proyectos base de Scratch</h2>
-          <div id="listaProyectos" class="lista-materiales"></div>
-        </section>
-
-        <footer class="pie-docente">
-          <p id="pieTexto"></p>
-        </footer>
+          <section class="bloque">
+            <h2 class="bloque-tit">Proyectos base de Scratch</h2>
+            <div id="listaProyectos" class="lista-materiales"></div>
+          </section>
+        </div>
       </section>
 
       <!-- ============ FACILITADOR: control ============ -->
       <section class="panel" id="panelFacilitador" hidden>
 
-        <section class="bloque bloque-panel">
-          <h2 class="bloque-tit">Tus notas privadas</h2>
-          <p class="bloque-nota">Los docentes nunca ven esto. Es para ti.</p>
-          <div id="notasFacilitador"></div>
+        <section class="bloque bloque-vista-previa">
+          <h2 class="bloque-tit">Lo que ven los docentes ahora</h2>
+          <div id="vistaPrevia" class="vista-previa"></div>
         </section>
+
+        <details class="bloque bloque-notas">
+          <summary class="notas-resumen">📋 Tus notas privadas <span class="notas-hint">(los docentes nunca ven esto)</span></summary>
+          <div id="notasFacilitador"></div>
+        </details>
 
         <section class="bloque bloque-panel">
           <h2 class="bloque-tit">Control de la sesión</h2>
