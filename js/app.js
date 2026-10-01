@@ -40,7 +40,7 @@ function leerLS(k, def) {
 function guardarLS(k, v) {
   try {
     localStorage.setItem(k, v);
-  } catch {}
+  } catch { }
 }
 
 const $ = (s) => document.querySelector(s);

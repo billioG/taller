@@ -12,8 +12,8 @@
    ========================================================================== */
 
 const CFG = {
-  url: 'PEGAR_AQUI',        // Project URL de Supabase
-  anonKey: 'PEGAR_AQUI',    // anon public key
+  url: 'https://pjnvhdxytjxbaiwvlylj.supabase.co',        // Project URL de Supabase
+  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqbnZoZHh5dGp4YmFpd3ZseWxqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4MDI4OTMsImV4cCI6MjEwNjM3ODg5M30.lotSgYcgFJH2OqbkXje7NyaLpZh3ura2kDkDxHYMjns',    // anon public key
 };
 
 const SB_LISTO =
