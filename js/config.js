@@ -48,7 +48,7 @@ const TALLER = {
   //
   // CÁMBIALO antes de publicar. El de abajo corresponde a: 1234
   // ------------------------------------------------------------------
-  pinHash: '8853871d9d3adf0bec12d1f59a0139bc7cd5451dcc228abd40fd4f4921681e90',
+  pinHash: 'a511b1ae4d932199d30b9a3d792e0e3afb2d5dbd9c9ef94b76d4efecb3c97fe9',
 
   // Código de la sala. Todos los que entren por el link entran a la misma.
   salaPorDefecto: 'taller-1',
@@ -61,63 +61,124 @@ const TALLER = {
   },
 
   // ------------------------------------------------------------------
-  // MATERIALES DESCARGABLES
+  // MATERIALES DESCARGABLES — VERSIÓN PARTICIPANTE (lo que ven los docentes)
   // ------------------------------------------------------------------
-  // Cambia la URL de los proyectos base por los tuyos reales de Scratch.
   materiales: {
     'guia-participante': {
       titulo: 'Guía del participante',
-      desc: 'Qué va a hacer, qué necesita traer y qué NO se hace en el taller.',
-      archivo: 'material/guia-participante.html',
+      desc: 'Qué vas a hacer, qué traer y qué NO haremos.',
+      archivo: 'material/participantes/guia-participante.html',
       libre: true,
       momento: 'Antes de la sesión 1',
     },
     'hoja-de-bloques': {
       titulo: 'Hoja de referencia de bloques',
-      desc: 'Todos los bloques del taller en una sola hoja. Imprímala y téngala al lado.',
-      archivo: 'material/hoja-de-bloques.html',
+      desc: 'Todos los bloques del taller en una hoja. Imprímela y tenla al lado.',
+      archivo: 'material/participantes/hoja-de-bloques.html',
       libre: true,
       momento: 'Para toda la sesión',
     },
     'tarjetas-de-bloques': {
       titulo: 'Tarjetas de bloques',
-      desc: 'Para imprimir en tamaño grande y recortar. Se usan en la sesión 1.',
-      archivo: 'material/tarjetas-de-bloques.html',
+      desc: 'Para imprimir grande y recortar. Se usan en la sesión 1.',
+      archivo: 'material/participantes/tarjetas-de-bloques.html',
       libre: false,
       momento: 'Sesión 1',
     },
     'plan-de-clase': {
       titulo: 'Plan de una clase',
       desc: 'El formato que llenas en la sesión 4 para llevar tu proyecto al aula.',
-      archivo: 'material/plan-de-clase.html',
+      archivo: 'material/participantes/plan-de-clase.html',
       libre: false,
       momento: 'Sesión 4',
     },
     'rubrica': {
-      titulo: 'Rúbrica de autoevaluación',
-      desc: 'Para revisar tu propio proyecto antes de presentarlo.',
-      archivo: 'material/rubrica.html',
+      titulo: 'Mi rúbrica',
+      desc: 'Para revisar tu propio proyecto antes de mostrarlo.',
+      archivo: 'material/participantes/rubrica.html',
       libre: false,
       momento: 'Sesión 4',
     },
     'encuesta-salida': {
       titulo: 'Encuesta de salida',
       desc: 'Cinco preguntas. Se llena el último día.',
-      archivo: 'material/encuesta-salida.html',
+      archivo: 'material/participantes/encuesta-salida.html',
       libre: false,
       momento: 'Sesión 4',
     },
     'encuesta-30-dias': {
-      titulo: 'Encuesta de seguimiento a 30 días',
-      desc: 'Para mandarla tres semanas después de la última sesión.',
-      archivo: 'material/encuesta-30-dias.html',
+      titulo: 'Seguimiento a 30 días',
+      desc: 'Para enviarla tres semanas después.',
+      archivo: 'material/participantes/encuesta-30-dias.html',
       libre: false,
       momento: 'Después del taller',
     },
     'certificado': {
-      titulo: 'Certificado de finalización',
-      desc: 'Para imprimir en tamaño carta y firmar.',
-      archivo: 'material/certificado.html',
+      titulo: 'Certificado',
+      desc: 'Para imprimir en carta y firmar.',
+      archivo: 'material/participantes/certificado.html',
+      libre: false,
+      momento: 'Sesión 4',
+    },
+  },
+
+  // ------------------------------------------------------------------
+  // MATERIALES — VERSIÓN FACILITADOR (con notas de guiado, tiempos, respuestas)
+  // ------------------------------------------------------------------
+  materialesFacilitador: {
+    'guia-participante': {
+      titulo: 'Guía del participante (facilitador)',
+      desc: 'Versión con notas de timing, respuestas esperadas y tips.',
+      archivo: 'material/facilitador/guia-participante.html',
+      libre: true,
+      momento: 'Antes de la sesión 1',
+    },
+    'hoja-de-bloques': {
+      titulo: 'Hoja de referencia (facilitador)',
+      desc: 'Versión con notas de qué enfatizar y errores comunes.',
+      archivo: 'material/facilitador/hoja-de-bloques.html',
+      libre: true,
+      momento: 'Para toda la sesión',
+    },
+    'tarjetas-de-bloques': {
+      titulo: 'Tarjetas de bloques (facilitador)',
+      desc: 'Incluye guía de cómo conducir la actividad con las tarjetas.',
+      archivo: 'material/facilitador/tarjetas-de-bloques.html',
+      libre: false,
+      momento: 'Sesión 1',
+    },
+    'plan-de-clase': {
+      titulo: 'Plan de una clase (facilitador)',
+      desc: 'Con ejemplos completos, rúbrica de corrección y plan B tipo.',
+      archivo: 'material/facilitador/plan-de-clase.html',
+      libre: false,
+      momento: 'Sesión 4',
+    },
+    'rubrica': {
+      titulo: 'Rúbrica (facilitador)',
+      desc: 'Con criterios de calificación detallados y ejemplos de cada nivel.',
+      archivo: 'material/facilitador/rubrica.html',
+      libre: false,
+      momento: 'Sesión 4',
+    },
+    'encuesta-salida': {
+      titulo: 'Encuesta de salida (facilitador)',
+      desc: 'Con guía de interpretación de respuestas para el nivel 2.',
+      archivo: 'material/facilitador/encuesta-salida.html',
+      libre: false,
+      momento: 'Sesión 4',
+    },
+    'encuesta-30-dias': {
+      titulo: 'Seguimiento a 30 días (facilitador)',
+      desc: 'Con plantilla de análisis de resultados y decisiones.',
+      archivo: 'material/facilitador/encuesta-30-dias.html',
+      libre: false,
+      momento: 'Después del taller',
+    },
+    'certificado': {
+      titulo: 'Certificado (facilitador)',
+      desc: 'Igual que el del participante, para que lo revises antes.',
+      archivo: 'material/facilitador/certificado.html',
       libre: false,
       momento: 'Sesión 4',
     },

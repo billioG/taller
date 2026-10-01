@@ -93,8 +93,12 @@ function init() {
   $('#puertaSub').textContent = TALLER.subtitulo;
   app.sala = salaDeUrl();
 
-  // Si ya se entró antes con el PIN, se salta la puerta.
-  if (pinGuardado()) {
+  // --- Auto-entrada si ya hay sesión guardada ---
+  const rolGuardado = leerLS(LS.rol, '');
+  const nombreGuardado = leerLS(LS.nombre, '');
+
+  if (pinGuardado() && (rolGuardado === 'facilitador' || !rolGuardado)) {
+    // Facilitador: PIN guardado tiene prioridad
     app.rol = 'facilitador';
     app.nombre = 'Facilitador';
     app.clave = leerLS(LS.clave, '');
@@ -102,8 +106,17 @@ function init() {
     return;
   }
 
-  const guardado = leerLS(LS.nombre, '');
-  if (guardado) $('#inpNombreDocente').value = guardado;
+  if (rolGuardado === 'docente' && nombreGuardado) {
+    // Docente: rol + nombre guardados
+    app.rol = 'docente';
+    app.nombre = nombreGuardado;
+    app.seccionesVistas = JSON.parse(leerLS(LS.seccionesVistas, '[]'));
+    entrar();
+    return;
+  }
+
+  // --- Primera vez: mostrar puerta ---
+  if (nombreGuardado) $('#inpNombreDocente').value = nombreGuardado;
 
   if (!SB_LISTO) {
     const a = $('#puertaAviso');
@@ -118,6 +131,7 @@ function init() {
     e.preventDefault();
     app.rol = 'docente';
     app.nombre = $('#inpNombreDocente').value.trim() || 'Docente';
+    guardarLS(LS.rol, 'docente');
     guardarLS(LS.nombre, app.nombre);
     app.seccionesVistas = JSON.parse(leerLS(LS.seccionesVistas, '[]'));
     entrar();
@@ -150,6 +164,7 @@ function init() {
     }
 
     guardarLS(LS.pinHash, hash);
+    guardarLS(LS.rol, 'facilitador');
     app.rol = 'facilitador';
     app.nombre = 'Facilitador';
     app.clave = pin;
@@ -164,6 +179,8 @@ function init() {
     clearInterval(app.timer.iv);
     guardarLS(LS.pinHash, '');
     guardarLS(LS.clave, '');
+    guardarLS(LS.rol, '');
+    // NO borramos LS.nombre para que la próxima vez solo dé Enter
     location.reload();
   });
 }
@@ -628,7 +645,10 @@ function renderControlMateriales() {
   const cont = $('#controlMateriales');
   cont.innerHTML = '';
 
-  Object.entries(TALLER.materiales).forEach(([id, m]) => {
+  // El facilitador ve su versión con notas
+  const fuente = TALLER.materialesFacilitador || TALLER.materiales;
+
+  Object.entries(fuente).forEach(([id, m]) => {
     const a = el('a', 'mat' + (m.libre ? ' libre' : ''));
     a.href = m.archivo;
     a.target = '_blank';
