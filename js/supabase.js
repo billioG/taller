@@ -16,10 +16,13 @@ const CFG = {
   anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqbnZoZHh5dGp4YmFpd3ZseWxqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4MDI4OTMsImV4cCI6MjEwNjM3ODg5M30.lotSgYcgFJH2OqbkXje7NyaLpZh3ura2kDkDxHYMjns',    // anon public key
 };
 
+// La anonKey es un JWT (empieza con "eyJ..."), NO una URL: se valida por largo.
 const SB_LISTO =
   /^https?:\/\//.test(CFG.url) &&
-  /^https?:\/\//.test(CFG.anonKey) &&
-  !CFG.url.includes('PEGAR_AQUI');
+  typeof CFG.anonKey === 'string' &&
+  CFG.anonKey.length > 20 &&
+  !CFG.url.includes('PEGAR_AQUI') &&
+  !CFG.anonKey.includes('PEGAR_AQUI');
 
 let sb = null;
 
@@ -53,7 +56,6 @@ async function crearEstado(sala, clave, patch = {}) {
     clave,
     seccion_actual: 's1',
     mensaje: '',
-    iniciado: false,
     ...patch,
   };
   const { data, error } = await sb.from(TABLA).insert(fila).select().single();
@@ -94,40 +96,57 @@ async function guardarEstado(sala, clave, patch) {
 }
 
 /**
- * Canal en vivo de una sala.
- * - `alEstado` recibe la fila cuando el facilitador avanza de sección.
+ * Canal en vivo de una sala. Usa Broadcast + Presence.
+ *
+ * - `alEstado` recibe la fila cuando el facilitador avanza (llega por
+ *   broadcast en <1s, sin configurar nada en el dashboard).
  * - `alPresencia` recibe el arreglo de nombres conectados, en vivo.
+ * - La base de datos queda como respaldo: quien entra tarde lee el estado
+ *   con leerEstado(). No hay que activar Replication en Supabase.
  */
 function suscribir(sala, nombreDocente, alEstado, alPresencia, alCambiarConexion) {
   const canal = sb
     .channel('sala:' + sala, {
-      config: { presence: { key: String(Date.now()) + Math.random().toString(36).slice(2, 8) } },
+      config: {
+        broadcast: { self: false },
+        presence: { key: String(Date.now()) + Math.random().toString(36).slice(2, 8) },
+      },
     })
-    .on(
-      'postgres_changes',
-      { event: '*', schema: 'public', table: TABLA, filter: 'sala=eq.' + sala },
-      (payload) => {
-        if (payload.eventType !== 'DELETE' && payload.new) alEstado(payload.new);
-      }
-    )
+    .on('broadcast', { event: 'estado' }, ({ payload }) => {
+      if (payload && payload.seccion_actual) alEstado(payload);
+    })
     .on('presence', { event: 'sync' }, () => {
       const estado = canal.presenceState();
       const nombres = [];
-      for (const clave in estado) {
-        const regs = estado[clave];
-        if (regs && regs.length && regs[0].nombre) nombres.push(regs[0].nombre);
+      for (const k in estado) {
+        const regs = estado[k];
+        if (regs && regs.length) {
+          for (const r of regs) {
+            if (r && r.nombre) nombres.push(r.nombre);
+          }
+        }
       }
       alPresencia(nombres);
     })
-    .on('presence', { event: 'join' }, () => {
-      alCambiarConexion && alCambiarConexion(true);
-    })
     .subscribe(async (estatus) => {
       if (estatus === 'SUBSCRIBED') {
-        await canal.track({ nombre: nombreDocente, desde: Date.now() });
+        try {
+          await canal.track({ nombre: nombreDocente || 'Docente', desde: Date.now() });
+        } catch {}
         if (alCambiarConexion) alCambiarConexion(true);
+      }
+      if (estatus === 'CHANNEL_ERROR' || estatus === 'TIMED_OUT') {
+        if (alCambiarConexion) alCambiarConexion(false);
       }
     });
 
   return canal;
+}
+
+/** El facilitador avisa a todos al instante después de guardar en la base. */
+async function emitirEstado(canal, estado) {
+  if (!canal || !estado) return;
+  try {
+    await canal.send({ type: 'broadcast', event: 'estado', payload: estado });
+  } catch {}
 }

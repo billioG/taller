@@ -96,6 +96,7 @@ function init() {
   // Si ya se entró antes con el PIN, se salta la puerta.
   if (pinGuardado()) {
     app.rol = 'facilitador';
+    app.nombre = 'Facilitador';
     app.clave = leerLS(LS.clave, '');
     entrar();
     return;
@@ -150,6 +151,7 @@ function init() {
 
     guardarLS(LS.pinHash, hash);
     app.rol = 'facilitador';
+    app.nombre = 'Facilitador';
     app.clave = pin;
     guardarLS(LS.clave, pin);
     $('#inpPin').value = '';
@@ -184,7 +186,9 @@ function entrar() {
     conectar();
   } else {
     $('#panelDocente').hidden = false;
-    renderSeccionesDocente();
+    conectarTabsDocente();
+    renderProgreso();
+    renderMaterialDelPaso();
     renderMaterialesDocente();
     renderProyectos();
     conectar();
@@ -221,7 +225,10 @@ async function conectar() {
     (estado) => {
       app.estado = estado;
       if (app.rol === 'docente') aplicarEstado();
-      if (app.rol === 'facilitador') marcarSeccionActual(estado.seccion_actual, estado.bloque_actual);
+      if (app.rol === 'facilitador') {
+        marcarSeccionActual(estado.seccion_actual, estado.bloque_actual);
+        renderVistaPrevia();
+      }
     },
     (nombres) => {
       app.conectados = nombres;
@@ -232,7 +239,7 @@ async function conectar() {
         $('#txtConectados').textContent = nombres.length;
       }
     },
-    () => setConexion('ok', 'En vivo')
+    (vivo) => setConexion(vivo ? 'ok' : 'mal', vivo ? 'En vivo' : 'Reconectando…')
   );
 
   // Cargar el estado actual una sola vez
@@ -241,7 +248,10 @@ async function conectar() {
     if (previo) {
       app.estado = previo;
       if (app.rol === 'docente') aplicarEstado();
-      if (app.rol === 'facilitador') marcarSeccionActual(previo.seccion_actual, previo.bloque_actual);
+      if (app.rol === 'facilitador') {
+        marcarSeccionActual(previo.seccion_actual, previo.bloque_actual);
+        renderVistaPrevia();
+      }
     } else if (app.rol === 'facilitador') {
       // El facilitador crea la sala si no existe
       if (app.clave) {
@@ -284,7 +294,8 @@ function aplicarEstado() {
     app.seccionesVistas = e.secciones_vistas;
   }
 
-  renderSeccionesDocente();
+  renderProgreso();
+  renderMaterialDelPaso();
   renderMaterialesDocente();
   renderSesionActual();
 }
@@ -337,48 +348,95 @@ function renderSesionActual() {
     bc.appendChild(ul);
   }
 
-  // Los proyectos base solo aparecen en la sesión 1
-  const pbs = $('#listaProyectos').closest('.bloque');
-  if (pbs) pbs.hidden = sec.numero !== 1;
+  // Los proyectos base siempre visibles en la pestaña Materiales
 }
 
-function renderSeccionesDocente() {
-  const cont = $('#listaSecciones');
+/** Pestañas En vivo / Materiales del docente. */
+function conectarTabsDocente() {
+  const tVivo = $('#tabEnVivo');
+  const tMat = $('#tabMateriales');
+  if (!tVivo || tVivo.dataset.listo) return;
+  tVivo.dataset.listo = '1';
+  const mostrar = (vivo) => {
+    $('#vistaEnVivo').hidden = !vivo;
+    $('#vistaMateriales').hidden = vivo;
+    tVivo.classList.toggle('activa', vivo);
+    tMat.classList.toggle('activa', !vivo);
+    if (!vivo) $('#tabPuntoMat').hidden = true;
+  };
+  tVivo.addEventListener('click', () => mostrar(true));
+  tMat.addEventListener('click', () => mostrar(false));
+  window.__irAMateriales = () => mostrar(false);
+}
+
+/** Tira compacta de avance: 4 sesiones + pasos de la actual. Sin scroll. */
+function renderProgreso() {
+  const cont = $('#progresoSesion');
+  if (!cont) return;
   cont.innerHTML = '';
-  const idActual = app.estado && app.estado.seccion_actual;
 
+  const idActual = app.estado?.seccion_actual;
   TALLER.secciones.forEach((s) => {
-    const abierta = app.seccionesVistas.includes(s.id);
-    const esActual = s.id === idActual;
-
-    const div = el('div', 'sec');
-    if (abierta) div.classList.add('abierta');
-    if (esActual) div.classList.add('actual');
-
-    div.appendChild(el('span', 'sec-num', String(s.numero)));
-
-    const cuerpo = el('div', 'sec-cuerpo');
-    cuerpo.appendChild(el('h3', 'sec-tit', s.titulo));
-    cuerpo.appendChild(el('p', 'sec-concepto', s.concepto));
-
-    let estadoTxt, estadoCls;
-    if (esActual) {
-      estadoTxt = '◀ Está viendo esta';
-      estadoCls = 'actual';
-    } else if (abierta) {
-      estadoTxt = '✓ Abierta';
-      estadoCls = 'abierta';
-    } else {
-      estadoTxt = '🔒 Se abre cuando el facilitador indique';
-      estadoCls = 'cerrada';
-    }
-    const est = el('span', 'sec-estado ' + estadoCls, estadoTxt);
-    cuerpo.appendChild(est);
-    div.appendChild(cuerpo);
-
-    cont.appendChild(div);
+    const b = el('span', 'prog-sec' + (s.id === idActual ? ' actual' : '') + (app.seccionesVistas.includes(s.id) ? ' abierta' : ''));
+    b.textContent = s.numero;
+    b.title = s.titulo;
+    cont.appendChild(b);
   });
+
+  const sec = TALLER.secciones.find((s) => s.id === idActual) || TALLER.secciones[0];
+  let idx = sec.bloques.findIndex((x) => x.id === app.estado?.bloque_actual);
+  if (idx < 0) idx = 0;
+  const pasos = el('span', 'prog-pasos', 'Paso ' + (idx + 1) + ' de ' + sec.bloques.length);
+  cont.appendChild(pasos);
 }
+
+/** Botones de descarga del material que toca en este paso, sin cambiar de pestaña. */
+function renderMaterialDelPaso() {
+  const cont = $('#materialDelPaso');
+  if (!cont) return;
+  cont.innerHTML = '';
+
+  const secId = app.estado?.seccion_actual;
+  const ids = MATERIALES_POR_SECCION[secId] || [];
+  const disponibles = ids.filter((id) => TALLER.materiales[id]);
+  if (!disponibles.length) return;
+
+  cont.appendChild(el('h3', 'matpaso-tit', '📄 Descarga lo de este paso'));
+  disponibles.forEach((id) => {
+    const m = TALLER.materiales[id];
+    const a = el('a', 'btn primary btn-mini');
+    a.href = m.archivo;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.textContent = '⬇ ' + m.titulo;
+    cont.appendChild(a);
+  });
+
+  // Avisar en la pestaña Materiales que hay algo nuevo
+  const punto = $('#tabPuntoMat');
+  if (punto) punto.hidden = false;
+}
+
+/** Lo que ven los docentes, espejado en el panel del facilitador. */
+function renderVistaPrevia() {
+  const cont = $('#vistaPrevia');
+  if (!cont || !app.estado) return;
+  const sec = TALLER.secciones.find((s) => s.id === app.estado.seccion_actual);
+  if (!sec) return;
+  let idx = sec.bloques.findIndex((b) => b.id === app.estado.bloque_actual);
+  if (idx < 0) idx = 0;
+  const bloque = sec.bloques[idx];
+  cont.innerHTML = '';
+  cont.appendChild(el('span', 'prev-kicker', 'Sesión ' + sec.numero + ' · Paso ' + (idx + 1) + ' de ' + sec.bloques.length));
+  cont.appendChild(el('strong', 'prev-tit', sec.titulo + ' — ' + bloque.titulo));
+  if (app.estado.mensaje) {
+    cont.appendChild(el('span', 'prev-aviso', '📣 ' + app.estado.mensaje));
+  }
+}
+
+/* renderSeccionesDocente() se eliminó: la vista En vivo ya no lista todas las
+   secciones (era la causa del scroll infinito). El avance se ve en
+   renderProgreso(). Se deja esta nota para no reintroducirla. */
 
 function renderMaterialesDocente() {
   const cont = $('#listaMateriales');
@@ -579,7 +637,7 @@ async function abrirSeccion(idSec, idBloque) {
     secciones_vistas: vistas,
   };
 
-  if (SB_LISTO && !clave()) {
+  if (SB_LISTO && !clave) {
     mostrarConfigError('No se encontró la clave de facilitador. Vuelve a entrar con tu PIN.');
     return;
   }
@@ -590,6 +648,8 @@ async function abrirSeccion(idSec, idBloque) {
     // Puede que la fila no exista todavía
     try {
       await crearEstado(app.sala, clave, patch);
+      app.estado = { ...(app.estado || {}), ...patch };
+      await emitirEstado(app.canal, app.estado);
     } catch (e2) {
       mostrarConfigError(e2.message);
       return;
@@ -597,6 +657,7 @@ async function abrirSeccion(idSec, idBloque) {
   }
   marcarSeccionActual(idSec, bloque ? bloque.id : null);
   guardarLS(LS.clave, clave);
+  renderVistaPrevia();
 }
 
 async function escribirEstado(clave, patch) {
@@ -606,6 +667,8 @@ async function escribirEstado(clave, patch) {
     return;
   }
   app.estado = await guardarEstado(app.sala, clave, patch);
+  // Aviso instantáneo por broadcast (no depende de Replication)
+  await emitirEstado(app.canal, app.estado);
 }
 
 function renderConectados() {
@@ -736,4 +799,22 @@ function conectarControles() {
 document.addEventListener('DOMContentLoaded', () => {
   init();
   conectarControles();
+
+  // Al volver a la pestaña, releer el estado: los móviles suspenden el
+  // websocket en segundo plano y se pierden los avisos.
+  document.addEventListener('visibilitychange', async () => {
+    if (document.visibilityState !== 'visible') return;
+    if (!SB_LISTO || !sb) return;
+    try {
+      const actual = await leerEstado(app.sala);
+      if (actual) {
+        app.estado = actual;
+        if (app.rol === 'docente') aplicarEstado();
+        if (app.rol === 'facilitador') {
+          marcarSeccionActual(actual.seccion_actual, actual.bloque_actual);
+          renderVistaPrevia();
+        }
+      }
+    } catch {}
+  });
 });
