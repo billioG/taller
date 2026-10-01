@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tarjetas de bloques · Taller de Scratch</title>
+<link rel="stylesheet" href="../material.css">
+<style>
+  .hoja{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  @media (max-width:620px){ .hoja{ grid-template-columns:1fr; } }
+  .tarj{
+    border:2px solid var(--indigo); border-radius:10px;
+    padding:14px 16px; min-height:76pt;
+    display:flex; align-items:center;
+    font-size:12pt; font-weight:700; line-height:1.35;
+    break-inside:avoid; page-break-inside:avoid;
+    text-align:center; justify-content:center;
+  }
+  .t-amarillo{ background:#FFF3BF; border-color:#CC9E00; color:#5C4600; }
+  .t-azul{ background:#D6E8FF; border-color:#3373CC; color:#123A6E; }
+  .t-verde{ background:#D8F2D8; border-color:#389438; color:#14531A; }
+  .t-naranja{ background:#FFE4C7; border-color:#DB6E00; color:#7A3B00; }
+  .t-morado{ background:#E6DAFF; border-color:#774DCB; color:#3D2470; }
+  .t-turquesa{ background:#D2F2F0; border-color:#2D8E8A; color:#14504D; }
+  .instruccion{
+    background:var(--indigo-l); border-left:5px solid var(--indigo);
+    padding:13px 17px; border-radius:0 8px 8px 0; margin:14px 0 20px;
+  }
+  .instruccion p{ margin:0; }
+  .instruccion p+p{ margin-top:7px; }
+</style>
+</head>
+<body>
+
+<div class="barra">
+  <span class="barra-txt"><strong>Tarjetas de bloques</strong>Imprime en grande y recorta.</span>
+  <a href="#" onclick="window.print();return false;">⬇ Guardar como PDF</a>
+  <a class="secundario" href="../../index.html">← Volver al taller</a>
+</div>
+
+<div class="pagina">
+
+  <div class="cabecera">
+    <div>
+      <h1>Tarjetas de bloques</h1>
+      <p class="h1-sub">Sesión 1 · Úsalas antes de tocar la computadora</p>
+    </div>
+    <div class="marca">YoAprendo</div>
+  </div>
+
+  <div class="instruccion">
+    <p><strong>Para ti:</strong> ordena las tarjetas para que el personaje salude y responda. No hay una sola forma correcta. Prueba, equivócate, prueba de nuevo.</p>
+    <p><strong>Impresión:</strong> en A5 o carta, escala 100%. Recorta por las líneas.</p>
+  </div>
+
+  <h2>Juego 1 · El saludo que responde (5 tarjetas)</h2>
+  <div class="hoja">
+    <div class="tarj t-amarillo">al click en bandera verde ▶</div>
+    <div class="tarj t-azul">decir «¡Hola! ¿Cómo te llamas?» por 2 seg</div>
+    <div class="tarj t-verde">preguntar «¿Cómo te llamas?» y esperar</div>
+    <div class="tarj t-azul">decir «Hola » + respuesta por 2 seg</div>
+    <div class="tarj t-azul">decir «¡Buena respuesta!» por 1 seg</div>
+  </div>
+
+  <h2 class="salto">Juego 2 · El personaje que se mueve (5 tarjetas)</h2>
+  <div class="hoja">
+    <div class="tarj t-amarillo">al click en bandera verde ▶</div>
+    <div class="tarj t-azul">moverse 10 pasos</div>
+    <div class="tarj t-azul">girar 15° ▶</div>
+    <div class="tarj t-morado">cambiar disfraz</div>
+    <div class="tarj t-naranja">repetir 10 veces { }</div>
+  </div>
+
+  <h2>Juego 3 · El semáforo (5 tarjetas)</h2>
+  <div class="hoja">
+    <div class="tarj t-amarillo">al recibir «mensaje verde»</div>
+    <div class="tarj t-morado">cambiar disfraz a verde</div>
+    <div class="tarj t-amarillo">al recibir «mensaje rojo»</div>
+    <div class="tarj t-morado">cambiar disfraz a rojo</div>
+    <div class="tarj t-amarillo">al click del ratón</div>
+  </div>
+
+  <h2>Juego 4 · El contador (5 tarjetas)</h2>
+  <div class="hoja">
+    <div class="tarj t-turquesa">fijar [puntos] en 0</div>
+    <div class="tarj t-turquesa">cambiar [puntos] en 1</div>
+    <div class="tarj t-turquesa">cambiar [puntos] en −1</div>
+    <div class="tarj t-naranja">si < respuesta > número > entonces</div>
+    <div class="tarj t-azul">decir «Más bajo» por 1 seg</div>
+  </div>
+
+  <div class="recorte" style="margin-top:24px;">
+    <div class="rotulo">Tarjeta en blanco · escribe la tuya</div>
+    <div class="hoja" style="grid-template-columns:1fr;">
+      <div class="tarj" style="min-height:64pt; color:#999;">escribe aquí</div>
+    </div>
+  </div>
+
+  <div class="pie-pagina">
+    Taller de Programación Visual con Scratch · YoAprendo
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Certificado · Taller de Scratch</title>
+<link rel="stylesheet" href="../material.css">
+<style>
+  .cert{
+    border:3px solid var(--indigo);
+    border-radius:14px; padding:34px 38px;
+    text-align:center; margin:16px 0 20px;
+    background:linear-gradient(180deg, #FBF7EF, #fff);
+  }
+  .cert-sello{
+    font-size:10pt; text-transform:uppercase; letter-spacing:.18em;
+    color:var(--indigo); font-weight:800; margin-bottom:16px;
+  }
+  .cert-tit{ font-size:26pt; margin:0 0 4px; color:var(--indigo); letter-spacing:.02em; }
+  .cert-sub{ font-size:13pt; margin:0 0 6px; }
+  .cert-linea{
+    width:78%; margin:22px auto; border-bottom:1px solid var(--gris);
+    height:34pt; font-size:16pt;
+  }
+  .cert-modulos{
+    display:grid; grid-template-columns:1fr 1fr; gap:5px 26px;
+    text-align:left; max-width:560px; margin:20px auto 22px; font-size:10pt;
+  }
+  .cert-modulos li{ list-style:none; padding:4px 0 4px 22px; position:relative; border-bottom:1px solid var(--linea); }
+  .cert-modulos li::before{ content:"▸"; position:absolute; left:0; color:var(--indigo); }
+  .cert-dur{ font-size:11pt; margin:0 0 18px; color:var(--gris); }
+  .firmas{ display:grid; grid-template-columns:1fr 1fr; gap:34px; margin-top:34px; }
+  .firma{ border-top:1px solid var(--tinta); padding-top:6px; font-size:9.5pt; color:var(--gris); }
+  @media (max-width:620px){ .cert-modulos, .firmas{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<div class="barra">
+  <span class="barra-txt"><strong>Certificado</strong>Imprime en tamaño carta y firma.</span>
+  <a href="#" onclick="window.print();return false;">⬇ Guardar como PDF</a>
+  <a class="secundario" href="../../index.html">← Volver al taller</a>
+</div>
+
+<div class="pagina">
+
+  <div class="cert">
+    <div class="cert-sello">YoAprendo · Certifica</div>
+    <h1 class="cert-tit">Certificado de finalización</h1>
+    <p class="cert-sub">Taller de Programación Visual con Scratch</p>
+    <p class="cert-dur">4 sesiones · 8 horas</p>
+
+    <p style="margin:0;">Se otorga a</p>
+    <div class="cert-linea"></div>
+    <p style="margin:0; font-size:11pt; color:var(--gris);">Nombre del participante</p>
+
+    <p style="margin:22px 0 0; text-align:left; max-width:520px; margin-left:auto; margin-right:auto;">
+      Por haber construido un proyecto interactivo funcional sobre un contenido
+      de su propia asignatura, junto con un plan de clase para aplicarlo
+      con sus estudiantes.
+    </p>
+
+    <div class="cert-modulos">
+      <li>Construcción de un proyecto funcional</li>
+      <li>Interacción, azar y variables</li>
+      <li>Narrativa, condición y sonido</li>
+      <li>Diseño de una sesión de clase</li>
+    </div>
+
+    <div class="firmas">
+      <div class="firma">Firma del facilitador</div>
+      <div class="firma">Fecha</div>
+    </div>
+  </div>
+
+  <div class="aviso">
+    <p class="aviso-tit">Cómo usarlo</p>
+    <p>Imprime con Ctrl+P (o el botón de arriba), elige <strong>tamaño carta</strong> y guárdalo. Se entrega en la sesión 4 con la fecha escrita a mano.</p>
+  </div>
+
+  <div class="pie-pagina">
+    Taller de Programación Visual con Scratch · YoAprendo
+  </div>
+</div>
+
+</body>
+</html>
