@@ -202,8 +202,6 @@ async function conectar() {
   if (!SB_LISTO) {
     setConexion('mal', 'Sin sincronizar');
     if (app.rol === 'docente') {
-      // Sin Supabase el docente ve la primera sección desbloqueada, pero nada más:
-      // replicar el comportamiento del facilitador para no confundir.
       app.seccionesVistas = [TALLER.secciones[0].id];
       app.estado = {
         seccion_actual: TALLER.secciones[0].id,
@@ -217,12 +215,38 @@ async function conectar() {
   }
 
   setConexion('espera', 'Conectando…');
-  await initSupabase();
+
+  // Timeout de seguridad: si en 10s no conecta, cae a modo local
+  const timeoutId = setTimeout(() => {
+    if (!app.canal) {
+      setConexion('mal', 'Tiempo agotado — modo local');
+      console.warn('[taller] Supabase timeout, modo local');
+      if (app.rol === 'docente') {
+        app.seccionesVistas = [TALLER.secciones[0].id];
+        app.estado = {
+          seccion_actual: TALLER.secciones[0].id,
+          bloque_actual: TALLER.secciones[0].bloques[0].id,
+          secciones_vistas: app.seccionesVistas,
+          mensaje: leerLS(LS.mensaje, ''),
+        };
+        aplicarEstado();
+      }
+    }
+  }, 10000);
+
+  try {
+    await initSupabase();
+  } catch (e) {
+    clearTimeout(timeoutId);
+    setConexion('mal', 'Error Supabase: ' + e.message);
+    return;
+  }
 
   app.canal = suscribir(
     app.sala,
     app.nombre,
     (estado) => {
+      clearTimeout(timeoutId);
       app.estado = estado;
       if (app.rol === 'docente') aplicarEstado();
       if (app.rol === 'facilitador') {
@@ -239,10 +263,13 @@ async function conectar() {
         $('#txtConectados').textContent = nombres.length;
       }
     },
-    (vivo) => setConexion(vivo ? 'ok' : 'mal', vivo ? 'En vivo' : 'Reconectando…')
+    (vivo) => {
+      if (vivo) clearTimeout(timeoutId);
+      setConexion(vivo ? 'ok' : 'mal', vivo ? 'En vivo' : 'Reconectando…');
+    }
   );
 
-  // Cargar el estado actual una sola vez
+  // Cargar estado inicial
   try {
     const previo = await leerEstado(app.sala);
     if (previo) {
@@ -253,7 +280,6 @@ async function conectar() {
         renderVistaPrevia();
       }
     } else if (app.rol === 'facilitador') {
-      // El facilitador crea la sala si no existe
       if (app.clave) {
         await crearEstado(app.sala, app.clave, {});
         setConexion('ok', 'Sala creada');
@@ -262,6 +288,7 @@ async function conectar() {
       }
     }
   } catch (err) {
+    clearTimeout(timeoutId);
     setConexion('mal', 'Error de conexión');
     mostrarConfigError(err.message);
   }

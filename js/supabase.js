@@ -31,9 +31,14 @@ const HDR_CLAVE = 'x-taller-clave';
 
 async function initSupabase() {
   if (!SB_LISTO) return null;
-  const mod = await import('https://esm.sh/@supabase/supabase-js@2');
-  sb = mod.createClient(CFG.url, CFG.anonKey);
-  return sb;
+  try {
+    const mod = await import('https://esm.sh/@supabase/supabase-js@2');
+    sb = mod.createClient(CFG.url, CFG.anonKey);
+    return sb;
+  } catch (e) {
+    setConexion('mal', 'Error al cargar Supabase: ' + e.message);
+    throw e;
+  }
 }
 
 const TABLA = 'estado_sala';
@@ -135,10 +140,19 @@ function suscribir(sala, nombreDocente, alEstado, alPresencia, alCambiarConexion
         } catch {}
         if (alCambiarConexion) alCambiarConexion(true);
       }
-      if (estatus === 'CHANNEL_ERROR' || estatus === 'TIMED_OUT') {
+      if (estatus === 'CHANNEL_ERROR' || estatus === 'TIMED_OUT' || estatus === 'CLOSED') {
         if (alCambiarConexion) alCambiarConexion(false);
       }
     });
+
+  // Timeout interno: si en 8s no llega a SUBSCRIBED, avisamos
+  setTimeout(() => {
+    const st = canal.state;
+    if (st !== 'joined' && st !== 'joining') {
+      console.warn('[taller] Canal no suscrito tras 8s, estado:', st);
+      if (alCambiarConexion) alCambiarConexion(false);
+    }
+  }, 8000);
 
   return canal;
 }
