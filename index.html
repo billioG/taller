@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="description" content="Taller de programación visual con Scratch para docentes. Material del curso, descarga de guías y seguimiento en vivo de la sesión.">
+<title>Taller de Scratch · YoAprendo</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%232B4C8C'/%3E%3Cpath d='M14 18h20M14 24h20M14 30h12' stroke='%23E8B23A' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">Saltar al contenido</a>
+
+<!-- ==================================================================
+     ENTRADA: ¿facilitador o docente?
+     ================================================================== -->
+<section id="puerta" class="puerta">
+  <div class="puerta-caja">
+    <div class="marca">
+      <span class="marca-icono" aria-hidden="true">
+        <svg viewBox="0 0 48 48"><rect width="48" height="48" rx="12" fill="#2B4C8C"/><path d="M14 18h20M14 24h20M14 30h12" stroke="#E8B23A" stroke-width="4" stroke-linecap="round"/></svg>
+      </span>
+      <div>
+        <h1 id="puertaTitulo">Taller de Programación Visual con Scratch</h1>
+        <p id="puertaSub" class="puerta-sub">Cuatro sesiones para construir un recurso interactivo de su propia asignatura.</p>
+      </div>
+    </div>
+
+    <p class="puerta-aviso" id="puertaAviso" hidden></p>
+
+    <!-- Los docentes entran directo. Sin preguntas, sinRoles que elegir. -->
+    <form class="puerta-form" id="formDocente">
+      <label for="inpNombreDocente">¿Cómo te llamas?</label>
+      <div class="fila-form">
+        <input id="inpNombreDocente" type="text" placeholder="Escribe tu nombre" maxlength="30" autocomplete="off">
+        <button class="btn primary" type="submit">Entrar al taller</button>
+      </div>
+      <p class="puerta-nota" id="notaNombre">
+        Solo aparece en la pantalla del facilitador, para saber quién se conectó. Puedes dejarlo en blanco.
+      </p>
+    </form>
+
+    <!-- Acceso de facilitador: fuera de la vista, con PIN -->
+    <div class="acceso-facilitador">
+      <button class="btn-pin" id="btnAbrirPin" type="button">
+        <span aria-hidden="true">🔑</span> Acceso de facilitador
+      </button>
+
+      <form class="form-pin" id="formPin" hidden>
+        <label for="inpPin">PIN de facilitador</label>
+        <div class="fila-form">
+          <input id="inpPin" type="password" inputmode="numeric" placeholder="••••" autocomplete="current-password" maxlength="40">
+          <button class="btn primary" type="submit">Entrar</button>
+          <button class="btn ghost" id="btnCancelarPin" type="button">Cancelar</button>
+        </div>
+        <p class="pin-error" id="pinError" hidden>Ese PIN no es correcto.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+
+<!-- ==================================================================
+     APLICACIÓN
+     ================================================================== -->
+<div id="app" hidden>
+
+  <!-- ---------- Barra superior ---------- -->
+  <header class="topbar">
+    <div class="marca-top">
+      <span class="marca-mini" aria-hidden="true">
+        <svg viewBox="0 0 48 48"><rect width="48" height="48" rx="12" fill="#2B4C8C"/><path d="M14 18h20M14 24h20M14 30h12" stroke="#E8B23A" stroke-width="4" stroke-linecap="round"/></svg>
+      </span>
+      <div class="marca-top-txt">
+        <strong id="topTitulo">Taller de Scratch</strong>
+        <span id="topRol">Docente</span>
+      </div>
+    </div>
+
+    <div class="top-der">
+      <span class="pill" id="pillConexion" title="Estado de la sincronización">
+        <span class="punto" id="puntoConexion"></span>
+        <span id="txtConexion">Conectando…</span>
+      </span>
+      <span class="pill pill-conectados" id="pillConectados" hidden>
+        <span id="txtConectados">0</span> conectados
+      </span>
+      <button class="btn-icono" id="btnSalir" type="button" title="Salir de la sesión">Salir</button>
+    </div>
+  </header>
+
+  <!-- ---------- Aviso del facilitador ---------- -->
+  <div class="aviso-facilitador" id="aviso" hidden>
+    <span class="aviso-ico" aria-hidden="true">📣</span>
+    <span id="avisoTexto"></span>
+  </div>
+
+  <main id="main">
+    <div class="wrap">
+
+      <!-- ============ DOCENTE: sesión en vivo ============ -->
+      <section class="panel" id="panelDocente" hidden>
+        <div class="sesion-actual" id="sesionActual">
+          <!-- se llena con JS -->
+        </div>
+
+        <section class="bloque">
+          <h2 class="bloque-tit">Ahora mismo estamos en</h2>
+          <div id="bloqueActual" class="bloque-cuerpo"></div>
+        </section>
+
+        <section class="bloque">
+          <h2 class="bloque-tit">Todas las secciones</h2>
+          <p class="bloque-nota">El facilitador abre cada sección en el momento en que la groupa está lista. No se puede abrir antes.</p>
+          <div id="listaSecciones" class="lista-secciones"></div>
+        </section>
+
+        <section class="bloque">
+          <h2 class="bloque-tit">Material para descargar</h2>
+          <p class="bloque-nota">Lo que está marcado como «Libre» lo puedes bajar cuando quieras. Lo demás aparece cuando el facilitador lo habilita.</p>
+          <div id="listaMateriales" class="lista-materiales"></div>
+        </section>
+
+        <section class="bloque">
+          <h2 class="bloque-tit">Proyectos base de Scratch</h2>
+          <div id="listaProyectos" class="lista-materiales"></div>
+        </section>
+
+        <footer class="pie-docente">
+          <p id="pieTexto"></p>
+        </footer>
+      </section>
+
+      <!-- ============ FACILITADOR: control ============ -->
+      <section class="panel" id="panelFacilitador" hidden>
+
+        <section class="bloque bloque-panel">
+          <h2 class="bloque-tit">Tus notas privadas</h2>
+          <p class="bloque-nota">Los docentes nunca ven esto. Es para ti.</p>
+          <div id="notasFacilitador"></div>
+        </section>
+
+        <section class="bloque bloque-panel">
+          <h2 class="bloque-tit">Control de la sesión</h2>
+          <div class="control-mensaje">
+            <label for="inpMensaje">Mensaje para todos (aparece arriba, en grande)</label>
+            <div class="fila-form">
+              <input id="inpMensaje" type="text" placeholder="Ej: Ahora descarguen la hoja de bloques" maxlength="120">
+              <button class="btn primary" id="btnEnviarMensaje" type="button">Enviar</button>
+              <button class="btn ghost" id="btnBorrarMensaje" type="button">Quitar</button>
+            </div>
+          </div>
+
+          <div class="control-timer">
+            <h3>Cronómetro de la sesión</h3>
+            <div class="timer">
+              <output class="timer-valor" id="timerValor">00:00</output>
+              <button class="btn" id="btnTimer" type="button">Iniciar</button>
+              <button class="btn ghost" id="btnTimerReset" type="button">Reiniciar</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="bloque bloque-panel">
+          <h2 class="bloque-tit">Abrir secciones</h2>
+          <p class="bloque-nota">Haz clic en <strong>Abrir</strong> cuando estés listo. Todos los docentes saltan a esa sección al instante.</p>
+          <div id="controlSecciones" class="control-secciones"></div>
+        </section>
+
+        <section class="bloque bloque-panel">
+          <h2 class="bloque-tit">Materiales</h2>
+          <p class="bloque-nota">«Libre» significa que siempre está disponible. Los demás se abren junto con la sección que los usa.</p>
+          <div id="controlMateriales" class="control-materiales"></div>
+        </section>
+
+        <section class="bloque bloque-panel">
+          <h2 class="bloque-tit">Quién está conectado</h2>
+          <div id="listaConectados" class="lista-conectados"></div>
+        </section>
+
+        <section class="bloque bloque-panel">
+          <h2 class="bloque-tit">Conexión y enlace</h2>
+          <p class="bloque-nota" id="configEstado"></p>
+          <div class="fila-form">
+            <button class="btn primary" id="btnCopiarLink" type="button">Copiar link para docentes</button>
+            <button class="btn ghost" id="btnDebug" type="button">Probar conexión</button>
+          </div>
+        </section>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/supabase.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

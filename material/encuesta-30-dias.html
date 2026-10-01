@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Encuesta de seguimiento a 30 días · Taller de Scratch</title>
+<link rel="stylesheet" href="material.css">
+<style>
+  .op{ display:flex; gap:8px; align-items:baseline; margin-bottom:6px; }
+  .cir{ width:14pt; height:14pt; border:2px solid var(--gris); border-radius:50%; flex:none; }
+</style>
+</head>
+<body>
+
+<div class="barra">
+  <span class="barra-txt"><strong>Encuesta de seguimiento a 30 días</strong>Mándala tres semanas después de la última sesión.</span>
+  <a href="#" onclick="window.print();return false;">⬇ Guardar como PDF</a>
+  <a class="secundario" href="../index.html">← Volver al taller</a>
+</div>
+
+<div class="pagina">
+
+  <div class="cabecera">
+    <div>
+      <h1>Seguimiento a 30 días</h1>
+      <p class="h1-sub">La única pregunta que de verdad importa: ¿se usó en el aula?</p>
+    </div>
+    <div class="marca">YoAprendo</div>
+  </div>
+
+  <table>
+    <tbody>
+      <tr><td style="width:30%"><strong>Nombre</strong></td><td></td></tr>
+      <tr><td><strong>Asignatura</strong></td><td></td></tr>
+      <tr><td><strong>Fecha de esta encuesta</strong></td><td></td></tr>
+    </tbody>
+  </table>
+
+  <h2>1. ¿Implementó el proyecto en su aula?</h2>
+  <div class="op"><span class="cir"></span><span>Sí, completo</span></div>
+  <div class="op"><span class="cir"></span><span>Parcialmente</span></div>
+  <div class="op"><span class="cir"></span><span>No</span></div>
+
+  <h2>2. ¿Cuántos estudiantes lo usaron? ¿Cuántos lo completaron?</h2>
+  <table>
+    <thead><tr><th>Lo usaron</th><th>Lo completaron</th><th>Grupo</th></tr></thead>
+    <tbody class="tabla-vacia"><tr><td></td><td></td><td></td></tr></tbody>
+  </table>
+
+  <h2>3. ¿Qué encontró al usarlo?</h2>
+  <p style="color:var(--gris); font-size:10pt;">Una o dos frases. Lo que pasó, no lo que esperaba.</p>
+  <div class="lineas"><div class="c"></div><div class="c"></div><div class="c"></div><div class="c"></div></div>
+
+  <h2>4. ¿Lo volvería a usar, o haría una versión mejor?</h2>
+  <div class="op"><span class="cir"></span><span>Sí, tal cual</span></div>
+  <div class="op"><span class="cir"></span><span>Sí, con cambios</span></div>
+  <div class="op"><span class="cir"></span><span>No</span></div>
+  <div class="op"><span class="cir"></span><span>Todavía no sé</span></div>
+
+  <h2>5. ¿Qué fue lo más difícil de llevar a tu aula?</h2>
+  <div class="lineas"><div class="c"></div><div class="c"></div></div>
+
+  <div class="aviso aviso-verde">
+    <p class="aviso-tit">Lo que se busca con esta encuesta</p>
+    <p>No el resultado perfecto. Se busca entender por qué el 70% lo implementó y el 30% no. Esa diferencia es la que dice si el taller funcionó.</p>
+  </div>
+
+  <div class="pie-pagina">
+    Taller de Programación Visual con Scratch · YoAprendo
+  </div>
+</div>
+
+</body>
+</html>
