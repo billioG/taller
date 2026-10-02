@@ -46,6 +46,14 @@ create table if not exists public.sala_claves (
   clave_hash text not null
 );
 
+-- Evita interbloqueos (deadlock) si la app está en uso mientras se ejecuta este script:
+-- se toman los bloqueos de las dos tablas en el MISMO orden que usan las políticas
+-- (estado_sala primero, sala_claves después) y se mantienen hasta el final.
+-- Si hay mucho tráfico, espera hasta 60 s en lugar de fallar.
+set local lock_timeout = '60s';
+lock table public.estado_sala in access exclusive mode;
+lock table public.sala_claves in access exclusive mode;
+
 -- --------------------------------------------------------------------------
 -- 2. Migración desde la versión anterior (columna `clave` en texto plano)
 --    Se conserva el PIN actual convertido a hash y se elimina la columna.
