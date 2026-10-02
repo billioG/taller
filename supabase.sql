@@ -289,6 +289,11 @@ alter table public.estado_sala drop constraint if exists frases_estado_tamano;
 alter table public.estado_sala add  constraint frases_estado_tamano
   check (pg_column_size(frases_estado) <= 500) not valid;
 
+alter table public.estado_sala add column if not exists materiales_abiertos text[] not null default '{}';
+alter table public.estado_sala drop constraint if exists materiales_abiertos_tamano;
+alter table public.estado_sala add  constraint materiales_abiertos_tamano
+  check (cardinality(materiales_abiertos) <= 40) not valid;
+
 -- Un voto por participante y encuesta (puede cambiarlo mientras esté abierta).
 create table if not exists public.encuesta_votos (
   sala    text not null,

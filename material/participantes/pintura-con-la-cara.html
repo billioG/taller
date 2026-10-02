@@ -243,6 +243,31 @@
   .turn-banner.wait{background:#eef1f6;color:#5b6472;}
   @keyframes glow{50%{filter:brightness(1.13);}}
   #pool.disabled{opacity:.5;pointer-events:none;}
+  #raceSetup,#raceHost{display:none;}
+  .online-grid{grid-template-columns:repeat(auto-fit,minmax(220px,1fr));}
+  .field .radio{display:flex;gap:10px;align-items:flex-start;text-transform:none;letter-spacing:0;font-size:.95rem;
+    font-weight:500;color:var(--ink);margin:8px 0;cursor:pointer;}
+  .field .radio input{width:auto;margin-top:4px;flex:none;}
+  .field select{width:100%;border:2px solid #dde3ec;border-radius:12px;padding:12px 14px;font:inherit;background:#fff;}
+  .race-head{display:flex;gap:20px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;}
+  .pin-box.race-code{margin:0;min-width:230px;padding:16px 18px;}
+  .pin-box.race-code .pin{font-size:2.4rem;letter-spacing:8px;}
+  .pin-box.race-code .qr-room{width:140px;height:140px;}
+  .race-rank{display:none;}
+  body.is-racer .race-rank{display:block;border-radius:14px;padding:12px 18px;font-weight:800;text-align:center;
+    background:var(--brand-l);color:var(--brand-d);margin:0 0 14px;border:2px solid var(--brand);}
+  body.is-racer #btnSolution, body.is-racer #btnReset, body.is-racer #final .controls,
+  body.is-racer .opciones-fac, body.is-player .opciones-fac{display:none !important;}
+  #raceBoard table{margin:14px 0;}
+  #raceBoard td.n, #raceBoard th.n{text-align:center;white-space:nowrap;}
+  .rdots{display:inline-flex;gap:3px;}
+  .rdots i{width:12px;height:12px;border-radius:50%;background:#e5eaf2;display:inline-block;}
+  .rdots i.on{background:var(--brand);}
+  .rdots i.fin{background:var(--good);}
+  .race-chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;}
+  .race-chips span{background:var(--brand-l);color:var(--brand-d);border-radius:999px;padding:6px 14px;font-weight:700;font-size:.9rem;}
+  .rf-top{text-align:left;margin:10px auto 16px;max-width:360px;padding-left:22px;}
+  .rf-top li.yo{font-weight:900;color:var(--brand);}
 
   /* ---------- MODAL ---------- */
   .overlay{position:fixed;inset:0;background:rgba(20,30,50,.55);display:none;align-items:center;
@@ -359,10 +384,15 @@
     <p class="setup-lead">Cada equipo juega <b>desde su propio celular o computadora</b>, como en Kahoot.
     El docente crea la sala y proyecta su pantalla; los equipos entran con el código.</p>
     <div class="online-grid">
+      <button class="online-card" id="cardRace" type="button">
+        <div class="big">🏁</div>
+        <h3>Crear competencia</h3>
+        <p>Cada quien juega solo, desde su dispositivo, contra el reloj. Ranking en vivo en tu pantalla.</p>
+      </button>
       <button class="online-card" id="cardHost" type="button">
         <div class="big">📡</div>
-        <h3>Crear sala</h3>
-        <p>Soy el docente: genero el código, proyecto la pantalla y dirijo los turnos.</p>
+        <h3>Sala por equipos</h3>
+        <p>Los equipos juegan por turnos desde su dispositivo; tú proyectas y diriges.</p>
       </button>
       <button class="online-card" id="cardJoin" type="button">
         <div class="big">📱</div>
@@ -372,6 +402,60 @@
     </div>
     <div class="setup-err" id="onlineErr" role="alert"></div>
     <div class="controls"><button class="btn ghost" id="btnOnlineBack" type="button">← Volver</button></div>
+  </div>
+</div>
+
+<!-- COMPETENCIA: opciones -->
+<div id="raceSetup">
+  <div class="setup-card">
+    <h2>🏁 Competencia contra reloj</h2>
+    <p class="setup-lead">Cada participante entra con el código o el QR y juega los 7 niveles <b>solo, en su dispositivo</b>.
+    Suma estrellas y bonus de velocidad; tu pantalla muestra el ranking en vivo.</p>
+    <div class="field">
+      <label>¿Cómo empieza?</label>
+      <label class="radio"><input type="radio" name="raceStart" value="sync" checked> <span><b>Todos a la vez.</b> Entran y esperan; tú pulsas «Comenzar» y arrancan juntos.</span></label>
+      <label class="radio"><input type="radio" name="raceStart" value="free"> <span><b>Conforme se conecten.</b> Cada quien empieza en cuanto entra; el reloj corre desde su inicio.</span></label>
+    </div>
+    <div class="field">
+      <label for="raceTime">Tiempo por nivel</label>
+      <select id="raceTime">
+        <option value="30">30 segundos</option>
+        <option value="60" selected>60 segundos</option>
+        <option value="90">90 segundos</option>
+        <option value="0">Sin límite</option>
+      </select>
+    </div>
+    <div class="setup-err" id="raceErr" role="alert"></div>
+    <div class="controls">
+      <button class="btn primary" id="btnRaceCreate" type="button">📡 Crear sala</button>
+      <button class="btn ghost" id="btnRaceBack" type="button">← Volver</button>
+    </div>
+  </div>
+</div>
+
+<!-- COMPETENCIA: pantalla del docente -->
+<div id="raceHost">
+  <div class="setup-card">
+    <div class="race-head">
+      <div>
+        <h2>🏁 Competencia <span class="net-status" id="raceNet">conectando…</span></h2>
+        <p class="setup-lead" id="raceMode"></p>
+      </div>
+      <div class="pin-box race-code">
+        <div class="qr-room" id="raceQR" aria-label="Código QR para unirse"></div>
+        <div class="pin-label">CÓDIGO</div>
+        <div class="pin" id="raceCode">------</div>
+        <div class="url" id="raceUrl"></div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn primary" id="btnRaceStart" type="button">▶ ¡Comenzar!</button>
+      <button class="btn warn" id="btnRaceEnd" type="button">🏁 Terminar y mostrar podio</button>
+      <button class="btn ghost" id="btnRaceClose" type="button">✕ Cerrar sala</button>
+      <span class="clock on" id="raceClock" style="display:none">⏱️ 0:00</span>
+    </div>
+    <div id="racePodium"></div>
+    <div id="raceBoard"></div>
   </div>
 </div>
 
@@ -406,11 +490,11 @@
       <input id="jCode" maxlength="6" placeholder="Ej: K7P2QD" autocomplete="off" autocapitalize="characters" style="text-transform:uppercase;font-weight:800;letter-spacing:.15em">
     </div>
     <div class="field">
-      <label for="jTeam">Nombre del equipo</label>
-      <input id="jTeam" maxlength="18" placeholder="Ej: Los Pinceles" autocomplete="off">
+      <label for="jTeam">Tu nombre (o el de tu equipo)</label>
+      <input id="jTeam" maxlength="18" placeholder="Ej: Ana López o Los Pinceles" autocomplete="off">
     </div>
     <div class="field">
-      <label>Integrantes (3 o 4)</label>
+      <label>Integrantes <span style="text-transform:none;font-weight:600">(solo si juegas por equipos: 3 o 4)</span></label>
       <div id="jMems">
         <input class="j-mem" placeholder="Integrante 1" maxlength="20" autocomplete="off">
         <input class="j-mem" placeholder="Integrante 2" maxlength="20" autocomplete="off">
@@ -436,6 +520,7 @@
   </div>
 </div>
 
+<div class="race-rank" id="raceRank" role="status" aria-live="polite"></div>
 <!-- HUD -->
 <div class="hud" id="hud">
   <div class="dots" id="dots"></div>
@@ -512,6 +597,17 @@
 </div>
 
 <footer>🎨 Pintura con la cara · Yo Aprendo · Desafío interactivo para talleres docentes · Scratch 4</footer>
+</div>
+
+<!-- COMPETENCIA: resultado para participantes -->
+<div class="overlay" id="raceFinalOv">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="rfTitulo">
+    <h2 id="rfTitulo">🏁 ¡Competencia terminada!</h2>
+    <div class="stars" id="rfMedal" style="letter-spacing:0"></div>
+    <p id="rfMsg"></p>
+    <ol class="rf-top" id="rfTop"></ol>
+    <button class="btn primary" id="rfCerrar" type="button">Cerrar</button>
+  </div>
 </div>
 
 <!-- MODAL -->
@@ -1355,7 +1451,6 @@ function playerJoin(){
   const errs=[];
   if(code.length!==6) errs.push("El código tiene 6 caracteres.");
   if(!name) errs.push("Escribe el nombre del equipo.");
-  if(members.length<3) errs.push("Escribe 3 o 4 integrantes.");
   if(errs.length){ errBox("joinErr",errs); return; }
   let sbc; try{ sbc=netClient(); }catch(e){ errBox("joinErr",[e.message]); return; }
   netLeave(true);
@@ -1367,13 +1462,16 @@ function playerJoin(){
     .on("broadcast",{event:"joinres"},({payload})=>{
       if(!payload || payload.tid!==net.tid) return;
       answered=true; done(); net.last=Date.now();
-      if(payload.ok) playerEnterWaiting(payload.name||name);
+      if(payload.ok){ if(payload.kind==="race") raceEnter(payload,name); else playerEnterWaiting(payload.name||name); }
       else { errBox("joinErr",[payload.err||"No se pudo entrar."]); netLeave(true); }
     })
     .on("broadcast",{event:"lobby"},({payload})=>{ net.last=Date.now(); if(payload) playerOnLobby(payload); })
     .on("broadcast",{event:"state"},({payload})=>{ net.last=Date.now(); if(payload) playerOnState(payload); })
     .on("broadcast",{event:"tick"},({payload})=>{ net.last=Date.now(); if(payload&&net.role==="player"&&net.started){ timeLeft=+payload.timeLeft||0; timeUp=!!payload.timeUp; renderClock(); } })
     .on("broadcast",{event:"closed"},()=>{ playerKicked("El docente cerró la sala."); })
+    .on("broadcast",{event:"go"},({payload})=>{ net.last=Date.now(); if(net.kind==="race") raceBegin(payload||{}); })
+    .on("broadcast",{event:"board"},({payload})=>{ net.last=Date.now(); if(net.kind==="race"&&payload) raceOnBoard(payload); })
+    .on("broadcast",{event:"final"},({payload})=>{ net.last=Date.now(); if(net.kind==="race"&&payload) raceOnFinal(payload); })
     .subscribe(st=>{
       if(st==="SUBSCRIBED") netSend("join",{tid:net.tid,name,members});
       else if(st==="CHANNEL_ERROR"||st==="TIMED_OUT"){ done(); errBox("joinErr",["No se pudo conectar con el servidor."]); }
@@ -1389,10 +1487,12 @@ function playerEnterWaiting(name){
   clearInterval(net.watch);
   net.watch = setInterval(()=>{
     if(net.role!=="player") return;
+    if(net.kind==="race" && race.active){ if(Date.now()-net.last>20000) byId("raceRank").textContent="⚠️ Sin señal del docente… tu avance se guarda y se reenvía al volver"; return; }
     if(Date.now()-net.last>12000){ const b=byId("turnBanner"); b.className="turn-banner wait"; b.textContent="⚠️ Sin señal del docente… reconectando"; byId("waitMsg").textContent="⚠️ Sin señal del docente… reconectando"; }
   }, 4000);
 }
 function playerOnLobby(l){
+  if(l && l.kind==="race"){ raceOnLobby(l); return; }
   if(net.started) return;
   drawTeamChips(byId("waitTeams"), (l.teams||[]).map(t=>({name:clean(t.name),color:/^#[0-9a-fA-F]{6}$/.test(t.color)?t.color:"#2B4C8C",members:(t.members||[]).map(clean)})));
 }
@@ -1546,6 +1646,251 @@ window.addEventListener("beforeunload", ()=>{ if(net.role) netLeave(true); });
   const c=new URLSearchParams(location.search).get("sala");
   if(c) playerOpenJoin(c);
 })();
+
+/* ============ COMPETENCIA (cada quien en su dispositivo, contra reloj) ============ */
+const race = { rows:new Map(), sync:true, limit:60, started:false, ended:false, t0:0, active:false, completed:0, name:"", clock:null, hbP:null, boardT:0 };
+const racePts = r => r.stars*10 + r.speed;
+function raceSorted(){
+  return [...race.rows.values()].sort((a,b)=> racePts(b)-racePts(a) || (b.done-a.done) || (a.ms-b.ms) || a.name.localeCompare(b.name));
+}
+function fmtMs(ms){ const t=Math.round(ms/1000), m=Math.floor(t/60), s=t%60; return m+":"+String(s).padStart(2,"0"); }
+function raceHideAll(){ ["raceSetup","raceHost"].forEach(x=>byId(x).style.display="none"); }
+
+/* ---------- HOST ---------- */
+function raceOpenSetup(){
+  errBox("raceErr",null);
+  ["online","lobby","joinForm","waiting","final","game","setup","raceHost"].forEach(x=>byId(x).style.display="none");
+  byId("raceSetup").style.display="block";
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function raceCreate(){
+  errBox("raceErr",null);
+  let sbc; try{ sbc=netClient(); }catch(e){ errBox("raceErr",[e.message]); return; }
+  netLeave(true);
+  net.role="host"; net.kind="race"; net.code=genCode(); net.started=false;
+  race.sync = document.querySelector('input[name="raceStart"]:checked').value==="sync";
+  race.limit = +byId("raceTime").value;
+  race.rows = new Map(); race.ended=false; race.started=!race.sync; race.t0 = race.started ? Date.now() : 0;
+  document.body.classList.add("is-host");
+  byId("raceCode").textContent = net.code;
+  const corto = new URL("../../p", location.href).href + "?" + net.code;
+  byId("raceUrl").textContent = corto.replace("https://","").replace("http://","");
+  try{ const q=qrcode(0,"M"); q.addData(corto); q.make(); byId("raceQR").innerHTML=q.createSvgTag({cellSize:6,margin:2,scalable:true}); }catch(e){ byId("raceQR").textContent=""; }
+  byId("raceMode").textContent = (race.sync ? "Todos arrancan a la vez cuando pulses «Comenzar». " : "Cada quien empieza en cuanto entra. ") +
+    (race.limit>0 ? "Tiempo por nivel: "+race.limit+" s." : "Sin límite por nivel.");
+  byId("btnRaceStart").style.display = race.sync ? "inline-block" : "none";
+  byId("btnRaceStart").disabled = true;
+  byId("btnRaceEnd").style.display = race.started ? "inline-block" : "none";
+  byId("racePodium").innerHTML=""; byId("raceNet").className="net-status"; byId("raceNet").textContent="conectando…";
+  ["raceSetup","online","lobby"].forEach(x=>byId(x).style.display="none");
+  byId("raceHost").style.display="block";
+  byId("raceClock").style.display = race.started ? "inline-block" : "none";
+  net.ch = sbc.channel("pintura:"+net.code, {config:{broadcast:{self:false}}})
+    .on("broadcast",{event:"join"},({payload})=>raceHostJoin(payload||{}))
+    .on("broadcast",{event:"progress"},({payload})=>raceHostProgress(payload||{}))
+    .on("broadcast",{event:"leave"},({payload})=>raceHostLeave(payload||{}))
+    .subscribe(st=>{
+      const b=byId("raceNet");
+      if(st==="SUBSCRIBED"){ b.className="net-status on"; b.textContent="● en línea"; }
+      else if(st==="CHANNEL_ERROR"||st==="TIMED_OUT"||st==="CLOSED"){ b.className="net-status bad"; b.textContent="sin conexión"; }
+    });
+  net.hb = setInterval(raceHeartbeat, 3000);
+  clearInterval(race.clock);
+  race.clock = setInterval(()=>{ if(race.started && !race.ended) byId("raceClock").textContent="⏱️ "+fmtMs(Date.now()-race.t0); }, 1000);
+  raceRenderBoard();
+}
+function raceInfo(){ return {kind:"race", sync:race.sync, limit:race.limit, started:race.started, n:race.rows.size}; }
+function raceHeartbeat(){
+  netSend("lobby", raceInfo());
+  if(race.started) raceSendBoard();
+}
+function raceHostJoin(m){
+  const tid=clean(m.tid).slice(0,24), name=clean(m.name).slice(0,18);
+  const ok = (extra)=>netSend("joinres", Object.assign({tid,ok:true,name,kind:"race",sync:race.sync,limit:race.limit,started:race.started,ended:race.ended}, extra||{}));
+  const fail = msg => netSend("joinres",{tid,ok:false,err:msg});
+  if(!tid) return fail("Error de identificación. Recarga e intenta de nuevo.");
+  const ex = race.rows.get(tid);
+  if(ex){ ok({name:ex.name}); return; }
+  if(race.ended) return fail("La competencia ya terminó.");
+  if(!name) return fail("Escribe tu nombre.");
+  if(race.rows.size>=100) return fail("La sala está llena.");
+  if([...race.rows.values()].some(r=>r.name.toLowerCase()===name.toLowerCase())) return fail("Ya hay alguien con ese nombre. Agrega tu apellido o un número.");
+  race.rows.set(tid,{tid,name,cur:0,stars:0,speed:0,miss:0,ms:0,done:0});
+  ok();
+  raceRenderBoard();
+}
+function raceHostProgress(m){
+  const r = race.rows.get(clean(m.tid).slice(0,24));
+  if(!r || race.ended) return;
+  const cur = Math.min(Math.max(parseInt(m.cur,10)||0,0), levels.length);
+  r.cur = Math.max(r.cur, cur);
+  r.stars = Math.min(Math.max(parseInt(m.stars,10)||0,0), 3*r.cur);
+  r.speed = Math.min(Math.max(parseInt(m.speed,10)||0,0), 3*r.cur);
+  r.miss = Math.min(Math.max(parseInt(m.miss,10)||0,0), 999);
+  r.ms = Math.max(parseInt(m.ms,10)||0, 0);
+  r.done = (r.cur>=levels.length && m.done) ? 1 : 0;
+  raceRenderBoard();
+  const now=Date.now();
+  if(now-race.boardT>900){ race.boardT=now; raceSendBoard(); }
+}
+function raceHostLeave(m){
+  if(race.started) return;
+  race.rows.delete(clean(m.tid).slice(0,24));
+  raceRenderBoard();
+}
+function raceStartNow(){
+  if(race.started || !race.rows.size) return;
+  race.started=true; race.t0=Date.now();
+  netSend("go",{limit:race.limit,t0:race.t0});
+  byId("btnRaceStart").style.display="none";
+  byId("btnRaceEnd").style.display="inline-block";
+  byId("raceClock").style.display="inline-block";
+  raceRenderBoard(); raceSendBoard();
+}
+function raceRenderBoard(){
+  const box = byId("raceBoard");
+  const rows = raceSorted();
+  byId("btnRaceStart").disabled = !race.rows.size;
+  box.innerHTML = "";
+  if(!race.started || !rows.length){
+    const h=document.createElement("h3"); h.textContent = race.rows.size ? race.rows.size+(race.rows.size===1?" participante conectado":" participantes conectados") : "Esperando participantes…"; box.appendChild(h);
+    const chips=document.createElement("div"); chips.className="race-chips";
+    rows.forEach(r=>{ const c=document.createElement("span"); c.textContent=r.name; chips.appendChild(c); });
+    box.appendChild(chips);
+    return;
+  }
+  const t=document.createElement("table");
+  const head=document.createElement("tr");
+  ["#","Participante","Avance","⭐","⚡","Puntos","Tiempo"].forEach((x,i)=>{ const th=document.createElement("th"); th.textContent=x; if(i!==1&&i!==2) th.className="n"; head.appendChild(th); });
+  t.appendChild(head);
+  rows.forEach((r,i)=>{
+    const tr=document.createElement("tr");
+    const add=(txt,cls)=>{ const td=document.createElement("td"); if(cls) td.className=cls; td.textContent=txt; tr.appendChild(td); return td; };
+    add(String(i+1),"n"); add(r.name);
+    const tdA=document.createElement("td"); const d=document.createElement("span"); d.className="rdots";
+    for(let k=0;k<levels.length;k++){ const e=document.createElement("i"); if(k<r.cur) e.className = r.done ? "fin" : "on"; d.appendChild(e); }
+    tdA.appendChild(d); tr.appendChild(tdA);
+    add(String(r.stars),"n"); add(String(r.speed),"n"); add(String(racePts(r)),"n"); add(r.ms?fmtMs(r.ms):"—","n");
+    t.appendChild(tr);
+  });
+  box.appendChild(t);
+}
+function raceSendBoard(){
+  const rows=raceSorted();
+  netSend("board",{n:rows.length, rows:rows.slice(0,40).map(r=>({name:r.name,pts:racePts(r),cur:r.cur,done:r.done,ms:r.ms}))});
+}
+function raceEnd(){
+  if(race.ended || !race.started) return;
+  race.ended=true;
+  const rows=raceSorted();
+  netSend("final",{n:rows.length, rows:rows.slice(0,40).map(r=>({name:r.name,pts:racePts(r),stars:r.stars,speed:r.speed,cur:r.cur,done:r.done,ms:r.ms}))});
+  byId("btnRaceEnd").style.display="none";
+  const medals=["🥇","🥈","🥉"], colors=["#E8B23A","#9AA5B1","#C77B3A"];
+  byId("racePodium").innerHTML = rows.slice(0,3).map((r,i)=>
+    '<div class="podium-card '+(i===0?"first":"")+'" style="--tc:'+colors[i]+'"><div class="p-medal">'+medals[i]+'</div><div class="p-name"></div><div class="p-stars">⭐ '+racePts(r)+' <small style="font-size:.7em">pts</small></div><div class="p-played">'+(r.ms?fmtMs(r.ms):"")+'</div></div>').join("");
+  [...byId("racePodium").querySelectorAll(".p-name")].forEach((n,i)=>{ n.textContent = rows[i].name; });
+  byId("racePodium").style.display = "grid";
+  byId("racePodium").style.gridTemplateColumns = "repeat(auto-fit,minmax(190px,1fr))";
+  byId("racePodium").style.gap = "14px"; byId("racePodium").style.margin = "18px 0";
+  beep(true); confetti(); raceRenderBoard();
+}
+
+/* ---------- PARTICIPANTE ---------- */
+function raceEnter(p,name){
+  net.kind="race"; race.name=clean(p.name||name); race.sync=!!p.sync; race.limit=+p.limit||0; race.completed=0;
+  errBox("joinErr",null);
+  if(p.ended){ errBox("joinErr",["La competencia ya terminó."]); netLeave(true); return; }
+  if(p.started || !p.sync){ raceBegin({limit:race.limit}); return; }
+  byId("waitTitle").textContent = "✅ ¡Listo, " + race.name + "!";
+  byId("waitMsg").textContent = "Esperando a que el docente inicie la competencia. Mantén esta pantalla abierta.";
+  byId("waitTeams").innerHTML="";
+  showOnly("waiting");
+}
+function raceOnLobby(l){
+  if(net.kind!=="race") return;
+  if(l.started && !race.active){ race.limit=+l.limit||0; raceBegin({limit:race.limit}); return; }
+  if(!race.active && !l.started){
+    byId("waitMsg").textContent = "Esperando a que el docente inicie la competencia · " + (+l.n||0) + " conectados.";
+  }
+}
+function raceBegin(info){
+  if(race.active || net.role!=="player") return;
+  if(info && info.limit!==undefined) race.limit=+info.limit||0;
+  race.active=true; race.t0=Date.now(); race.completed=0;
+  document.body.classList.remove("is-player"); document.body.classList.add("is-racer","in-game");
+  showOnly("none");
+  stopTimer();
+  mode="single"; teams=[]; timeLimit=race.limit;
+  cur=0; starsTotal=0; missTotal=0; speedTotal=0;
+  resetFinalHeader();
+  byId("final").style.display="none"; byId("game").style.display="block";
+  byId("raceRank").textContent="🏁 ¡Ya! Vas "+(race.name||"")+" · completa los 7 scripts lo más rápido que puedas";
+  loadLevel();
+  tone(520,.1,"sine",.06); tone(780,.18,"sine",.06,.12);
+  clearInterval(race.hbP);
+  race.hbP = setInterval(raceReport, 5000);
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function raceReport(){
+  if(net.role!=="player" || net.kind!=="race" || !race.active) return;
+  netSend("progress",{tid:net.tid, cur:race.completed, stars:starsTotal, speed:speedTotal, miss:missTotal,
+    ms:Date.now()-race.t0, done: race.completed>=levels.length});
+}
+function raceOnBoard(b){
+  if(!race.active) return;
+  const i=(b.rows||[]).findIndex(r=>clean(r.name).toLowerCase()===race.name.toLowerCase());
+  const el=byId("raceRank");
+  if(i>=0){ const r=b.rows[i]; el.textContent="🏁 Vas en el lugar "+(i+1)+" de "+(+b.n||b.rows.length)+" · "+(+r.pts||0)+" pts"; }
+  else el.textContent="🏁 Sigues en carrera · "+(+b.n||0)+" participantes";
+}
+function raceOnFinal(f){
+  const rows=(f.rows||[]);
+  const i=rows.findIndex(r=>clean(r.name).toLowerCase()===race.name.toLowerCase());
+  stopTimer(); clearInterval(race.hbP); race.active=false;
+  byId("overlay").classList.remove("show");
+  const medals=["🥇","🥈","🥉"];
+  byId("rfMedal").textContent = i>=0 && i<3 ? medals[i] : "🏁";
+  byId("rfMsg").textContent = i>=0
+    ? "Quedaste en el lugar "+(i+1)+" de "+(+f.n||rows.length)+" con "+(+rows[i].pts||0)+" puntos."
+    : "La competencia terminó. ¡Gracias por participar!";
+  const ol=byId("rfTop"); ol.innerHTML="";
+  rows.slice(0,5).forEach((r,k)=>{ const li=document.createElement("li"); li.textContent=clean(r.name)+" · "+(+r.pts||0)+" pts"; if(k===i) li.className="yo"; ol.appendChild(li); });
+  byId("raceFinalOv").classList.add("show");
+  byId("raceRank").textContent = i>=0 ? "🏁 Resultado final: lugar "+(i+1)+" de "+(+f.n||rows.length) : "🏁 Competencia terminada";
+  if(i>=0 && i<3) confetti();
+}
+
+/* ---------- enlaces con el resto ---------- */
+(function(){
+  const lc=window.levelComplete;
+  window.levelComplete=function(){
+    lc.apply(this,arguments);
+    if(net.role==="player" && net.kind==="race" && race.active){ race.completed=cur+1; raceReport(); }
+  };
+  const nl=window.netLeave;
+  window.netLeave=function(silent){
+    clearInterval(race.clock); clearInterval(race.hbP);
+    race.active=false; race.started=false; race.ended=false; race.rows=new Map(); net.kind=null;
+    document.body.classList.remove("is-racer");
+    byId("raceRank").textContent="";
+    return nl(silent);
+  };
+  const so=window.showOnly;
+  window.showOnly=function(id){ so(id); raceHideAll(); };
+  const po=window.playerOpenJoin;
+  window.playerOpenJoin=function(code){ raceHideAll(); return po(code); };
+  document.querySelectorAll(".mode-btn:not(.time-btn)").forEach(b=>{
+    const prev=b.onclick;
+    b.onclick=function(ev){ raceHideAll(); return prev.call(this,ev); };
+  });
+})();
+byId("cardRace").onclick = raceOpenSetup;
+byId("btnRaceBack").onclick = ()=>document.querySelector('[data-mode="online"]').click();
+byId("btnRaceCreate").onclick = raceCreate;
+byId("btnRaceStart").onclick = raceStartNow;
+byId("btnRaceEnd").onclick = ()=>{ if(confirm("¿Terminar la competencia y mostrar el podio?")) raceEnd(); };
+byId("btnRaceClose").onclick = ()=>{ if(confirm("¿Cerrar la sala? Los participantes serán desconectados.")) document.querySelector('[data-mode="single"]').click(); };
+byId("rfCerrar").onclick = ()=>byId("raceFinalOv").classList.remove("show");
 
 /* ============ INICIO ============ */
 if(!new URLSearchParams(location.search).get("sala")) loadLevel();

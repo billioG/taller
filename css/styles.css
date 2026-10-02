@@ -1006,3 +1006,7 @@ button.enc-opcion, button.enc-fila{ cursor:pointer; }
 .enc-form select{ width:100%; font:inherit; padding:12px 14px; border:2px solid var(--linea); border-radius:var(--r-m); background:#fff; }
 .resp-muro{ display:flex; flex-wrap:wrap; gap:var(--s2); margin-top:var(--s3); }
 .resp-chip{ background:var(--indigo-l); border:1px solid var(--indigo); color:var(--indigo-d); padding:8px 14px; border-radius:var(--r-m); font-weight:600; overflow-wrap:anywhere; max-width:100%; }
+
+.mat-fila{ display:flex; gap:var(--s2); align-items:stretch; }
+.mat-fila .mat{ flex:1; min-width:0; }
+.mat-fila .btn{ flex:none; align-self:center; }

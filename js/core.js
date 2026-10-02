@@ -87,7 +87,7 @@ const MATERIALES_POR_BLOQUE = {
   s1b2: ['tarjetas-de-bloques'],
   s1b4: ['pintura-con-la-cara'],
   s1b5: ['plan-de-clase', 'rubrica'],
-  s1b6: ['encuesta-salida', 'certificado'],
+  s1b6: ['encuesta-salida'],
 };
 
 /** Secciones vistas guardadas en el navegador (tolera datos corruptos). */

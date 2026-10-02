@@ -10,6 +10,7 @@
    REGLA DE ORO
    ------------
    - `libre: true`  en un material  =  se puede descargar desde el minuto uno.
+   - `alFinalizar: true` = se abre cuando el facilitador pulsa «Finalizar taller».
    - Una sección sin `abierta: true` = el facilitador tiene que desbloquearla.
    - Los bloques marcados con `soloFacilitador: true` NO se muestran a los
      docentes. Ahí van tus notas de guiado, no lo que leen ellos.
@@ -103,21 +104,15 @@ const TALLER = {
       titulo: 'Seguimiento a 30 días',
       desc: 'Para enviarla tres semanas después.',
       archivo: 'material/participantes/encuesta-30-dias.html',
-      libre: true,
-      momento: 'Después del taller',
-    },
-    'certificado': {
-      titulo: 'Certificado',
-      desc: 'Para imprimir en carta y firmar.',
-      archivo: 'material/participantes/certificado.html',
       libre: false,
-      momento: 'Cierre',
+      alFinalizar: true, // se habilita cuando el facilitador finaliza el taller
+      momento: 'Después del taller',
     },
     'pintura-con-la-cara': {
       titulo: '🎨 Pintura con la cara',
       desc: 'Desafío interactivo: ordena bloques para pintar con el movimiento de la cara (extensión de vídeo / detección facial). Ideal para expresión artística.',
       archivo: 'material/participantes/pintura-con-la-cara.html',
-      libre: true,
+      libre: false,
       momento: 'Línea artística · práctica',
     },
   },
@@ -127,6 +122,9 @@ const TALLER = {
   // ------------------------------------------------------------------
   certificado: {
     habilitado: true,
+    // Firma: arriba del cargo va el nombre; abajo, la credencial.
+    facilitador: 'Billy Abraham Gómez Sac',
+    credencial: 'Google Educator L1',
     titulo: 'Certificado de finalización',
     subtitulo: 'Taller de Programación Visual con Scratch',
     duracion: '2 horas · 1 sesión',

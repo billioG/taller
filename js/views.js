@@ -524,7 +524,7 @@ function renderMaterialesDocente() {
   Object.entries(TALLER.materiales).forEach(([id, m]) => {
     // Certificado se desbloquea al finalizar
     const abierta = m.libre || abrirMaterial(id)
-      || (id === 'certificado' && finalizado);
+      || (m.alFinalizar && finalizado);
     const a = el('a', 'mat' + (m.libre ? ' libre' : '') + (abierta ? '' : ' bloqueado'));
 
     if (abierta) {
@@ -547,13 +547,15 @@ function renderMaterialesDocente() {
     a.appendChild(c);
 
     a.appendChild(el('span', 'mat-momento',
-      id === 'certificado' && finalizado ? 'Disponible' : (m.libre ? 'Libre' : m.momento)));
+      m.alFinalizar && finalizado ? 'Disponible' : (m.libre ? 'Libre' : m.momento)));
     cont.appendChild(a);
   });
 }
 
 /** ¿Este material ya se puede descargar? (según el paso actual) */
 function abrirMaterial(idMat) {
+  // Habilitado a mano por el facilitador
+  if ((app.estado?.materiales_abiertos || []).includes(idMat)) return true;
   const secId = app.estado?.seccion_actual;
   const sec = TALLER.secciones.find((s) => s.id === secId);
   if (!sec) return false;
@@ -691,6 +693,29 @@ function renderControlMateriales() {
     c.appendChild(el('span', 'mat-desc', m.momento + (m.libre ? ' · siempre disponible' : ' · se habilita con su paso')));
     a.appendChild(c);
     if (!m.libre) a.appendChild(el('span', 'mat-momento', 'Con paso'));
+
+    // Habilitar a mano los materiales de participantes que no son libres
+    const dePart = TALLER.materiales[id];
+    if (dePart && !dePart.libre) {
+      const abiertos = app.estado?.materiales_abiertos || [];
+      const on = abiertos.includes(id);
+      const fila = el('div', 'mat-fila');
+      fila.appendChild(a);
+      const btn = el('button', 'btn btn-mini ' + (on ? 'peligro' : 'primary'), on ? 'Bloquear' : 'Habilitar ya');
+      btn.type = 'button';
+      btn.title = on ? 'Volver a bloquearlo para los docentes' : 'Dejar que los docentes lo descarguen ahora';
+      btn.addEventListener('click', async () => {
+        const act = app.estado?.materiales_abiertos || [];
+        const sig = act.includes(id) ? act.filter((x) => x !== id) : [...act, id];
+        try {
+          await escribirEstado(app.clave, { materiales_abiertos: sig });
+          renderControlMateriales();
+        } catch (e) { mostrarToast(mensajeError(e), 'err'); }
+      });
+      fila.appendChild(btn);
+      cont.appendChild(fila);
+      return;
+    }
     cont.appendChild(a);
   });
 }

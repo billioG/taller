@@ -255,7 +255,9 @@ body{
 .cert-modulos li::before{content:"▸";position:absolute;left:0;color:#202124}
 .firma-bloque{margin-top:16px;display:flex;flex-direction:column;align-items:center;gap:2px}
 .firma-bloque img{height:64px;width:auto;object-fit:contain}
-.firma-linea{width:200px;border-top:1px solid #202124;margin-top:2px;padding-top:4px;font-size:9pt;color:#202124}
+.firma-nombre{font-size:11pt;color:#202124;margin-top:2px}
+.firma-linea{width:240px;border-top:1px solid #202124;margin-top:2px;padding-top:4px;font-size:10pt;color:#202124}
+.firma-cred{font-size:10pt;color:#202124}
 @media print{
   .no-print{display:none!important}
   body{background:#fff}
@@ -284,7 +286,9 @@ body{
   </ul>
   <div class="firma-bloque">
     <img src="${firmaSrc}" alt="Firma">
-    <div class="firma-linea">Firma del facilitador</div>
+    <div class="firma-nombre">${esc(TALLER.certificado.facilitador || '')}</div>
+    <div class="firma-linea">Facilitador</div>
+    <div class="firma-cred">${esc(TALLER.certificado.credencial || '')}</div>
   </div>
 </div>
 <div class="no-print" style="position:fixed;bottom:12px;left:0;right:0;text-align:center;color:#202124;font-size:9pt">
@@ -776,6 +780,7 @@ function aplicarEstadoFacilitadorExtra() {
   if (typeof renderPisoFacilitador === 'function') renderPisoFacilitador();
   renderCertificadosGenerados(app.estado?.certificados_generados || []);
   if (typeof renderInteractivoFacilitador === 'function') renderInteractivoFacilitador();
+  if (typeof renderControlMateriales === 'function') renderControlMateriales();
 
   // Quién pide la palabra: píldora fija arriba + toast + sonido solo con solicitudes nuevas
   const piso = app.estado?.piso || {};
