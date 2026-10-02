@@ -366,6 +366,8 @@ alter table public.estado_sala drop constraint if exists frases_estado_tamano;
 alter table public.estado_sala add  constraint frases_estado_tamano
   check (pg_column_size(frases_estado) <= 500) not valid;
 
+-- Sala abierta/cerrada: cerrada = los docentes ven la sala de espera con la cuenta regresiva.
+alter table public.estado_sala add column if not exists sala_abierta boolean not null default false;
 alter table public.estado_sala add column if not exists paso_inicio timestamptz;
 alter table public.estado_sala add column if not exists paso_extra  int not null default 0;
 alter table public.estado_sala add column if not exists materiales_abiertos text[] not null default '{}';

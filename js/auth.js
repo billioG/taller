@@ -202,7 +202,16 @@ function entrar() {
   const pie = $('#pieTexto');
   if (pie) pie.textContent = TALLER.bienvenida.recordatorio;
 
+  if (app.rol === 'docente') {
+    const pn = $('#pillNombre');
+    if (pn) {
+      pn.hidden = false;
+      $('#txtNombre').textContent = app.nombre;
+      pn.title = 'Tu nombre en la sala: ' + app.nombre;
+    }
+  }
   if (app.rol === 'facilitador') {
+    $('#pillNombre').hidden = true;
     $('#timerTop').hidden = false;
     $('#panelFacilitador').hidden = false;
     renderVistaPrevia();

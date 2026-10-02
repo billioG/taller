@@ -93,6 +93,8 @@
       <button class="pill pill-piso" id="pillPiso" type="button" hidden title="Ver quién pide la palabra">
         🙋 <span id="txtPiso">0</span> piden la palabra
       </button>
+      <span class="pill pill-nombre" id="pillNombre" hidden><span aria-hidden="true">👤</span> <span id="txtNombre"></span></span>
+      <button class="pill pill-sala cerrada" id="pillSala" type="button" hidden title="Estado de la sala">🔒 Sala cerrada</button>
       <span class="pill" id="pillConexion" title="Estado de la sincronización">
         <span class="punto" id="puntoConexion"></span>
         <span id="txtConexion">Conectando…</span>
@@ -213,8 +215,11 @@
 
         <section class="bloque bloque-panel">
           <h2 class="bloque-tit">Control de la sesión</h2>
-          <p class="bloque-nota">Hasta que abras el primer paso, los docentes ven una cuenta regresiva y solo pueden leer los materiales libres.</p>
-          <div class="fila-form" style="margin-bottom:var(--s3)"><button class="btn ghost" id="btnVolverEspera" type="button">⏪ Volver a la sala de espera</button></div>
+          <div class="sala-estado cerrada" id="salaEstado">
+            <p class="sala-txt" id="salaTxt"></p>
+            <button class="btn primary" id="btnSala" type="button">🔓 Abrir sala</button>
+            <p class="bloque-nota">Para ensayar: abre la sala, entra como docente desde otra ventana o tu celular, y ciérrala al terminar. Con la sala cerrada tú sigues viendo y probando todo en este panel.</p>
+          </div>
           <div class="control-mensaje">
             <label for="inpMensaje">Mensaje para todos (aparece arriba, en grande)</label>
             <div class="fila-form">

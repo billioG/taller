@@ -124,7 +124,18 @@ function guardarPinParticipante(p) {
   } catch { }
 }
 
-/** ¿El facilitador ya abrió el primer paso? Antes de eso los docentes están en la sala de espera. */
-function sesionAbierta() {
+/** ¿El facilitador ya abrió un paso? (hay un paso en pantalla) */
+function pasoAbierto() {
   return !!(app.estado && app.estado.bloque_actual);
+}
+
+/**
+ * ¿La sala está abierta para los docentes? Cerrada = sala de espera con cuenta regresiva.
+ * Si la base aún no tiene la columna (falta ejecutar supabase.sql) se considera abierta, para no bloquear.
+ */
+function salaAbierta() {
+  const e = app.estado;
+  if (!e) return false;
+  if (typeof e.sala_abierta !== 'boolean') return true;
+  return e.sala_abierta;
 }

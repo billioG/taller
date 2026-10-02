@@ -75,7 +75,7 @@ function construirEspera(box) {
   btn.addEventListener('click', () => { if (typeof window.__irAMateriales === 'function') window.__irAMateriales(); });
   acc.appendChild(btn);
   cont.appendChild(acc);
-  cont.appendChild(el('p', 'espera-nota', 'Todo lo demás se abrirá cuando el facilitador inicie la sesión.'));
+  cont.appendChild(el('p', 'espera-nota', 'Todo lo demás se abrirá cuando el facilitador abra la sala.'));
   box.appendChild(cont);
   ESPERA.listo = true;
 }
@@ -118,7 +118,7 @@ function pintarEspera() {
 /** Alterna entre la sala de espera y la sesión en vivo según el estado. */
 function actualizarEspera() {
   if (app.rol !== 'docente') return;
-  const enEspera = !sesionAbierta();
+  const enEspera = !salaAbierta();
   document.body.classList.toggle('en-espera', enEspera);
   const box = $('#esperaDocente');
   if (box) box.hidden = !enEspera;
@@ -127,19 +127,41 @@ function actualizarEspera() {
   ESPERA.ultimo.abierta = !enEspera;
 }
 
-/** Facilitador: vuelve a la sala de espera (útil para ensayar o si se abrió por error). */
-async function volverAEspera() {
-  if (!confirm('¿Volver a la sala de espera? Los docentes verán otra vez la cuenta regresiva y se pierde el paso actual.')) return;
+/** Facilitador: pinta el estado de la sala y el botón para abrirla o cerrarla. */
+function pintarSalaPanel() {
+  if (app.rol !== 'facilitador') return;
+  const ab = salaAbierta();
+  const txt = $('#salaTxt'), btn = $('#btnSala'), caja = $('#salaEstado'), pill = $('#pillSala');
+  if (txt) txt.textContent = ab
+    ? '🟢 Sala ABIERTA: los docentes ven la sesión en vivo.'
+    : '🔒 Sala CERRADA: los docentes solo ven la cuenta regresiva y los materiales libres.';
+  if (btn) {
+    btn.textContent = ab ? '🔒 Cerrar sala' : '🔓 Abrir sala';
+    btn.className = 'btn ' + (ab ? 'peligro' : 'primary');
+  }
+  if (caja) caja.className = 'sala-estado ' + (ab ? 'abierta' : 'cerrada');
+  if (pill) {
+    pill.hidden = false;
+    pill.textContent = ab ? '🟢 Sala abierta' : '🔒 Sala cerrada';
+    pill.className = 'pill pill-sala ' + (ab ? 'abierta' : 'cerrada');
+  }
+}
+
+/** Abre o cierra la sala para los docentes. */
+async function cambiarSala(abrir) {
+  if (!abrir && !confirm('¿Cerrar la sala? Los docentes volverán a ver la cuenta regresiva y no verán la sesión.')) return;
   try {
-    await escribirEstado(app.clave, { bloque_actual: null, paso_inicio: null, paso_extra: 0, mensaje: '' });
-    mostrarToast('Los docentes están en la sala de espera', 'ok');
+    await escribirEstado(app.clave, { sala_abierta: !!abrir });
+    pintarSalaPanel();
+    mostrarToast(abrir ? '🔓 Sala abierta: los docentes ya ven la sesión' : '🔒 Sala cerrada: los docentes ven la cuenta regresiva', 'ok', 5000);
   } catch (e) {
     mostrarToast(mensajeError(e), 'err');
   }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  $('#btnVolverEspera')?.addEventListener('click', volverAEspera);
+  $('#btnSala')?.addEventListener('click', () => cambiarSala(!salaAbierta()));
+  $('#pillSala')?.addEventListener('click', () => $('#salaEstado')?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
   clearInterval(ESPERA.timer);
   ESPERA.timer = setInterval(() => { if (app.rol === 'docente' && document.body.classList.contains('en-espera')) pintarEspera(); }, 1000);
 });

@@ -307,7 +307,7 @@ function pintarFac(b, dur, r) {
 
 // ---------------------------------------------------------------- reloj
 function tickCuenta() {
-  const b = pasoActivo();
+  const b = (app.rol === 'docente' && !salaAbierta()) ? null : pasoActivo();
   const id = b ? b.id : '';
   if (id !== CUENTA.id) {
     if (CUENTA.uiFac) { CUENTA.uiFac = null; const f = $('#cuentaPrev'); if (f) f.innerHTML = ''; }

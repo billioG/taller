@@ -776,6 +776,7 @@ function conectarControlesExtra() {
 // ---------------------------------------------------------------------------
 function initExtra() {
   conectarControlesExtra();
+  if (typeof pintarSalaPanel === 'function') pintarSalaPanel();
   if (typeof actualizarEspera === 'function') actualizarEspera();
   if (typeof initInteractivo === 'function') initInteractivo();
   // Render inicial de piso/scratch si ya hay estado
@@ -796,6 +797,7 @@ function aplicarEstadoFacilitadorExtra() {
   renderCertificadosGenerados(app.estado?.certificados_generados || []);
   if (typeof renderInteractivoFacilitador === 'function') renderInteractivoFacilitador();
   if (typeof renderControlMateriales === 'function') renderControlMateriales();
+  if (typeof pintarSalaPanel === 'function') pintarSalaPanel();
 
   // Quién pide la palabra: píldora fija arriba + toast + sonido solo con solicitudes nuevas
   const piso = app.estado?.piso || {};
