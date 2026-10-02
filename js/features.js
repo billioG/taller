@@ -594,24 +594,32 @@ function aplicarEstado() {
   const e = app.estado;
   if (!e) return;
 
-  // Mensaje del facilitador: animación y toast SOLO cuando el texto cambia.
+  // Mensaje del facilitador: la barra aparece SOLO cuando llega un mensaje nuevo y se retira
+  // sola a los 45 s (o antes, con la ✕).
   const aviso = $('#aviso');
   if (aviso) {
     if (e.mensaje) {
-      aviso.hidden = false;
-      const at = $('#avisoTexto');
-      if (at) at.textContent = e.mensaje;
       if (e.mensaje !== app.ultimoMensajeVisto) {
         app.ultimoMensajeVisto = e.mensaje;
-        aviso.classList.add('nuevo');
-        setTimeout(() => aviso.classList.remove('nuevo'), 2500);
-        if (app.rol === 'docente') {
-          mostrarMensajeGrande(e.mensaje);
+        let visto = '';
+        try { visto = sessionStorage.getItem('taller.msgvisto') || ''; } catch { }
+        if (e.mensaje !== visto) {
+          try { sessionStorage.setItem('taller.msgvisto', e.mensaje); } catch { }
+          const at = $('#avisoTexto');
+          if (at) at.textContent = e.mensaje;
+          aviso.hidden = false;
+          aviso.classList.add('nuevo');
+          setTimeout(() => aviso.classList.remove('nuevo'), 2500);
+          clearTimeout(app.avisoT);
+          app.avisoT = setTimeout(() => { aviso.hidden = true; }, 45000);
+          if (app.rol === 'docente') mostrarMensajeGrande(e.mensaje);
         }
       }
     } else {
       aviso.hidden = true;
       app.ultimoMensajeVisto = '';
+      clearTimeout(app.avisoT);
+      try { sessionStorage.removeItem('taller.msgvisto'); } catch { }
     }
   }
 
@@ -733,6 +741,11 @@ function notificarCertificadoDocente() {
 // CONECTAR CONTROLES ADICIONALES (se llama desde conectarControles)
 // ---------------------------------------------------------------------------
 function conectarControlesExtra() {
+  $('#avisoCerrar')?.addEventListener('click', () => {
+    const a = $('#aviso');
+    if (a) a.hidden = true;
+    clearTimeout(app.avisoT);
+  });
   // Finalizar taller
   $('#btnFinalizarTaller')?.addEventListener('click', generarCertificados);
 

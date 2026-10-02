@@ -158,6 +158,13 @@ const TALLER = {
   // MATERIALES — VERSIÓN FACILITADOR (con notas de guiado, tiempos, respuestas)
   // ------------------------------------------------------------------
   materialesFacilitador: {
+    'paso-a-paso-app': {
+      titulo: '🧭 Paso a paso: cómo operar la app',
+      desc: 'Antes, durante y después del taller: PIN, QR, pasos, encuestas, Pintura con la cara, certificados.',
+      archivo: 'material/facilitador/paso-a-paso-app.html',
+      libre: true,
+      momento: 'Antes de la sesión',
+    },
     'sesion-unica': {
       titulo: 'Guía detallada · Sesión única (2 horas)',
       desc: 'Paso a paso minuto a minuto, con el porqué de cada bloque, preguntas probables y sus respuestas.',
@@ -264,7 +271,7 @@ const TALLER = {
           paraDocentes:
             'Regla de oro de hoy: aquí todos se equivocan, incluido quien facilita. Tu único objetivo es salir con algo que funcione. No hay examen ni comparación entre proyectos.',
           pasos: [
-            'Escribe tu nombre y entra a la sala (solo lo ve el facilitador).',
+            'Ya estás en la sala: tu nombre solo lo ve el facilitador.',
             'Elige tu línea: ciudadana, inglés, matemáticas, emprendimiento o artística.',
             'Observa el “error a propósito”: bandera verde sin bloques. ¿Qué falta?',
           ],
@@ -278,7 +285,7 @@ const TALLER = {
           minutos: '10-25',
           momentoWow: 'En vivo, el recurso saluda, pregunta y reacciona a lo que escribes. Dejas de ver “programación” y empiezas a ver una actividad de clase.',
           paraDocentes:
-            'Vas a ver el recorrido completo en voz alta: saludo → pregunta → respuesta. Fíjate en el ORDEN de los bloques. Después te toca a ti con el mismo patrón.',
+            'Mira el recorrido completo que hace el facilitador: saludo → pregunta → respuesta. Fíjate en el ORDEN de los bloques. Después te toca a ti con el mismo patrón.',
           pasos: [
             'Observa la demo: un personaje que pregunta y responde según lo que escribes.',
             'Con las tarjetas (si las tienes), ordena: ¿qué va primero, qué va después?',
@@ -346,7 +353,7 @@ const TALLER = {
           minutos: '112-120',
           momentoWow: 'No es “algún día”: es el martes con 2° B. El recurso ya existe; solo falta abrirlo con estudiantes de carne y hueso.',
           paraDocentes:
-            'Cierra el círculo: una fecha concreta de implementación (día, grupo, hora). Responde la encuesta de salida. Si el facilitador genera certificados, recoge el tuyo con tu nombre.',
+            'Cierra el círculo: una fecha concreta de implementación (día, grupo, hora). Responde la encuesta de salida. Al terminar el taller, tu certificado aparece aquí con tu nombre.',
           pasos: [
             'Escribe: implementaré [tema] el [fecha] con [grupo] a las [hora].',
             'Completa la encuesta de salida (5 preguntas).',

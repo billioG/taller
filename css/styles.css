@@ -1035,3 +1035,75 @@ button.enc-opcion, button.enc-fila{ cursor:pointer; }
 .qr-mini{ width:120px; height:120px; margin-top:var(--s3); }
 .qr-mini svg{ width:100%; height:100%; display:block; }
 .interactivo-card.pintura{ border-color:var(--kakaw); }
+
+/* --- Barra de avisos: con cierre --- */
+.aviso-x{
+  margin-left:auto; flex:none; font:inherit; font-weight:900; font-size:1.1rem; line-height:1;
+  width:38px; height:38px; border-radius:50%; border:2px solid rgba(58,42,0,.45); background:rgba(255,255,255,.55);
+  color:#3A2A00; cursor:pointer;
+}
+.aviso-x:hover{ background:#fff; }
+
+/* --- Botón «Pedir la palabra»: discreto, en la esquina --- */
+.piso-participante{
+  left:auto !important; right:12px; bottom:12px; transform:none !important;
+  width:min(320px, calc(100vw - 24px));
+}
+.piso-participante.p-nada{
+  width:auto; padding:4px; border-width:2px; box-shadow:var(--shadow-1); opacity:.92;
+}
+.piso-participante.p-nada .btn{ min-width:0; font-size:.9rem; padding:8px 14px; }
+.piso-participante .piso-acciones .btn{ min-width:0; flex:1 1 120px; }
+body:has(.piso-participante:not([hidden])) .wrap{ padding-bottom:84px; }
+
+/* --- Cuenta regresiva del paso --- */
+.cuenta{
+  border:3px solid var(--indigo); border-radius:var(--r-l); padding:var(--s3) var(--s4);
+  margin-bottom:var(--s4); background:#fff; transition:border-color .3s, background .3s;
+}
+.cuenta.ok{ border-color:var(--indigo); }
+.cuenta.warn{ border-color:var(--maiz); background:var(--maiz-l); }
+.cuenta.danger{ border-color:var(--mal); background:#FDECEA; animation:cuentaLatido .8s ease-in-out infinite; }
+.cuenta.over{ border-color:var(--mal); background:#FDECEA; }
+.cuenta.hecho{ border-color:var(--jade); background:#E7F4EF; }
+.cuenta-top{ display:flex; align-items:center; justify-content:space-between; gap:var(--s2); }
+.cuenta-etq{ font-size:.8rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:var(--gris); }
+.cuenta-snd{ font-size:1.2rem; background:none; border:2px solid var(--linea); border-radius:50%; width:38px; height:38px; cursor:pointer; }
+.cuenta-num{ font-family:var(--font-num); font-size:3.2rem; font-weight:900; line-height:1.1; color:var(--indigo-d); font-variant-numeric:tabular-nums; }
+.cuenta.danger .cuenta-num, .cuenta.over .cuenta-num{ color:var(--mal); }
+.cuenta.hecho .cuenta-num{ color:var(--jade); }
+.cuenta-barra{ height:10px; border-radius:999px; background:#E6EAF2; overflow:hidden; margin:var(--s2) 0; }
+.cuenta-barra i{ display:block; height:100%; width:100%; background:var(--indigo); transition:width .3s linear; border-radius:999px; }
+.cuenta.warn .cuenta-barra i{ background:var(--warn); }
+.cuenta.danger .cuenta-barra i, .cuenta.over .cuenta-barra i{ background:var(--mal); }
+.cuenta.hecho .cuenta-barra i{ background:var(--jade); }
+.cuenta-acc{ display:flex; align-items:center; gap:var(--s3); flex-wrap:wrap; }
+.cuenta-btn{ font-size:1.1rem; padding:12px 26px; }
+.cuenta-msg{ font-weight:700; color:var(--tinta); }
+.cuenta-tot{ margin-top:var(--s2); font-size:.9rem; color:var(--gris); }
+.cuenta-fila{ display:flex; align-items:center; justify-content:space-between; gap:var(--s3); flex-wrap:wrap; }
+.cuenta-fac .cuenta-num{ font-size:2.4rem; }
+.cuenta-fac-btns{ display:flex; gap:var(--s2); flex-wrap:wrap; }
+.cuenta-fac{ margin:0 0 var(--s3); }
+@keyframes cuentaLatido{ 50%{ box-shadow:0 0 0 8px rgba(192,57,43,.18); } }
+.proy-cuenta{ font-family:var(--font-num); font-size:3.4rem; font-weight:900; color:var(--indigo-d); margin:var(--s2) 0; }
+.proy-cuenta.urgente{ color:var(--mal); animation:cuentaLatido .8s ease-in-out infinite; }
+
+/* chispas al terminar antes */
+.chispa{ position:fixed; z-index:400; font-size:1.6rem; pointer-events:none; animation:chispa 1.2s ease-out forwards; }
+@keyframes chispa{ from{ transform:translate(-50%,-50%) scale(.6); opacity:1; } to{ transform:translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.4) rotate(40deg); opacity:0; } }
+
+/* fin del tiempo */
+.overlay-tiempo{
+  position:fixed; inset:0; z-index:350; display:flex; align-items:center; justify-content:center;
+  background:radial-gradient(circle at center, rgba(192,57,43,.72), rgba(20,24,40,.88)); padding:var(--s4);
+  animation:ovTiempoIn .35s ease-out;
+}
+.overlay-tiempo[hidden]{ display:none; }
+.overlay-tiempo-caja{ max-width:560px; text-align:center; background:#fff; border-radius:var(--r-l); padding:var(--s6) var(--s5); border-top:10px solid var(--mal); box-shadow:var(--shadow-2); }
+.overlay-tiempo-caja h2{ color:var(--mal); font-size:2rem; }
+.overlay-tiempo-caja p{ font-size:1.3rem; font-weight:700; margin:var(--s3) 0 var(--s5); }
+.reloj-fin{ font-size:5rem; animation:relojTiembla .5s ease-in-out infinite; display:inline-block; }
+@keyframes relojTiembla{ 0%,100%{ transform:rotate(-12deg) scale(1); } 50%{ transform:rotate(12deg) scale(1.15); } }
+@keyframes ovTiempoIn{ from{ opacity:0; transform:scale(.9); } to{ opacity:1; transform:scale(1); } }
+@media (prefers-reduced-motion: reduce){ .reloj-fin, .cuenta.danger, .proy-cuenta.urgente{ animation:none; } }

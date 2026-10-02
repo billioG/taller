@@ -54,17 +54,6 @@ function renderSesionActual() {
   bc.appendChild(el('h3', 'bloque-nombre', bloque.titulo));
   bc.appendChild(el('p', 'bloque-texto', bloque.paraDocentes));
 
-  if (bloque.momentoWow) {
-    const wow = el('div', 'momento-wow');
-    wow.appendChild(el('span', 'wow-ico', '✨'));
-    const txt = el('div');
-    const lab = el('strong', null, 'Momento clave: ');
-    txt.appendChild(lab);
-    txt.appendChild(document.createTextNode(bloque.momentoWow));
-    wow.appendChild(txt);
-    bc.appendChild(wow);
-  }
-
   if (bloque.pasos && bloque.pasos.length) {
     const ul = el('ul', 'pasos');
     bloque.pasos.forEach((p, i) => {
@@ -256,16 +245,6 @@ function renderVistaPrevia() {
   bc.innerHTML = '';
   bc.appendChild(el('p', 'bloque-texto', bloque.paraDocentes));
 
-  if (bloque.momentoWow) {
-    const wow = el('div', 'momento-wow');
-    wow.appendChild(el('span', 'wow-ico', '✨'));
-    const txt = el('div');
-    txt.appendChild(el('strong', null, 'Momento clave: '));
-    txt.appendChild(document.createTextNode(bloque.momentoWow));
-    wow.appendChild(txt);
-    bc.appendChild(wow);
-  }
-
   if (bloque.pasos && bloque.pasos.length) {
     const ul = el('ul', 'pasos');
     bloque.pasos.forEach((p, i) => {
@@ -393,17 +372,10 @@ function renderProyeccion() {
   slide.appendChild(el('span', 'proy-kicker',
     'Minutos ' + (bloque.minutos || '—') + ' · Paso ' + (idx + 1) + ' de ' + sec.bloques.length));
   slide.appendChild(el('h1', 'proy-tit', bloque.titulo));
+  const pc = el('div', 'proy-cuenta');
+  pc.id = 'proyCuenta';
+  slide.appendChild(pc);
   slide.appendChild(el('p', 'proy-texto', bloque.paraDocentes));
-
-  if (bloque.momentoWow) {
-    const wow = el('div', 'momento-wow');
-    wow.appendChild(el('span', 'wow-ico', '✨'));
-    const txt = el('div');
-    txt.appendChild(el('strong', null, 'Momento clave: '));
-    txt.appendChild(document.createTextNode(bloque.momentoWow));
-    wow.appendChild(txt);
-    slide.appendChild(wow);
-  }
 
   if (bloque.pasos && bloque.pasos.length) {
     const ul = el('ul', 'proy-pasos');
@@ -740,6 +712,12 @@ async function abrirSeccion(idSec, idBloque) {
     bloque_actual: bloque ? bloque.id : null,
     secciones_vistas: vistas,
   };
+  // Cada paso nuevo arranca su cuenta regresiva (se conserva si solo se re-sincroniza).
+  const idNuevo = bloque ? bloque.id : null;
+  if (!app.estado || app.estado.bloque_actual !== idNuevo || !app.estado.paso_inicio) {
+    patch.paso_inicio = new Date().toISOString();
+    patch.paso_extra = 0;
+  }
   // Si el taller estaba «finalizado» y se vuelve a navegar, se reabre solo.
   if (app.estado?.taller_finalizado) {
     patch.taller_finalizado = false;
@@ -752,7 +730,7 @@ async function abrirSeccion(idSec, idBloque) {
   }
 
   try {
-    await escribirEstado(clave, patch);
+    await escribirConRespaldo(clave, patch);
   } catch (e) {
     // Solo se crea la sala si de verdad no existe; si existe, el error es otro (p. ej. PIN).
     let existe = true;
@@ -959,4 +937,20 @@ function conectarControles() {
 function enlaceMaterial(id, m) {
   if (id !== 'pintura-con-la-cara') return m.archivo;
   return m.archivo + (m.archivo.includes('?') ? '&' : '?') + 'taller=' + encodeURIComponent(app.sala);
+}
+
+/** Si la base aún no tiene las columnas del cronómetro, navegar sigue funcionando sin él. */
+async function escribirConRespaldo(clave, patch) {
+  try {
+    await escribirEstado(clave, patch);
+  } catch (e) {
+    if (String(e.message).startsWith('Falta actualizar') && 'paso_inicio' in patch) {
+      const p2 = { ...patch };
+      delete p2.paso_inicio;
+      delete p2.paso_extra;
+      await escribirEstado(clave, p2);
+      return;
+    }
+    throw e;
+  }
 }

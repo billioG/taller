@@ -105,7 +105,8 @@ async function conectar() {
       setConexion(vivo ? 'ok' : 'mal', vivo ? 'En vivo' : 'Reconectando…');
       if (vivo) refrescarEstado(); // al reconectar, ponerse al día
     },
-    (p) => { if (typeof pinturaAviso === 'function') pinturaAviso(p); }
+    (p) => { if (typeof pinturaAviso === 'function') pinturaAviso(p); },
+    (p) => { if (typeof listoAviso === 'function') listoAviso(p); }
   );
 
   // Cargar estado inicial

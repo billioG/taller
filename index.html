@@ -108,6 +108,7 @@
   <div class="aviso-facilitador" id="aviso" hidden>
     <span class="aviso-ico" aria-hidden="true">📣</span>
     <span id="avisoTexto"></span>
+    <button class="aviso-x" id="avisoCerrar" type="button" aria-label="Cerrar aviso" title="Cerrar">✕</button>
   </div>
 
   <main id="main">
@@ -133,6 +134,7 @@
           </div>
 
           <section class="bloque slide">
+            <div id="cuentaPaso" class="cuenta" hidden></div>
             <div id="bloqueActual" class="bloque-cuerpo"></div>
             <div id="materialDelPaso"></div>
           </section>
@@ -181,6 +183,7 @@
           <div class="fac-espejo-pantalla" id="vistaPrevia">
             <div class="sesion-actual" id="prevSesion"></div>
             <section class="bloque slide">
+              <div id="cuentaPrev" class="cuenta cuenta-fac" hidden></div>
               <div id="prevBloque" class="bloque-cuerpo"></div>
               <div id="prevMaterial" class="prev-material"></div>
             </section>
@@ -374,6 +377,16 @@
   </div>
 </div>
 
+<!-- Fin del tiempo del paso (docentes) -->
+<div class="overlay-tiempo" id="overlayTiempo" hidden role="alertdialog" aria-live="assertive">
+  <div class="overlay-tiempo-caja">
+    <div class="reloj-fin" aria-hidden="true">⏰</div>
+    <h2>¡Se acabó el tiempo!</h2>
+    <p id="ovTiempoTexto"></p>
+    <button class="btn primary" id="ovTiempoCerrar" type="button">¡Vamos por el siguiente!</button>
+  </div>
+</div>
+
 <!-- QR a pantalla grande -->
 <div class="overlay-qr" id="overlayQR" hidden role="dialog" aria-label="Código QR para entrar al taller">
   <div class="overlay-qr-caja">
@@ -403,6 +416,7 @@
 <script src="js/views.js"></script>
 <script src="js/features.js"></script>
 <script src="js/interactivo.js"></script>
+<script src="js/cuenta.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

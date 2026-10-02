@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paso a paso del facilitador · Cómo operar la app</title>
+<link rel="stylesheet" href="../material.css">
+</head>
+<body>
+
+<div class="barra">
+  <span class="barra-txt"><strong>Paso a paso del facilitador</strong>Cómo operar la app antes, durante y después del taller</span>
+  <a href="#" onclick="window.print();return false;">⬇ Guardar como PDF</a>
+  <a class="secundario" href="../../index.html" onclick="window.close();setTimeout(function(){location.href='../../index.html'},300);return false;">✕ Cerrar</a>
+</div>
+
+<div class="pagina">
+
+  <div class="cabecera">
+    <div>
+      <h1>Paso a paso del facilitador</h1>
+      <p class="h1-sub">Taller de Programación Visual con Scratch · 2 horas · 6 pasos</p>
+    </div>
+    <div class="marca"><img src="../../assets/logo-icon.svg" alt=""><span>Yo Aprendo</span></div>
+  </div>
+
+  <div class="aviso aviso-azul">
+    <p class="aviso-tit">Idea central</p>
+    <p>Tú diriges todo desde el <b>panel de facilitador</b> (a la derecha, los controles; a la izquierda, lo que ven los docentes). Los docentes solo entran con su nombre y el <b>PIN</b>, y siguen cada paso en su pantalla. Cada columna del panel tiene su propio scroll.</p>
+  </div>
+
+  <h2>1 · Una sola vez, días antes</h2>
+  <ul class="check">
+    <li><b>Actualiza la base de datos.</b> Supabase → SQL Editor → pega <code>supabase.sql</code> completo → Run (con «No limit»). Cierra la app mientras corre. Debe terminar en «Success». Si sale un deadlock, reintenta.</li>
+    <li><b>Fija tu PIN de facilitador</b> (mínimo 8 caracteres, no lo compartas): <code>select public.fijar_clave('taller-1', 'TU-PIN');</code></li>
+    <li><b>Entra como facilitador:</b> abre <code>taller.yoaprendo.online</code> → «Acceso de facilitador» → tu PIN. Arriba debe decir <b>En vivo</b>.</li>
+    <li><b>Mira el PIN de los docentes</b> en «Conexión y enlace». La primera vez se genera solo. Puedes <i>Generar nuevo</i> o <i>Quitar PIN</i>.</li>
+    <li><b>Haz un ensayo con tu celular</b> en ventana de incógnito: entra como docente (nombre + PIN) y comprueba que ves los pasos que abres.</li>
+    <li>Ten a mano: el ID de tu proyecto base de Scratch (tiene que estar <b>compartido</b>), las tarjetas de bloques impresas y proyector con internet.</li>
+  </ul>
+
+  <h2>2 · Quince minutos antes de empezar</h2>
+  <ol>
+    <li>Entra como facilitador y pulsa <b>📺 Proyectar QR</b>: se ve el QR, el enlace corto y el <b>PIN</b>. Déjalo proyectado mientras llegan.</li>
+    <li>Los docentes escanean, escriben su <b>nombre</b> y el <b>PIN</b>. Verás el contador «N conectados» arriba.</li>
+    <li>Escribe un mensaje de bienvenida en «Mensaje para todos» y pulsa <b>Enviar</b>. Les llega a pantalla grande y una barra que se quita sola a los 45 segundos (pueden cerrarla con ✕).</li>
+    <li>Lanza una <b>encuesta rápida</b> para calentar: «¿Qué tan cómodo/a te sientes con la computadora?».</li>
+  </ol>
+
+  <h2>3 · Durante el taller: los 6 pasos</h2>
+  <p>Cada paso tiene un <b>cronómetro con cuenta regresiva</b> (la duración sale de su rango, por ejemplo «25-60» = 35 min). Arranca solo al abrir el paso. Tú ves el tiempo arriba del espejo, con botones <b>+2 min</b>, <b>+5 min</b> y <b>↺ Reiniciar</b>, y quiénes ya pulsaron «¡Terminé!». Los docentes escuchan música de prisa en los últimos 30 s y ven una animación al llegar a 0.</p>
+
+  <table>
+    <thead><tr><th>Paso</th><th>Qué haces en el panel</th><th>Qué dices / extras</th></tr></thead>
+    <tbody>
+      <tr><td><b>1 · Apertura</b><br>0-10 min</td><td>«Abrir esta sección» (inicia el paso 1).</td><td>Lee las 4 reglas (están en tus notas del paso). Haz el «error a propósito»: bandera verde sin bloques. En tus notas verás el <b>Momento clave</b>; los docentes no lo ven.</td></tr>
+      <tr><td><b>2 · Demostración</b><br>10-25 min</td><td><b>Siguiente ▶</b>. Se habilitan las tarjetas de bloques.</td><td>Narra cada bloque en voz alta; no corrijas el orden, pregunta qué pasaría si estuviera mal.</td></tr>
+      <tr><td><b>3 · Lo hacemos juntos</b><br>25-60 min</td><td><b>Siguiente ▶</b>. Si usas Scratch en vivo: «Scratch en vivo» → ID → <i>Cargar</i>; al guardar tu proyecto pulsa <i>🔄 Actualizar para los docentes</i>.</td><td>Lanza «¿Cómo vas con el ejercicio?» a mitad. Atiende «🙋 piden la palabra» (aparece arriba con sonido). Si el grupo va lento, <b>+5 min</b>.</td></tr>
+      <tr><td><b>4 · Tu asignatura</b><br>60-100 min</td><td><b>Siguiente ▶</b>. Se habilita <i>Pintura con la cara</i>.</td><td>Reto opcional: en «Materiales» abre <b>Pintura con la cara</b> con <i>tu</i> enlace → «⚙ Opciones del facilitador» → <b>En línea → Crear competencia</b> → elige «Todos a la vez» o «Conforme se conecten» → proyecta; los docentes ven en su app una tarjeta con el código y el QR.</td></tr>
+      <tr><td><b>5 · Enlace al celular</b><br>100-112 min</td><td><b>Siguiente ▶</b>. Se habilitan plan de clase y rúbrica.</td><td>Pide que alguien abra el enlace en el teléfono y lo levante. Pregunta abierta: «¿Qué dudas tienes hasta ahora?» (puedes <i>Mostrar respuestas</i> a todos).</td></tr>
+      <tr><td><b>6 · Compromiso</b><br>112-120 min</td><td><b>Siguiente ▶</b>. Se habilita la encuesta de salida.</td><td>Ronda de «implementaré [tema] el [fecha] con [grupo]». Pasa al cierre (sección 4).</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Herramientas que puedes usar en cualquier paso</h3>
+  <ul class="limpia">
+    <li><strong>Mensaje para todos.</strong> Escribe y pulsa Enviar: pantalla grande + barra de 45 s. «Quitar» lo retira.</li>
+    <li><strong>Encuestas en vivo.</strong> Elige una rápida o escribe la tuya: <i>opción múltiple</i> (barras en vivo) o <i>respuesta libre</i> (texto; tú ves la lista y decides si mostrarla; con ✕ quitas una respuesta). «Cerrar votación» congela los resultados.</li>
+    <li><strong>Piso / palabra.</strong> Cuando alguien pide la palabra te llega un aviso; concedes, invitas o quitas desde la lista.</li>
+    <li><strong>Materiales.</strong> Cada material se abre con su paso. Si necesitas abrirlo antes o después: «Habilitar ya» / «Bloquear».</li>
+    <li><strong>Proyectar.</strong> «⛶ Proyectar» muestra el paso a pantalla completa, con el cronómetro grande. Navega con ← → o espacio.</li>
+  </ul>
+
+  <h2>4 · Cierre</h2>
+  <ol>
+    <li><b>Frase final.</b> En «Frase final · nube NDG.» pulsa <b>1 · Abrir frases</b>. Cada docente escribe una frase que resuma el taller (140 caracteres).</li>
+    <li>Cuando terminen: <b>2 · Cerrar y mostrar imagen</b>. Las palabras llenan la silueta «NDG.» en todas las pantallas. <b>📺 Proyectar</b> o <b>⬇ Descargar PNG</b>. Con ✕ quitas una frase inapropiada.</li>
+    <li><b>Encuesta de salida.</b> Ya está habilitada en el paso 6; pide que la llenen.</li>
+    <li><b>🎓 Finalizar taller y generar certificados.</b> Se genera uno por cada docente conectado, con el nombre con que entró. Cada quien lo ve e imprime desde su pantalla. Se firma con <b>Billy Abraham Gómez Sac · Facilitador · Google Educator L1</b>.</li>
+    <li>Se abre solo el <b>seguimiento a 30 días</b> en Materiales. Envíalo tres semanas después.</li>
+    <li>Si finalizaste por error: <b>↺ Reabrir taller</b> (o simplemente navega a otro paso).</li>
+  </ol>
+
+  <div class="aviso aviso-rojo">
+    <p class="aviso-tit">Antes de generar certificados</p>
+    <p>Solo reciben certificado quienes estén <b>conectados en ese momento</b> con su nombre real. Revisa la lista «Quién está conectado» antes de pulsar el botón.</p>
+  </div>
+
+  <h2>5 · Si algo falla</h2>
+  <table>
+    <thead><tr><th>Qué pasa</th><th>Qué hacer</th></tr></thead>
+    <tbody>
+      <tr><td>Un docente no puede entrar</td><td>Revisa el PIN en «Conexión y enlace». Si hay mucho problema: <i>Quitar PIN</i> durante un rato y luego <i>Generar nuevo</i>.</td></tr>
+      <tr><td>No ven los cambios</td><td>Que recarguen la página. Arriba debe decir «En vivo»; si dice «Reconectando…» revisa el wifi.</td></tr>
+      <tr><td>Scratch sale en blanco o «No project info»</td><td>El proyecto debe estar <b>compartido</b> y el ID debe ser solo el número de la URL.</td></tr>
+      <tr><td>Error «Falta actualizar la base de datos»</td><td>No se ejecutó la última versión de <code>supabase.sql</code>. Ejecútalo completo y recarga.</td></tr>
+      <tr><td>El cronómetro del paso no aparece</td><td>Pulsa <b>↺ Reiniciar</b> en el cronómetro del espejo para arrancarlo, o vuelve a abrir el paso.</td></tr>
+      <tr><td>Aparece un deadlock al correr el SQL</td><td>Cierra la app y reintenta; no deja nada a medias.</td></tr>
+      <tr><td>El navegador del docente no deja cerrar la pestaña de un material</td><td>Es normal en algunos navegadores; el botón ✕ Cerrar lo regresa al taller.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="pie-pagina">
+    Taller de Programación Visual con Scratch · Yo Aprendo · Formación Continua
+  </div>
+</div>
+
+</body>
+</html>

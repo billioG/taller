@@ -157,7 +157,7 @@ async function guardarEstado(sala, clave, patch) {
  *   aviso relee el estado real desde la base de datos.
  * - `alPresencia` recibe el arreglo de nombres conectados, en vivo.
  */
-function suscribir(sala, nombreDocente, alAviso, alPresencia, alCambiarConexion, alPintura) {
+function suscribir(sala, nombreDocente, alAviso, alPresencia, alCambiarConexion, alPintura, alListo) {
   const canal = sb
     .channel('sala:' + sala, {
       config: {
@@ -167,6 +167,7 @@ function suscribir(sala, nombreDocente, alAviso, alPresencia, alCambiarConexion,
     })
     .on('broadcast', { event: 'estado' }, () => alAviso())
     .on('broadcast', { event: 'pintura' }, ({ payload }) => { if (alPintura) alPintura(payload); })
+    .on('broadcast', { event: 'listo' }, ({ payload }) => { if (alListo) alListo(payload); })
     .on('presence', { event: 'sync' }, () => {
       const estado = canal.presenceState();
       const nombres = [];
