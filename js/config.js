@@ -45,19 +45,21 @@ const TALLER = {
   //      .then(b => [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''))
   //
   // 3. Pega el resultado abajo y sube el cambio a GitHub.
+  // 4. Actualiza también la columna `clave` de la tabla estado_sala en Supabase
+  //    (debe ser el mismo PIN en texto plano).
   //
-  // CÁMBIALO antes de publicar. El de abajo corresponde a: 1234
+  // PIN actual: YoAprendo26
   // ------------------------------------------------------------------
-  pinHash: 'a511b1ae4d932199d30b9a3d792e0e3afb2d5dbd9c9ef94b76d4efecb3c97fe9',
+  pinHash: 'b4557abdf3bfc970ce1fbf0b8a8a657e7d84c685d3b72e703407a30ea23c9aa3',
 
   // Código de la sala. Todos los que entren por el link entran a la misma.
   salaPorDefecto: 'taller-1',
 
   // Lo que ven los docentes al entrar, antes de empezar
   bienvenida: {
-    titulo: 'Bienvenido al taller',
-    intro: 'En dos horas vas a crear un recurso interactivo sobre un contenido de tu propia asignatura. No necesitas saber programar.',
-    recordatorio: 'Trae un contenido del programa de estudio del bimestre en curso. Elige tu línea: formación ciudadana, inglés, matemáticas, emprendimiento o expresión artística.',
+    titulo: 'Hoy sales con algo que tus estudiantes pueden abrir mañana',
+    intro: 'En dos horas vas a construir un recurso interactivo con el contenido de TU asignatura. No necesitas saber programar: vas a pensar en secuencia, como una receta de cocina.',
+    recordatorio: 'Ten a mano un tema del programa del bimestre. Elige tu línea: formación ciudadana, inglés, matemáticas, emprendimiento o expresión artística.',
   },
 
   // ------------------------------------------------------------------
@@ -242,116 +244,125 @@ const TALLER = {
   secciones: [
 
     // ==================================================================
-    // SESIÓN ÚNICA (2 HORAS)
+    // SESIÓN ÚNICA (2 HORAS) — didáctica + momentos wow
     // ==================================================================
     {
       id: 's1',
       numero: 1,
       titulo: 'Construye tu recurso interactivo',
-      concepto: 'Secuencia, condición e interacción — en lenguaje de aula',
+      concepto: 'Secuencia, condición e interacción — en lenguaje de aula, no de código',
       duracion: 120,
-      producto: 'Un recurso interactivo publicado sobre tu asignatura, más el esquema de una clase de 45 minutos.',
+      producto: 'Un recurso publicado sobre tu asignatura + el esquema de una clase de 45 minutos listo para el aula.',
       bloques: [
         {
           id: 's1b1',
-          titulo: 'Apertura y acuerdo de trabajo',
+          titulo: 'Apertura: el error que enseña',
           minutos: '0-10',
+          momentoWow: 'El facilitador hace clic en la bandera verde… y no pasa nada. En 30 segundos entiendes por qué un programa es una lista de instrucciones.',
           paraDocentes:
-            'Siéntete cómodo. Aquí todos se equivocan, incluido el facilitador. Tu único objetivo hoy es salir con algo funcionando.',
+            'Regla de oro de hoy: aquí todos se equivocan, incluido quien facilita. Tu único objetivo es salir con algo que funcione. No hay examen ni comparación entre proyectos.',
           pasos: [
-            'Escribe tu nombre y entra a la sala.',
-            'Elige tu línea: formación ciudadana, inglés, matemáticas, emprendimiento o expresión artística.',
+            'Escribe tu nombre y entra a la sala (solo lo ve el facilitador).',
+            'Elige tu línea: ciudadana, inglés, matemáticas, emprendimiento o artística.',
+            'Observa el “error a propósito”: bandera verde sin bloques. ¿Qué falta?',
           ],
           guioFacilitador:
-            'Lee las 4 reglas en voz alta. Antes de explicar nada, haz el error deliberado: clic en la bandera verde sin bloques. Diagnóstico en 2 minutos, sin tabular: ¿ha usado alguna vez una herramienta digital para crear un material? Del 1 al 5, ¿qué tan cómodo se siente con la computadora? ¿Cree que sus estudiantes crearían algo así?',
+            'MOMENTO WOW 1 — El silencio de la bandera: abre Scratch, personaje visible, CERO bloques, clic en bandera verde. Pregunta: «¿Por qué no pasó nada?». Deja que respondan. Cierra con: «La computadora solo hace lo que le escribimos, en orden, como una receta». Luego las 4 reglas en voz alta. Diagnóstico rápido (manos al aire, sin tabular): ¿ha creado material digital alguna vez? Del 1 al 5, comodidad con la PC. ¿Cree que sus estudiantes harían algo así?',
           soloFacilitador: false,
         },
         {
           id: 's1b2',
-          titulo: 'Demostración en vivo',
+          titulo: 'Demostración: de cero a “me respondió”',
           minutos: '10-25',
+          momentoWow: 'En vivo, el recurso saluda, pregunta y reacciona a lo que escribes. Dejas de ver “programación” y empiezas a ver una actividad de clase.',
           paraDocentes:
-            'Mira cómo se construye, en vivo y hablando en voz alta. Después te toca a ti.',
+            'Vas a ver el recorrido completo en voz alta: saludo → pregunta → respuesta. Fíjate en el ORDEN de los bloques. Después te toca a ti con el mismo patrón.',
           pasos: [
-            'Observa la demostración completa: un recurso que saluda, pregunta y responde.',
-            'Ordena las tarjetas de bloques, si las tienes.',
+            'Observa la demo: un personaje que pregunta y responde según lo que escribes.',
+            'Con las tarjetas (si las tienes), ordena: ¿qué va primero, qué va después?',
+            'Pregunta clave: ¿qué pasaría si el saludo viniera después de la respuesta?',
           ],
           guioFacilitador:
-            'Tres minutos narrando cada bloque en voz alta. Al repartir las tarjetas NO corrijas: pregunta "¿qué pasaría si el saludo viniera después de la respuesta?". Que el error salga solo. Idea clave que debe quedar: un programa es una lista de instrucciones en orden, como una receta.',
+            'MOMENTO WOW 2 — Narrar cada bloque: “Ahora le digo que espere una respuesta… ahora comparo…”. Al repartir tarjetas NO corrijas el orden: pregunta qué pasaría si está mal. Que el error salga solo. Cierra con la analogía: secuencia = receta; si pones el horno al final, el pastel no se cocina. Deja el proyecto demo abierto 10 segundos en silencio para que “sientan” que funciona.',
           soloFacilitador: false,
         },
         {
           id: 's1b3',
-          titulo: 'Construcción guiada: lo hacemos juntos',
+          titulo: 'Lo hacemos juntos: tu primer “sí / inténtalo de nuevo”',
           minutos: '25-60',
+          momentoWow: 'Por primera vez TU proyecto responde: si aciertas, estrella; si no, te invita a intentar otra vez. Es la misma lógica que una actividad bien diseñada en el aula.',
           paraDocentes:
-            'Sigue los mismos pasos que yo. Todos hacemos lo mismo al mismo tiempo.',
+            'Todos al mismo tiempo, paso a paso. No adelantes: el poder está en armar la secuencia con calma. Al final pruebas con la bandera verde — ese clic es tuyo.',
           pasos: [
-            'Crea un proyecto nuevo y elige tu personaje.',
-            'Saludo, pregunta y respuesta: secuencia e interacción.',
-            'Añade "si... entonces": si responde bien, estrella; si no, inténtalo otra vez: condición.',
-            'Prueba con la bandera verde.',
+            'Proyecto nuevo + personaje (el que quieras).',
+            'Secuencia: saludo → preguntar → esperar respuesta.',
+            'Condición: si la respuesta es correcta → estrella; si no → “inténtalo de nuevo”.',
+            'Bandera verde. Si funciona, respira: ya tienes interacción.',
           ],
           guioFacilitador:
-            'No respondas por chat: responde en voz alta para que todos escuchen. Si alguien lleva más de 2 minutos trabado: "cierre Scratch y lo vuelva a abrir". Anuncia el tiempo cada 10 minutos. Conceptos en lenguaje de aula: secuencia = se leen de arriba abajo, como una receta; condición = si pasa esto, entonces aquello; interacción = el estudiante escribe y el recurso reacciona.',
+            'MOMENTO WOW 3 — El primer “¡respondió!”. Ve mesa por mesa cuando oigas la primera risa o sorpresa. Celebra en voz alta sin señalar a nadie en particular: “Escuchen eso: eso es interacción”. No respondas dudas solo por chat: dilas en voz alta. Si alguien lleva >2 min trabado: “cierre Scratch y ábralo de nuevo”. Anuncia tiempo a los 15 y 25 min de este bloque. Vocabulario de aula: secuencia, condición, interacción.',
           soloFacilitador: false,
         },
         {
           id: 's1b4',
-          titulo: 'Tu proyecto: elige tu línea',
+          titulo: 'Tu asignatura cobra vida',
           minutos: '60-100',
+          momentoWow: 'El contenido del programa de estudios deja el PDF y se vuelve algo que el estudiante toca, responde y recibe retroalimentación.',
           paraDocentes:
-            'Elige tu línea y construye tu propio recurso. Tres rutas: básica, media y avanzada. Nadie tiene que justificar la elección.',
+            'Ahora el contenido es TUYO. Elige ruta básica, media o avanzada — no hay que justificarlo. La básica “funciona mañana en clase”; la avanzada suma caminos o puntaje. Lo importante: que hable de tu materia.',
           pasos: [
-            'FORMACIÓN CIUDADANA: cuestionario de derechos y deberes, o escenario "¿Qué harías tú?" con dos desenlaces.',
-            'INGLÉS: diálogo o vocabulario interactivo donde el personaje corrige y da la respuesta correcta.',
-            'MATEMÁTICAS: adivina el número con pistas de "más alto / más bajo", o quiz de tres preguntas con puntaje.',
-            'EMPRENDIMIENTO: simulador "Mi negocio": fija el precio y ve ganancia o pérdida con contador visible.',
-            'EXPRESIÓN ARTÍSTICA: cuento animado o pieza musical que el estudiante dirige: escenas, colores y sonido.',
+            'CIUDADANA: derechos y deberes, o “¿Qué harías tú?” con dos desenlaces.',
+            'INGLÉS: diálogo o vocabulario; el personaje corrige y modela la respuesta.',
+            'MATEMÁTICAS: adivina el número (más alto / más bajo) o quiz con puntaje.',
+            'EMPRENDIMIENTO: “Mi negocio” — precio, ganancia o pérdida a la vista.',
+            'ARTÍSTICA: cuento o pieza que el estudiante dirige (escenas, color, sonido).',
           ],
           guioFacilitador:
-            'Anuncia las tres rutas sin jerarquía. La BÁSICA se presenta como la que "funciona tal cual en clase", nunca como la de los que no pueden. Quien termine antes, tutor de su mesa 10 minutos. Si al minuto 85 más de la mitad sigue en básica, repite el paso clave para todos con calma.',
+            'MOMENTO WOW 4 — El tema del programa en pantalla. Anuncia las tres rutas SIN jerarquía. Básica = “lista para el aula”, nunca “la fácil”. Quien termine antes → tutor de mesa 10 min. Minuto 85: si más de la mitad sigue en básica, repite en voz alta el patrón si/entonces con un ejemplo de ciudadana o mates. Pide a 2 voluntarios (si hay confianza) que muestren 20 segundos: no para evaluar, para contagiar.',
           soloFacilitador: false,
         },
         {
           id: 's1b5',
-          titulo: 'Publicar y diseñar el reto',
+          titulo: 'El enlace que funciona en el celular',
           minutos: '100-112',
+          momentoWow: 'Compartes el enlace, lo abres en el teléfono y se ve igual. Mañana un estudiante puede entrar sin instalar nada.',
           paraDocentes:
-            'Comparte tu proyecto con un enlace y escribe la pregunta o reto que tu estudiante deberá resolver dentro del recurso.',
+            'Publica, copia el enlace y pruébalo en otra pestaña o en el celular. Si abre, ya es material de clase. Luego escribe el aprendizaje esperado y qué debe hacer el estudiante para demostrarlo.',
           pasos: [
-            'Comparte tu proyecto, copia el enlace y pruébalo: si abre, funciona.',
+            'Comparte el proyecto en Scratch y copia el enlace.',
+            'Ábrelo tú mismo (otra pestaña o celular). Si carga, listo.',
             'Escribe el aprendizaje esperado tal como está en tu programa.',
-            '¿Qué tiene que hacer el estudiante para demostrar que lo sabe?',
-            'Dos o tres criterios de éxito. No más.',
+            'Define 2 o 3 criterios de éxito — no más.',
           ],
           guioFacilitador:
-            'Un proyecto sin publicar no se implementa: si alguien no puede publicar, que exporte el archivo y lo comparta por otro medio. Guía con preguntas, no con instrucciones. La última es la más importante: "¿qué pasa si un estudiante solo ve sin hacer nada?". Regla anti-pasividad: toda actividad exige una acción del estudiante.',
+            'MOMENTO WOW 5 — El celular. Pide que alguien abra el enlace en el teléfono y lo levante. Ese gesto vale más que cualquier diapositiva sobre “recursos digitales”. Ayuda a quienes no encuentran “Compartir”. Plan de clase: máximo 3 criterios. Si el tiempo aprieta, el enlace publicado es el mínimo no negociable.',
           soloFacilitador: false,
         },
         {
           id: 's1b6',
-          titulo: 'Compromiso y cierre',
+          titulo: 'Compromiso: día, grupo y hora',
           minutos: '112-120',
+          momentoWow: 'No es “algún día”: es el martes con 2° B. El recurso ya existe; solo falta abrirlo con estudiantes de carne y hueso.',
           paraDocentes:
-            'Escribe la fecha concreta en que vas a aplicarla: día, grupo y hora. No "próximamente".',
+            'Cierra el círculo: una fecha concreta de implementación (día, grupo, hora). Responde la encuesta de salida. Si el facilitador genera certificados, recoge el tuyo con tu nombre.',
           pasos: [
-            'Escribe tu fecha de implementación.',
-            'Responde la encuesta de salida.',
-            'Recoge tu certificado.',
+            'Escribe: implementaré [tema] el [fecha] con [grupo] a las [hora].',
+            'Completa la encuesta de salida (5 preguntas).',
+            'Recoge tu certificado cuando se habilite.',
           ],
           guioFacilitador:
-            'Ronda final: cada uno dice "Voy a implementar [tema] el [fecha] con [grupo]". Frase de cierre: "El enlace ya está en sus manos. La fecha ya está en su calendario. Lo único que falta es abrir Scratch el martes." Anuncia el seguimiento a 30 días AHORA y pulsa "Finalizar taller" para generar los certificados con el nombre de cada participante.',
+            'MOMENTO WOW 6 — La fecha en voz alta. Ronda rápida: cada quien dice una frase: “Voy a implementar [tema] el [fecha] con [grupo]”. Cierre: “El enlace ya está en sus manos. La fecha ya está en su calendario. Lo único que falta es abrir Scratch el día que dijeron.” Anuncia el seguimiento a 30 días. Pulsa Finalizar taller para certificados. Celebrar sin discurso largo.',
           soloFacilitador: false,
         },
       ],
       rutas: {
-        basica: 'Un recurso que pregunta y da retroalimentación inmediata.',
-        media: 'Añade puntaje, intentos o dos caminos según la respuesta.',
-        avanzada: 'Añade decisiones que cambian el desenlace o varios niveles.',
+        basica: 'Un recurso que pregunta y da retroalimentación inmediata — listo para una clase mañana.',
+        media: 'Suma puntaje, intentos o dos caminos según la respuesta.',
+        avanzada: 'Decisiones que cambian el desenlace o varios niveles con el mismo contenido curricular.',
       },
     },
   ],
+
   // ------------------------------------------------------------------
   // NOTAS PRIVADAS DEL FACILITADOR
   // ------------------------------------------------------------------

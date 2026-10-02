@@ -6,11 +6,15 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
+/* Respetar atributo hidden aunque haya display:grid/flex */
+[hidden] { display: none !important; }
+
 :root{
+  /* Yo Aprendo · línea gráfica 2026 */
   --indigo:#2B4C8C;  --indigo-d:#1E3663;  --indigo-l:#E8EDF7;
   --kakaw:#C1275B;   --jade:#1F7A5C;     --maiz:#E8B23A;   --maiz-l:#FCF3DC;
   --qox:#D9532B;
-  --tinta:#241D18;   --gris:#6B6157;     --linea:#E4DCCC;
+  --tinta:#202124;   --gris:#6B6157;     --linea:#E4DCCC;
   --papel:#FBF7EF;   --blanco:#fff;
 
   --ok:#1F7A5C; --warn:#C98A12; --mal:#C0392B;
@@ -73,9 +77,19 @@ a { color:var(--indigo); }
   padding:var(--s6) var(--s5);
 }
 
-.marca{ display:flex; gap:var(--s3); align-items:flex-start; margin-bottom:var(--s5); }
-.marca-icono svg, .marca-mini svg { width:56px; height:56px; flex:none; border-radius:14px; }
-.marca-mini svg { width:38px; height:38px; border-radius:10px; }
+.marca{
+  display:flex; flex-direction:column; gap:var(--s4);
+  align-items:flex-start; margin-bottom:var(--s5);
+}
+.marca-lockup{
+  display:block; height:64px; width:auto; max-width:100%;
+}
+.marca-titulos{ width:100%; }
+.marca-icono img, .marca-icono svg,
+.marca-mini img, .marca-mini svg {
+  width:56px; height:56px; flex:none; border-radius:14px; display:block;
+}
+.marca-mini img, .marca-mini svg { width:38px; height:38px; border-radius:10px; }
 .puerta-sub{ color:var(--gris); font-size:1.05rem; margin:0; }
 
 .puerta-aviso{
@@ -277,10 +291,6 @@ input:focus{ border-color:var(--indigo); }
   padding:5px 12px; border-radius:var(--r-s);
   font-family:var(--font-num); font-weight:750; font-size:.9rem;
 }
-.bloque-cont{
-  font-size:.85rem; font-weight:700; text-transform:uppercase;
-  letter-spacing:.06em; color:var(--gris);
-}
 .bloque-nombre{ font-size:1.3rem; margin-bottom:var(--s3); }
 .bloque-texto{ font-size:1.05rem; color:var(--tinta); margin-bottom:var(--s4); }
 
@@ -447,23 +457,64 @@ input:focus{ border-color:var(--indigo); }
 .slide .bloque-texto{ font-size:1.12rem; }
 .slide .pasos li{ font-size:1.08rem; padding:var(--s4); }
 
-/* Tira de avance: sesiones + paso actual */
+/* Tira de avance del docente: badge + puntos de paso */
 .progreso{
-  display:flex; align-items:center; gap:var(--s2);
+  display:flex; align-items:center; gap:var(--s3);
   justify-content:center; flex-wrap:wrap;
-  padding:var(--s4) var(--s3);
+  padding:var(--s3) var(--s3);
 }
-.prog-sec{
-  width:38px; height:38px; border-radius:50%;
-  display:grid; place-items:center;
-  font-weight:800; font-family:var(--font-num);
-  background:var(--blanco); border:2px solid var(--linea); color:var(--gris);
+.progreso-sticky{
+  position:sticky; top:0; z-index:20;
+  background:rgba(251,247,239,.94);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--linea);
+  margin:0 calc(-1 * var(--s3, 0px));
+  padding:var(--s3) var(--s4);
 }
-.prog-sec.abierta{ border-color:var(--jade); color:var(--jade); }
-.prog-sec.actual{ background:var(--indigo); border-color:var(--indigo); color:#fff; }
-.prog-pasos{
-  font-size:.9rem; font-weight:700; color:var(--gris);
-  margin-left:var(--s2);
+.prog-badge{
+  display:flex; flex-direction:column; align-items:center;
+  background:var(--indigo); color:#fff;
+  border-radius:var(--r-m); padding:8px 16px; min-width:4.5rem;
+  box-shadow:var(--shadow-1);
+}
+.prog-badge-num{
+  font-family:var(--font-num); font-weight:800;
+  font-size:1.25rem; line-height:1.1; letter-spacing:.02em;
+}
+.prog-badge-txt{
+  font-size:.68rem; font-weight:650; text-transform:uppercase;
+  letter-spacing:.06em; opacity:.88;
+}
+.prog-dots{
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+}
+.prog-dot{
+  width:12px; height:12px; border-radius:50%;
+  background:var(--linea); border:2px solid var(--linea);
+  transition:background .2s, transform .2s, border-color .2s;
+}
+.prog-dot.hecho{
+  background:var(--jade); border-color:var(--jade);
+}
+.prog-dot.actual{
+  background:var(--maiz); border-color:var(--maiz);
+  transform:scale(1.35);
+  box-shadow:0 0 0 3px rgba(232,178,58,.35);
+}
+.prog-paso-tit{
+  font-size:.9rem; font-weight:650; color:var(--tinta);
+  max-width:16rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+@media (max-width:520px){
+  .prog-paso-tit{ display:none; }
+}
+/* Badge de paso dentro de la diapositiva */
+.bloque-cont{
+  display:inline-block;
+  background:var(--maiz); color:#3A2A00;
+  padding:5px 12px; border-radius:999px;
+  font-size:.8rem; font-weight:800; text-transform:uppercase;
+  letter-spacing:.05em;
 }
 
 /* Descarga del material del paso, dentro de la diapositiva */
@@ -475,19 +526,82 @@ input:focus{ border-color:var(--indigo); }
 #materialDelPaso:empty{ display:none; }
 .matpaso-tit{ width:100%; font-size:.95rem; color:var(--gris); margin:0; }
 
+
 /* ------------------------------------------------------------------
-   FACILITADOR · vista previa + notas colapsables
+   FACILITADOR · layout espejo + controles
    ------------------------------------------------------------------ */
-.bloque-vista-previa{ border-color:var(--jade); background:#F2FAF7; }
-.vista-previa{ display:grid; gap:6px; }
-.prev-kicker{
-  font-size:.8rem; font-weight:800; text-transform:uppercase;
-  letter-spacing:.06em; color:var(--jade);
+.fac-layout{
+  display:grid;
+  gap:var(--s4);
+  grid-template-columns:1fr;
+  align-items:start;
 }
-.prev-tit{ font-size:1.05rem; }
+@media (min-width:960px){
+  .fac-layout{
+    grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+  }
+  .fac-espejo{ position:sticky; top:calc(var(--topbar-h) + 12px); }
+}
+.fac-espejo{
+  background:var(--blanco);
+  border:2px solid var(--jade);
+  border-radius:var(--r-l);
+  box-shadow:var(--shadow-1);
+  overflow:hidden;
+}
+.fac-espejo-cab{
+  display:flex; align-items:center; justify-content:space-between; gap:var(--s2);
+  padding:var(--s3) var(--s4);
+  background:#E7F4EF;
+  border-bottom:1px solid var(--jade);
+}
+.fac-espejo-cab .bloque-tit{ margin:0; font-size:1rem; color:var(--jade); }
+.fac-espejo-badge{
+  font-size:.78rem; font-weight:700; letter-spacing:.04em;
+  background:var(--jade); color:#fff;
+  padding:4px 10px; border-radius:999px; white-space:nowrap;
+}
+.fac-espejo-pantalla{
+  padding:var(--s4) var(--s5);
+  background:var(--papel);
+  min-height:220px;
+}
+.fac-espejo-pantalla .sesion-actual{ margin-bottom:var(--s3); }
+.fac-espejo-pantalla .bloque.slide{
+  background:var(--blanco);
+  border:1px solid var(--linea);
+  border-radius:var(--r-m);
+  padding:var(--s4);
+  margin:0;
+}
+.prev-material{
+  display:flex; gap:var(--s2); flex-wrap:wrap; align-items:center;
+  margin-top:var(--s3); padding-top:var(--s3);
+  border-top:1px dashed var(--linea);
+}
+.prev-material:empty{ display:none; }
+.fac-nav{
+  display:flex; gap:var(--s2); flex-wrap:wrap;
+  padding:var(--s3) var(--s4);
+  border-top:1px solid var(--linea);
+  background:var(--blanco);
+}
+.fac-nav .btn{ flex:1 1 auto; min-width:110px; }
+.fac-nav .btn:disabled{ opacity:.4; cursor:not-allowed; }
+.fac-controles{ display:grid; gap:var(--s3); }
+.notas-del-paso{ margin-bottom:var(--s3); }
+.notas-paso-tit{ font-size:1rem; margin:0 0 var(--s2); color:var(--indigo); }
+.notas-guion{
+  background:var(--indigo-l);
+  border-left:4px solid var(--indigo);
+  padding:var(--s3) var(--s4);
+  border-radius:0 var(--r-s) var(--r-s) 0;
+  font-size:.95rem; line-height:1.55; white-space:pre-wrap;
+}
 .prev-aviso{
   background:var(--maiz); border-radius:var(--r-s);
   padding:8px 12px; font-weight:700; font-size:.95rem; color:#3A2A00;
+  margin-top:var(--s2);
 }
 
 .bloque-notas{ padding:0; }
@@ -620,3 +734,133 @@ input:focus{ border-color:var(--indigo); }
   .piso-acciones .btn{ width:100%; }
   .scratch-iframe-contenedor{ height:350px; }
 }
+
+
+/* Marca Yo Aprendo — responsive */
+@media (max-width:600px){
+  .marca-lockup{ height:48px; }
+  .marca{ gap:var(--s3); }
+}
+
+
+/* ------------------------------------------------------------------
+   MODO PROYECCIÓN — pantalla completa solo diapositiva
+   ------------------------------------------------------------------ */
+.modo-proyeccion{
+  position:fixed; inset:0; z-index:9999;
+  background:var(--papel);
+  display:flex; flex-direction:column;
+}
+.modo-proyeccion[hidden]{ display:none !important; }
+body.proyiendo .topbar,
+body.proyiendo .wrap,
+body.proyiendo #puerta,
+body.proyiendo .aviso-facilitador{ visibility:hidden; }
+.proy-slide{
+  flex:1; display:flex; flex-direction:column; justify-content:center;
+  padding:clamp(24px, 5vw, 64px) clamp(28px, 8vw, 100px);
+  max-width:1100px; margin:0 auto; width:100%;
+  overflow:auto;
+}
+.proy-kicker{
+  font-size:clamp(.85rem, 1.5vw, 1rem);
+  font-weight:800; text-transform:uppercase; letter-spacing:.08em;
+  color:var(--jade); margin-bottom:var(--s3);
+}
+.proy-tit{
+  font-size:clamp(1.8rem, 4.5vw, 3rem);
+  line-height:1.15; margin:0 0 var(--s4); color:var(--tinta);
+}
+.proy-texto{
+  font-size:clamp(1.15rem, 2.4vw, 1.55rem);
+  line-height:1.55; color:var(--tinta); margin:0 0 var(--s5);
+  max-width:42em;
+}
+.proy-pasos{
+  list-style:none; padding:0; margin:0;
+  display:grid; gap:var(--s3);
+  font-size:clamp(1.05rem, 2vw, 1.35rem);
+}
+.proy-pasos li{
+  display:flex; gap:var(--s3); align-items:flex-start;
+  background:var(--blanco); border:1px solid var(--linea);
+  border-radius:var(--r-m); padding:var(--s3) var(--s4);
+}
+.proy-pasos .paso-n{
+  flex:none; width:2rem; height:2rem;
+  display:grid; place-items:center;
+  background:var(--indigo); color:#fff; border-radius:999px;
+  font-weight:700; font-size:.95rem;
+}
+.proy-aviso{
+  margin-top:var(--s5);
+  background:var(--maiz); color:#3A2A00;
+  font-weight:700; font-size:clamp(1rem, 2vw, 1.25rem);
+  padding:var(--s3) var(--s4); border-radius:var(--r-m);
+}
+.proy-vacio{ color:var(--gris); font-size:1.2rem; text-align:center; }
+.proy-barra{
+  position:fixed; left:0; right:0; bottom:0; z-index:10000;
+  display:flex; gap:var(--s2); align-items:center; justify-content:center;
+  padding:var(--s3) var(--s4);
+  background:rgba(255,255,255,.96);
+  border-top:1px solid var(--linea);
+  box-shadow:0 -4px 20px rgba(0,0,0,.08);
+  transform:translateY(110%);
+  opacity:0;
+  transition:transform .28s ease, opacity .28s ease;
+  pointer-events:none;
+}
+.modo-proyeccion.barra-visible .proy-barra{
+  transform:translateY(0);
+  opacity:1;
+  pointer-events:auto;
+}
+/* Zona inferior invisible para detectar el mouse */
+.modo-proyeccion::after{
+  content:"";
+  position:fixed; left:0; right:0; bottom:0; height:72px;
+  z-index:9998;
+}
+.proy-paso{
+  font-weight:700; font-size:.95rem; color:var(--gris);
+  min-width:10rem; text-align:center;
+}
+.proy-barra .btn{ min-width:3rem; }
+.proy-barra .btn:disabled{ opacity:.35; cursor:not-allowed; }
+/* Hint discreto de atajos cuando la barra está oculta */
+.proy-hint{
+  position:fixed; bottom:16px; left:50%; transform:translateX(-50%);
+  font-size:.8rem; color:var(--gris); opacity:0;
+  transition:opacity .3s; pointer-events:none; z-index:9997;
+  background:rgba(251,247,239,.9); padding:4px 12px; border-radius:999px;
+}
+.modo-proyeccion:not(.barra-visible) .proy-hint{ opacity:.55; }
+
+/* Animación al cambiar de paso */
+@keyframes progPulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(232,178,58,.5); }
+  40% { transform: scale(1.12); box-shadow: 0 0 0 8px rgba(232,178,58,0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(232,178,58,0); }
+}
+@keyframes slideInPaso {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.prog-badge.prog-pulse { animation: progPulse .55s ease-out; }
+.prog-dot.actual.prog-pulse { animation: progPulse .55s ease-out; }
+.bloque.slide.paso-nuevo {
+  animation: slideInPaso .35s ease-out;
+}
+.momento-wow {
+  display: flex; gap: var(--s2); align-items: flex-start;
+  margin: var(--s3) 0 var(--s4);
+  padding: var(--s3) var(--s4);
+  background: linear-gradient(135deg, #FCF3DC, #fff);
+  border: 2px solid var(--maiz);
+  border-radius: var(--r-m);
+  font-size: 1.02rem;
+  line-height: 1.45;
+}
+.momento-wow .wow-ico { font-size: 1.4rem; line-height: 1; flex: none; }
+.momento-wow strong { color: #8A6914; }

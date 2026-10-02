@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Línea gráfica · Yo Aprendo</title>
+<style>
+  :root {
+    --indigo: #2B4C8C;
+    --indigo-d: #1E3663;
+    --indigo-l: #E8EDF7;
+    --maiz: #E8B23A;
+    --maiz-l: #FCF3DC;
+    --jade: #1F7A5C;
+    --jade-l: #E7F4EF;
+    --kakaw: #C1275B;
+    --tinta: #1A1A1A;
+    --gris: #6B6157;
+    --linea: #E4DCCC;
+    --papel: #FBF7EF;
+    --blanco: #fff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: #f0eeea;
+    color: var(--tinta);
+    line-height: 1.55;
+  }
+  .page {
+    max-width: 820px;
+    margin: 0 auto;
+    background: var(--blanco);
+    box-shadow: 0 8px 40px rgba(0,0,0,.08);
+  }
+  .hero {
+    background: var(--indigo);
+    color: #fff;
+    padding: 48px 40px 40px;
+    text-align: center;
+  }
+  .hero img { height: 56px; margin-bottom: 16px; filter: brightness(0) invert(1); }
+  .hero h1 { font-size: 1.6rem; font-weight: 750; letter-spacing: -.02em; }
+  .hero p { opacity: .85; margin-top: 8px; font-size: .95rem; }
+  .badge {
+    display: inline-block;
+    background: var(--maiz);
+    color: var(--tinta);
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    padding: 4px 12px;
+    border-radius: 999px;
+    margin-bottom: 16px;
+  }
+  section { padding: 36px 40px; border-bottom: 1px solid var(--linea); }
+  section h2 {
+    font-size: .75rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--indigo);
+    margin-bottom: 18px;
+    font-weight: 700;
+  }
+  section h3 { font-size: 1.05rem; margin: 20px 0 10px; }
+  p, li { font-size: .95rem; color: var(--gris); }
+  ul { padding-left: 1.2em; margin: 8px 0; }
+  li { margin-bottom: 4px; }
+
+  /* Logo showcase */
+  .logo-row {
+    display: flex; gap: 24px; flex-wrap: wrap; align-items: center;
+    margin: 16px 0;
+  }
+  .logo-card {
+    background: var(--papel);
+    border: 1px solid var(--linea);
+    border-radius: 14px;
+    padding: 24px 28px;
+    display: flex; align-items: center; justify-content: center;
+    min-width: 200px; min-height: 100px;
+  }
+  .logo-card.dark { background: var(--indigo-d); }
+  .logo-card img { max-height: 52px; width: auto; }
+  .logo-card.dark img { filter: brightness(0) invert(1); }
+  .logo-card .icon { width: 56px; height: 56px; }
+
+  /* Color swatches */
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin: 12px 0 20px; }
+  .swatch {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--linea);
+  }
+  .swatch-color { height: 72px; }
+  .swatch-meta { padding: 10px 12px; background: #fff; }
+  .swatch-meta strong { display: block; font-size: .85rem; color: var(--tinta); }
+  .swatch-meta span { font-size: .75rem; color: var(--gris); font-family: ui-monospace, monospace; }
+
+  /* Type */
+  .type-sample {
+    background: var(--papel);
+    border: 1px solid var(--linea);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin: 10px 0;
+  }
+  .type-sample .label { font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; color: var(--gris); margin-bottom: 6px; }
+  .type-sample .big { font-size: 1.8rem; font-weight: 750; letter-spacing: -.02em; color: var(--tinta); }
+  .type-sample .body { font-size: 1rem; color: var(--gris); margin-top: 6px; }
+
+  /* Do / Don't */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+  @media (max-width: 600px) { .grid2 { grid-template-columns: 1fr; } section { padding: 28px 20px; } }
+  .rule {
+    border-radius: 12px;
+    padding: 16px 18px;
+    font-size: .9rem;
+  }
+  .rule.ok { background: var(--jade-l); border: 1px solid var(--jade); }
+  .rule.no { background: #FDECEA; border: 1px solid #C0392B; }
+  .rule strong { display: block; margin-bottom: 4px; color: var(--tinta); }
+
+  footer {
+    padding: 24px 40px 36px;
+    text-align: center;
+    font-size: .85rem;
+    color: var(--gris);
+  }
+  footer a { color: var(--indigo); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="hero">
+    <span class="badge">BRIEF DE MARCA</span>
+    <img src="../assets/logo-lockup.svg" alt="Yo Aprendo" style="filter:brightness(0) invert(1);height:56px">
+    <h1>Línea gráfica · Yo Aprendo</h1>
+    <p>Formación continua para docentes · Identidad visual del taller</p>
+  </header>
+
+  <!-- 1. Concepto -->
+  <section>
+    <h2>1 · Concepto de marca</h2>
+    <p><strong style="color:var(--tinta)">Yo Aprendo</strong> es formación continua: práctica, cercana y sin jerga innecesaria.</p>
+    <p style="margin-top:12px"><strong style="color:var(--tinta)">El cubo</strong> es el símbolo central. Sus tres aristas que convergen representan los tres saberes de la formación:</p>
+    <ul>
+      <li><strong>Saber</strong> — conocimiento, conceptos, el “qué”.</li>
+      <li><strong>Saber hacer</strong> — práctica, habilidad, el “cómo”.</li>
+      <li><strong>Saber ser</strong> — actitud, criterio, el “para qué” en el aula.</li>
+    </ul>
+    <ul style="margin-top:12px">
+      <li><strong>Personalidad:</strong> clara, cálida, profesional sin rigidez.</li>
+      <li><strong>Promesa:</strong> en dos horas sales con algo que funciona.</li>
+      <li><strong>Tono:</strong> de igual a igual. Nadie se ve mal por equivocarse.</li>
+    </ul>
+  </section>
+
+  <!-- 2. Logo -->
+  <section>
+    <h2>2 · Logotipo</h2>
+    <p>Cubo wireframe (saber · saber hacer · saber ser) + wordmark «Yo Aprendo» + descriptor «Formación Continua». Un solo color (#202124) sobre fondo claro.</p>
+    <div class="logo-row">
+      <div class="logo-card">
+        <img src="../assets/logo-lockup.svg" alt="Logo positivo">
+      </div>
+      <div class="logo-card dark">
+        <img src="../assets/logo-lockup.svg" alt="Logo negativo">
+      </div>
+      <div class="logo-card">
+        <img class="icon" src="../assets/icono-app.svg" alt="Isotipo">
+      </div>
+    </div>
+    <h3>Uso</h3>
+    <div class="grid2">
+      <div class="rule ok">
+        <strong>✓ Sí</strong>
+        Usar el SVG completo en cabeceras y documentos. El isotipo (cubo solo) en favicon, app y espacios pequeños.
+      </div>
+      <div class="rule no">
+        <strong>✗ No</strong>
+        No distorsionar proporciones, no añadir sombras ni degradados al cubo, no cambiar el trazo a color arbitrario.
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Color -->
+  <section>
+    <h2>3 · Paleta de color</h2>
+    <p>Base monocromática del logo + acentos educativos de alto contraste para pantalla a distancia.</p>
+
+    <h3>Principales</h3>
+    <div class="swatches">
+      <div class="swatch">
+        <div class="swatch-color" style="background:#2B4C8C"></div>
+        <div class="swatch-meta"><strong>Índigo</strong><span>#2B4C8C · Primary</span></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#1E3663"></div>
+        <div class="swatch-meta"><strong>Índigo oscuro</strong><span>#1E3663 · Hover / texto fuerte</span></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#E8B23A"></div>
+        <div class="swatch-meta"><strong>Maíz</strong><span>#E8B23A · Acento / CTA</span></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#1A1A1A"></div>
+        <div class="swatch-meta"><strong>Tinta</strong><span>#1A1A1A · Texto</span></div>
+      </div>
+    </div>
+
+    <h3>Secundarios y estado</h3>
+    <div class="swatches">
+      <div class="swatch">
+        <div class="swatch-color" style="background:#1F7A5C"></div>
+        <div class="swatch-meta"><strong>Jade</strong><span>#1F7A5C · Éxito / OK</span></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#C1275B"></div>
+        <div class="swatch-meta"><strong>Kakaw</strong><span>#C1275B · Alerta / énfasis</span></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#FBF7EF; border-bottom:1px solid #E4DCCC"></div>
+        <div class="swatch-meta"><strong>Papel</strong><span>#FBF7EF · Fondo</span></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#E8EDF7"></div>
+        <div class="swatch-meta"><strong>Índigo claro</strong><span>#E8EDF7 · Superficies</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Tipografía -->
+  <section>
+    <h2>4 · Tipografía</h2>
+    <p>Sistema nativo para máxima legibilidad en proyectores y móviles. Sin dependencias de fuentes externas.</p>
+    <div class="type-sample">
+      <div class="label">Títulos · system-ui / Segoe UI · 750</div>
+      <div class="big">Construye tu recurso interactivo</div>
+    </div>
+    <div class="type-sample">
+      <div class="label">Cuerpo · system-ui · regular 400–500</div>
+      <div class="body">En dos horas vas a crear un recurso interactivo sobre un contenido de tu propia asignatura. No necesitas saber programar.</div>
+    </div>
+    <div class="type-sample">
+      <div class="label">UI / botones · semibold 600–650 · min 16px</div>
+      <div class="body" style="font-weight:650">Entrar al taller · Abrir esta sección · Siguiente ▶</div>
+    </div>
+  </section>
+
+  <!-- 5. Aplicación -->
+  <section>
+    <h2>5 · Aplicación en el taller</h2>
+    <ul>
+      <li><strong>Puerta de entrada:</strong> logo completo + título del taller.</li>
+      <li><strong>Barra superior:</strong> isotipo (cubo en cuadrado índigo) + nombre de sesión.</li>
+      <li><strong>Materiales imprimibles:</strong> marca «YoAprendo» en cabecera; colores de la paleta en avisos y tablas.</li>
+      <li><strong>Favicon:</strong> isotipo a 48×48.</li>
+      <li><strong>Botones primarios:</strong> fondo índigo, texto blanco. Secundarios: borde + texto índigo.</li>
+      <li><strong>Acentos de atención:</strong> maíz (avisos del facilitador, focus rings).</li>
+    </ul>
+  </section>
+
+  <!-- 6. Voz -->
+  <section>
+    <h2>6 · Voz y mensajes</h2>
+    <div class="grid2">
+      <div class="rule ok">
+        <strong>✓ Decimos</strong>
+        «Aquí todos se equivocan.» · «Sales con algo funcionando.» · «Tu contenido, tu aula.»
+      </div>
+      <div class="rule no">
+        <strong>✗ Evitamos</strong>
+        Jerga técnica innecesaria · «Debes» / «Tienes que» · Comparar docentes entre sí.
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Yo Aprendo · Formación Continua · <a href="../index.html">Volver al taller</a><br>
+    Documento de línea gráfica · 2026
+  </footer>
+</div>
+</body>
+</html>

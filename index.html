@@ -4,9 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light">
+<meta name="theme-color" content="#2B4C8C">
 <meta name="description" content="Taller de programación visual con Scratch para docentes. Material del curso, descarga de guías y seguimiento en vivo de la sesión.">
 <title>Taller de Scratch · YoAprendo</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%232B4C8C'/%3E%3Cpath d='M14 18h20M14 24h20M14 30h12' stroke='%23E8B23A' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="icon" href="assets/icono-app.svg" type="image/svg+xml">
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -19,10 +20,8 @@
 <section id="puerta" class="puerta">
   <div class="puerta-caja">
     <div class="marca">
-      <span class="marca-icono" aria-hidden="true">
-        <svg viewBox="0 0 48 48"><rect width="48" height="48" rx="12" fill="#2B4C8C"/><path d="M14 18h20M14 24h20M14 30h12" stroke="#E8B23A" stroke-width="4" stroke-linecap="round"/></svg>
-      </span>
-      <div>
+      <img class="marca-lockup" src="assets/logo-lockup.svg" width="280" height="75" alt="Yo Aprendo · Formación Continua">
+      <div class="marca-titulos">
         <h1 id="puertaTitulo">Taller de Programación Visual con Scratch</h1>
         <p id="puertaSub" class="puerta-sub">Una sesión de dos horas para construir un recurso interactivo de su propia asignatura.</p>
       </div>
@@ -71,7 +70,7 @@
   <header class="topbar">
     <div class="marca-top">
       <span class="marca-mini" aria-hidden="true">
-        <svg viewBox="0 0 48 48"><rect width="48" height="48" rx="12" fill="#2B4C8C"/><path d="M14 18h20M14 24h20M14 30h12" stroke="#E8B23A" stroke-width="4" stroke-linecap="round"/></svg>
+        <img src="assets/icono-app.svg" width="38" height="38" alt="">
       </span>
       <div class="marca-top-txt">
         <strong id="topTitulo">Taller de Scratch</strong>
@@ -110,6 +109,8 @@
 
         <!-- Vista 1: lo que el facilitador está mostrando ahora -->
         <div id="vistaEnVivo">
+          <div class="progreso progreso-sticky" id="progresoSesion" aria-label="Avance de la sesión"></div>
+
           <div class="sesion-actual" id="sesionActual">
             <!-- se llena con JS -->
           </div>
@@ -118,8 +119,6 @@
             <div id="bloqueActual" class="bloque-cuerpo"></div>
             <div id="materialDelPaso"></div>
           </section>
-
-          <div class="progreso" id="progresoSesion" aria-label="Avance de la sesión"></div>
 
           <!-- Piso / Palabra (participante) -->
           <div class="piso-participante" id="pisoParticipante" hidden>
@@ -155,16 +154,43 @@
         </div>
       </section>
 
-      <!-- ============ FACILITADOR: control ============ -->
+      <!-- ============ FACILITADOR: espejo + control ============ -->
       <section class="panel" id="panelFacilitador" hidden>
 
-        <section class="bloque bloque-vista-previa">
-          <h2 class="bloque-tit">Lo que ven los docentes ahora</h2>
-          <div id="vistaPrevia" class="vista-previa"></div>
-        </section>
+        <div class="fac-layout">
 
-        <details class="bloque bloque-notas">
-          <summary class="notas-resumen">📋 Tus notas privadas <span class="notas-hint">(los docentes nunca ven esto)</span></summary>
+        <!-- COLUMNA IZQUIERDA: espejo exacto de lo que ven los docentes -->
+        <div class="fac-espejo">
+          <div class="fac-espejo-cab">
+            <h2 class="bloque-tit">Lo que ven los docentes ahora</h2>
+            <span class="fac-espejo-badge" id="facEspejoBadge">Sin sección abierta</span>
+          </div>
+
+          <!-- Misma estructura que panelDocente → vistaEnVivo -->
+          <div class="fac-espejo-pantalla" id="vistaPrevia">
+            <div class="sesion-actual" id="prevSesion"></div>
+            <section class="bloque slide">
+              <div id="prevBloque" class="bloque-cuerpo"></div>
+              <div id="prevMaterial" class="prev-material"></div>
+            </section>
+            <div class="progreso" id="prevProgreso" aria-label="Avance"></div>
+          </div>
+
+          <!-- Controles de navegación pegados al espejo -->
+          <div class="fac-nav" id="facNav">
+            <button class="btn" id="btnPrevPaso" type="button" title="Paso anterior">◀ Anterior</button>
+            <button class="btn primary" id="btnAbrirSeccionActual" type="button">Abrir / sincronizar</button>
+            <button class="btn primary" id="btnNextPaso" type="button" title="Siguiente paso">Siguiente ▶</button>
+            <button class="btn ghost" id="btnProyectar" type="button" title="Pantalla completa solo diapositiva">⛶ Proyectar</button>
+          </div>
+        </div>
+
+        <!-- COLUMNA DERECHA: controles -->
+        <div class="fac-controles">
+
+        <details class="bloque bloque-notas" open>
+          <summary class="notas-resumen">📋 Tus notas de este paso <span class="notas-hint">(solo tú las ves)</span></summary>
+          <div id="notasDelPaso" class="notas-del-paso"></div>
           <div id="notasFacilitador"></div>
         </details>
 
@@ -243,14 +269,35 @@
           </div>
           <p id="scratchEstado" class="bloque-nota"></p>
         </section>
+
+        </div><!-- /.fac-controles -->
+        </div><!-- /.fac-layout -->
       </section>
 
     </div>
   </main>
 </div>
 
+
+<!-- Modo proyección: solo diapositiva a pantalla completa -->
+<div id="modoProyeccion" class="modo-proyeccion" hidden>
+  <div class="proy-slide" id="proySlide"></div>
+  <div class="proy-hint">← → o Espacio para avanzar · Esc para salir</div>
+  <div class="proy-barra">
+    <button class="btn" id="proyPrev" type="button">◀</button>
+    <span class="proy-paso" id="proyPaso">—</span>
+    <button class="btn primary" id="proyNext" type="button">▶</button>
+    <button class="btn ghost" id="proyCerrar" type="button">Salir (Esc)</button>
+  </div>
+</div>
+
 <script src="js/config.js"></script>
 <script src="js/supabase.js"></script>
+<script src="js/core.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/sync.js"></script>
+<script src="js/views.js"></script>
+<script src="js/features.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

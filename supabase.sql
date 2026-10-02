@@ -4,14 +4,20 @@
 -- ==========================================================================
 
 create table if not exists public.estado_sala (
-  id               uuid primary key default gen_random_uuid(),
-  sala             text        not null unique,
-  clave            text        not null,
-  seccion_actual   text        not null default 's1',
-  bloque_actual    text,
-  secciones_vistas text[]      not null default '{}',
-  mensaje          text        not null default '',
-  actualizado      timestamptz not null default now(),
+  id                   uuid primary key default gen_random_uuid(),
+  sala                 text        not null unique,
+  clave                text        not null,
+  seccion_actual       text        not null default 's1',
+  bloque_actual        text,
+  secciones_vistas     text[]      not null default '{}',
+  mensaje              text        not null default '',
+  -- Nuevos campos para features extra
+  scratch_project_id   text,
+  scratch_url          text,
+  piso                 jsonb       not null default '{}',
+  certificados_generados jsonb,
+  taller_finalizado    boolean     not null default false,
+  actualizado          timestamptz not null default now(),
   constraint sala_no_vacia check (char_length(sala) between 1 and 60)
 );
 
@@ -61,6 +67,23 @@ create policy "escribir con clave correcta"
       ''
     )
   );
+
+-- ==========================================================================
+-- MIGRACIÓN: si la tabla YA EXISTE (la creaste antes), el create de arriba
+-- no hace nada. Copia y pega SOLO este bloque en el SQL Editor y dale Run.
+-- ==========================================================================
+alter table public.estado_sala add column if not exists scratch_project_id     text;
+alter table public.estado_sala add column if not exists scratch_url            text;
+alter table public.estado_sala add column if not exists piso                   jsonb not null default '{}';
+alter table public.estado_sala add column if not exists certificados_generados jsonb;
+alter table public.estado_sala add column if not exists taller_finalizado      boolean not null default false;
+
+-- La fila de tu sala necesita la MISMA clave que el PIN de la app.
+-- PIN actual por defecto: YoAprendo26
+-- Si cambiaste el PIN en config.js, pon aquí ese mismo PIN.
+-- Sin esto, el facilitador escribe y la política RLS devuelve 0 filas:
+-- "No se pudo guardar: la clave de facilitador no coincide."
+update public.estado_sala set clave = 'YoAprendo26' where clave is distinct from 'YoAprendo26';
 
 -- Un poco de contexto sobre por qué esto funciona:
 -- `request.headers` es un objeto JSON con todas las cabeceras de la petición.

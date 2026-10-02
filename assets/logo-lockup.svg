@@ -1,0 +1,9 @@
+<svg viewBox="0 0 600 160" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, -apple-system, Segoe UI, Arial, sans-serif">
+  <g transform="translate(14,14) scale(1.0)">
+    <polygon points="50,15 82,32 82,68 50,85 18,68 18,32" fill="none" stroke="#202124" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M50,50 L18,32 M50,50 L82,32 M50,50 L50,85" fill="none" stroke="#202124" stroke-width="3.5" stroke-linecap="round"/>
+  </g>
+
+  <text x="112" y="78" font-size="44" font-weight="700" fill="#202124" letter-spacing="-0.5">Yo Aprendo</text>
+  <text x="114" y="102" font-size="12" font-weight="600" letter-spacing="2" fill="#5F6368">FORMACIÓN CONTINUA</text>
+</svg>
