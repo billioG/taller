@@ -111,3 +111,14 @@ function miVotanteId() {
   }
   return v;
 }
+
+/** PIN de participantes de esta sesión (solo sessionStorage). */
+function pinParticipante() {
+  try { return sessionStorage.getItem('taller.pinpart') || ''; } catch { return ''; }
+}
+function guardarPinParticipante(p) {
+  try {
+    if (p) sessionStorage.setItem('taller.pinpart', p);
+    else sessionStorage.removeItem('taller.pinpart');
+  } catch { }
+}

@@ -118,6 +118,71 @@ as $$
   )
 $$;
 
+-- PIN de participantes: lo fija el facilitador y lo teclean los docentes para entrar.
+-- Si la sala no tiene PIN (null), la entrada es libre.
+alter table public.sala_claves add column if not exists pin_part text;
+
+create or replace function public.pin_part_ok(p_sala text, p_pin text)
+returns boolean
+language sql stable security definer
+set search_path = public, extensions
+as $$
+  select coalesce(
+    (select c.pin_part is null or c.pin_part = btrim(coalesce(p_pin, ''))
+       from public.sala_claves c where c.sala = p_sala),
+    true)
+$$;
+
+-- 'abierto' (sin PIN) | 'ok' | 'mal'
+create or replace function public.pin_part_verificar(p_sala text, p_pin text)
+returns text
+language sql stable security definer
+set search_path = public, extensions
+as $$
+  select case
+    when not exists (select 1 from public.sala_claves c where c.sala = p_sala) then 'abierto'
+    when (select c.pin_part from public.sala_claves c where c.sala = p_sala) is null then 'abierto'
+    when public.pin_part_ok(p_sala, p_pin) then 'ok'
+    else 'mal' end
+$$;
+
+create or replace function public.pin_part_fijar(p_sala text, p_clave text, p_pin text)
+returns void
+language plpgsql security definer
+set search_path = public, extensions
+as $$
+begin
+  if not public.clave_valida(p_sala, p_clave) then
+    raise exception 'no_permitido' using errcode = 'P0001';
+  end if;
+  if p_pin is not null and p_pin !~ '^[A-Za-z0-9]{4,12}$' then
+    raise exception 'pin_formato' using errcode = 'P0001';
+  end if;
+  update public.sala_claves set pin_part = p_pin where sala = p_sala;
+end $$;
+
+create or replace function public.pin_part_leer(p_sala text, p_clave text)
+returns text
+language plpgsql stable security definer
+set search_path = public, extensions
+as $$
+declare r text;
+begin
+  if not public.clave_valida(p_sala, p_clave) then
+    raise exception 'no_permitido' using errcode = 'P0001';
+  end if;
+  select pin_part into r from public.sala_claves where sala = p_sala;
+  return r;
+end $$;
+
+revoke all on function public.pin_part_ok(text, text)                 from public;
+revoke all on function public.pin_part_verificar(text, text)          from public;
+revoke all on function public.pin_part_fijar(text, text, text)        from public;
+revoke all on function public.pin_part_leer(text, text)               from public;
+grant execute on function public.pin_part_verificar(text, text)       to anon, authenticated;
+grant execute on function public.pin_part_fijar(text, text, text)     to anon, authenticated;
+grant execute on function public.pin_part_leer(text, text)            to anon, authenticated;
+
 -- --------------------------------------------------------------------------
 -- 5. Row Level Security
 -- --------------------------------------------------------------------------
@@ -188,8 +253,9 @@ end $$;
 --   Docente   : puede pedir la palabra, aceptar una invitación o soltarla,
 --               solo en su propia entrada.
 --   Facilitador: cualquier estado (invitar, conceder, quitar…).
+drop function if exists public.piso_actualizar(text, text, text, text);
 create or replace function public.piso_actualizar(
-  p_sala text, p_nombre text, p_estado text, p_clave text default null
+  p_sala text, p_nombre text, p_estado text, p_clave text default null, p_pin text default null
 ) returns public.estado_sala
 language plpgsql security definer
 set search_path = public, extensions
@@ -207,6 +273,9 @@ begin
   end if;
 
   es_fac := p_clave is not null and public.clave_valida(p_sala, p_clave);
+  if not es_fac and not public.pin_part_ok(p_sala, p_pin) then
+    raise exception 'pin_invalido' using errcode = 'P0001';
+  end if;
 
   select piso -> p_nombre ->> 'estado' into actual
   from public.estado_sala where sala = p_sala for update;
@@ -265,14 +334,14 @@ end $$;
 -- --------------------------------------------------------------------------
 revoke all on function public.crear_sala(text, text)                     from public;
 revoke all on function public.verificar_clave(text, text)                from public;
-revoke all on function public.piso_actualizar(text, text, text, text)    from public;
+revoke all on function public.piso_actualizar(text, text, text, text, text)    from public;
 revoke all on function public.clave_valida(text, text)                   from public;
 revoke all on function public.clave_de_cabecera()                        from public;
 revoke all on function public.fijar_clave(text, text)                    from public, anon, authenticated;
 
 grant execute on function public.crear_sala(text, text)                  to anon, authenticated;
 grant execute on function public.verificar_clave(text, text)             to anon, authenticated;
-grant execute on function public.piso_actualizar(text, text, text, text) to anon, authenticated;
+grant execute on function public.piso_actualizar(text, text, text, text, text) to anon, authenticated;
 grant execute on function public.clave_valida(text, text)                to anon, authenticated;
 grant execute on function public.clave_de_cabecera()                     to anon, authenticated;
 
@@ -318,8 +387,9 @@ alter table public.frases enable row level security;
 revoke all on public.frases from anon, authenticated;
 
 -- Votar: valida que la encuesta esté abierta y recalcula los conteos.
+drop function if exists public.encuesta_votar(text, text, text, int);
 create or replace function public.encuesta_votar(
-  p_sala text, p_poll text, p_voter text, p_opcion int
+  p_sala text, p_poll text, p_voter text, p_opcion int, p_pin text default null
 ) returns public.estado_sala
 language plpgsql security definer
 set search_path = public, extensions
@@ -329,6 +399,9 @@ declare
   n   int;
   fila public.estado_sala;
 begin
+  if not public.pin_part_ok(p_sala, p_pin) then
+    raise exception 'pin_invalido' using errcode = 'P0001';
+  end if;
   if p_voter is null or char_length(p_voter) not between 6 and 64 then
     raise exception 'votante_invalido' using errcode = 'P0001';
   end if;
@@ -366,7 +439,8 @@ begin
 end $$;
 
 -- Enviar (o reemplazar) mi frase; solo mientras el facilitador la tenga abierta.
-create or replace function public.frase_enviar(p_sala text, p_voter text, p_texto text)
+drop function if exists public.frase_enviar(text, text, text);
+create or replace function public.frase_enviar(p_sala text, p_voter text, p_texto text, p_pin text default null)
 returns void
 language plpgsql security definer
 set search_path = public, extensions
@@ -375,6 +449,9 @@ declare
   est jsonb;
   t   text := btrim(regexp_replace(coalesce(p_texto, ''), '\s+', ' ', 'g'));
 begin
+  if not public.pin_part_ok(p_sala, p_pin) then
+    raise exception 'pin_invalido' using errcode = 'P0001';
+  end if;
   if p_voter is null or char_length(p_voter) not between 6 and 64 then
     raise exception 'votante_invalido' using errcode = 'P0001';
   end if;
@@ -465,7 +542,8 @@ create table if not exists public.respuestas (
 alter table public.respuestas enable row level security;
 revoke all on public.respuestas from anon, authenticated;
 
-create or replace function public.respuesta_enviar(p_sala text, p_poll text, p_voter text, p_texto text)
+drop function if exists public.respuesta_enviar(text, text, text, text);
+create or replace function public.respuesta_enviar(p_sala text, p_poll text, p_voter text, p_texto text, p_pin text default null)
 returns void
 language plpgsql security definer
 set search_path = public, extensions
@@ -474,6 +552,9 @@ declare
   enc jsonb;
   t   text := btrim(regexp_replace(coalesce(p_texto, ''), '\s+', ' ', 'g'));
 begin
+  if not public.pin_part_ok(p_sala, p_pin) then
+    raise exception 'pin_invalido' using errcode = 'P0001';
+  end if;
   if p_voter is null or char_length(p_voter) not between 6 and 64 then
     raise exception 'votante_invalido' using errcode = 'P0001';
   end if;
@@ -516,20 +597,20 @@ begin
   delete from public.respuestas where sala = p_sala and id = p_id;
 end $$;
 
-revoke all on function public.respuesta_enviar(text, text, text, text) from public;
+revoke all on function public.respuesta_enviar(text, text, text, text, text) from public;
 revoke all on function public.respuestas_leer(text, text)               from public;
 revoke all on function public.respuesta_borrar(text, bigint, text)      from public;
-grant execute on function public.respuesta_enviar(text, text, text, text) to anon, authenticated;
+grant execute on function public.respuesta_enviar(text, text, text, text, text) to anon, authenticated;
 grant execute on function public.respuestas_leer(text, text)               to anon, authenticated;
 grant execute on function public.respuesta_borrar(text, bigint, text)      to anon, authenticated;
 
-revoke all on function public.encuesta_votar(text, text, text, int) from public;
-revoke all on function public.frase_enviar(text, text, text)         from public;
+revoke all on function public.encuesta_votar(text, text, text, int, text) from public;
+revoke all on function public.frase_enviar(text, text, text, text)         from public;
 revoke all on function public.frases_leer(text)                       from public;
 revoke all on function public.frase_borrar(text, bigint, text)        from public;
 revoke all on function public.frases_limpiar(text, text)              from public;
-grant execute on function public.encuesta_votar(text, text, text, int) to anon, authenticated;
-grant execute on function public.frase_enviar(text, text, text)         to anon, authenticated;
+grant execute on function public.encuesta_votar(text, text, text, int, text) to anon, authenticated;
+grant execute on function public.frase_enviar(text, text, text, text)         to anon, authenticated;
 grant execute on function public.frases_leer(text)                       to anon, authenticated;
 grant execute on function public.frase_borrar(text, bigint, text)        to anon, authenticated;
 grant execute on function public.frases_limpiar(text, text)              to anon, authenticated;

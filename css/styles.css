@@ -1010,3 +1010,28 @@ button.enc-opcion, button.enc-fila{ cursor:pointer; }
 .mat-fila{ display:flex; gap:var(--s2); align-items:stretch; }
 .mat-fila .mat{ flex:1; min-width:0; }
 .mat-fila .btn{ flex:none; align-self:center; }
+
+/* Panel del facilitador: cada columna con su propio scroll (escritorio) */
+.fac-espejo-pantalla{ overflow:auto; max-height:60vh; }
+@media (min-width:960px){
+  .fac-espejo{
+    position:sticky; top:calc(var(--topbar-h) + 12px);
+    max-height:calc(100vh - var(--topbar-h) - 24px);
+    display:flex; flex-direction:column;
+  }
+  .fac-espejo-pantalla{ flex:1 1 auto; min-height:0; max-height:none; overflow:auto; }
+  .fac-controles{
+    position:sticky; top:calc(var(--topbar-h) + 12px);
+    max-height:calc(100vh - var(--topbar-h) - 24px);
+    overflow:auto; padding-right:6px; align-content:start;
+  }
+}
+
+/* PIN de participantes */
+.pin-part-box{ margin-bottom:var(--s3); }
+.pin-part{ font-family:var(--font-num); font-size:2.4rem; font-weight:900; letter-spacing:.18em; color:var(--indigo-d); margin:var(--s2) 0; }
+.qr-pin{ font-size:2.2rem; font-weight:900; letter-spacing:.2em; color:var(--kakaw); margin:var(--s2) 0 var(--s3); }
+.qr-pin:empty{ display:none; }
+.qr-mini{ width:120px; height:120px; margin-top:var(--s3); }
+.qr-mini svg{ width:100%; height:100%; display:block; }
+.interactivo-card.pintura{ border-color:var(--kakaw); }

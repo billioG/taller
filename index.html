@@ -38,6 +38,9 @@
         <input id="inpNombreDocente" type="text" placeholder="Escribe tu nombre" maxlength="30" autocomplete="off">
         <button class="btn primary" type="submit">Entrar al taller</button>
       </div>
+      <label for="inpPinPart" style="margin-top:14px">PIN de la sala</label>
+      <input id="inpPinPart" type="text" inputmode="text" placeholder="El que ves en la pantalla del salón" maxlength="12" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <p class="pin-error" id="pinPartError" hidden>Ese PIN no es correcto. Pídelo al facilitador.</p>
       <p class="puerta-nota" id="notaNombre">
         Solo aparece en la pantalla del facilitador, para saber quién se conectó. Puedes dejarlo en blanco.
       </p>
@@ -243,6 +246,14 @@
               <button class="btn" id="btnProyectarQR" type="button">📺 Proyectar QR</button>
             </div>
           </div>
+          <div class="pin-part-box">
+            <p class="bloque-nota">PIN de los docentes (lo escriben al entrar; se muestra también al proyectar el QR):</p>
+            <div class="pin-part" id="pinPartValor">—</div>
+            <div class="fila-form">
+              <button class="btn" id="btnNuevoPinPart" type="button">🔄 Generar nuevo PIN</button>
+              <button class="btn ghost" id="btnQuitarPinPart" type="button">Quitar PIN (entrada libre)</button>
+            </div>
+          </div>
           <div class="fila-form">
             <button class="btn primary" id="btnCopiarLink" type="button">Copiar link para docentes</button>
             <button class="btn ghost" id="btnDebug" type="button">Probar conexión</button>
@@ -369,6 +380,7 @@
     <h2>Escanea para entrar al taller</h2>
     <div class="qr-grande" id="qrGrande"></div>
     <p class="qr-url" id="qrGrandeUrl"></p>
+    <p class="qr-pin" id="qrGrandePin"></p>
     <button class="btn primary" id="qrCerrar" type="button">Cerrar (Esc)</button>
   </div>
 </div>

@@ -21,6 +21,20 @@ function limpiarNombre(n) {
   return v.toLowerCase() === 'facilitador' ? '' : v;
 }
 
+/** Comprueba el PIN de participantes en el servidor: 'ok' | 'abierto' | 'mal' | 'error:…' */
+async function verificarPuerta(pin) {
+  if (!SB_LISTO) return 'abierto';
+  try {
+    await initSupabase();
+    return await verificarPinPart(app.sala, pin);
+  } catch (e) {
+    const m = mensajeError(e);
+    // Si la base aún no tiene el PIN (falta ejecutar supabase.sql), no se bloquea la entrada.
+    if (m.startsWith('Falta actualizar')) return 'abierto';
+    return 'error:' + m;
+  }
+}
+
 function init() {
   $('#puertaTitulo').textContent = TALLER.titulo;
   $('#puertaSub').textContent = TALLER.subtitulo;
@@ -34,6 +48,7 @@ function init() {
     guardarLS(LS.pinHash, '');
     guardarLS(LS.rol, '');
     guardarClaveSesion(''); // limpia sessionStorage
+    guardarPinParticipante('');
     // NO borramos LS.nombre para que la próxima vez solo dé Enter
     location.reload();
   });
@@ -57,11 +72,20 @@ function init() {
   }
 
   if (rolGuardado === 'docente' && nombreGuardado) {
-    // Docente: rol + nombre guardados
-    app.rol = 'docente';
-    app.nombre = nombreGuardado;
-    app.seccionesVistas = leerVistas();
-    entrar();
+    // Docente: rol + nombre guardados. Se revalida el PIN de la sala (puede haber cambiado).
+    verificarPuerta(pinParticipante()).then((r) => {
+      if (r === 'mal') {
+        guardarPinParticipante('');
+        $('#inpNombreDocente').value = nombreGuardado;
+        $('#pinPartError').hidden = false;
+        $('#inpPinPart').focus();
+        return;
+      }
+      app.rol = 'docente';
+      app.nombre = nombreGuardado;
+      app.seccionesVistas = leerVistas();
+      entrar();
+    });
     return;
   }
 
@@ -83,8 +107,27 @@ function init() {
   }
 
   // --- Entrada de docente ---
-  $('#formDocente').addEventListener('submit', (e) => {
+  $('#formDocente').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const pin = ($('#inpPinPart').value || '').trim();
+    const btn = $('#formDocente button[type="submit"]');
+    const err = $('#pinPartError');
+    btn.disabled = true;
+    const r = await verificarPuerta(pin);
+    btn.disabled = false;
+    if (r === 'mal') {
+      err.textContent = 'Ese PIN no es correcto. Pídelo al facilitador.';
+      err.hidden = false;
+      $('#inpPinPart').select();
+      return;
+    }
+    if (r.startsWith('error:')) {
+      err.textContent = 'No se pudo comprobar el PIN: ' + r.slice(6);
+      err.hidden = false;
+      return;
+    }
+    err.hidden = true;
+    guardarPinParticipante(r === 'abierto' ? '' : pin);
     app.rol = 'docente';
     app.nombre = limpiarNombre($('#inpNombreDocente').value) || 'Docente';
     guardarLS(LS.rol, 'docente');

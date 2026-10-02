@@ -190,7 +190,7 @@ function renderMaterialDelPaso() {
   disponibles.forEach((id) => {
     const m = TALLER.materiales[id];
     const a = el('a', 'btn primary btn-mini');
-    a.href = m.archivo;
+    a.href = enlaceMaterial(id, m);
     a.target = '_blank';
     a.rel = 'noopener';
     a.textContent = '⬇ ' + m.titulo;
@@ -287,7 +287,7 @@ function renderVistaPrevia() {
       disponibles.forEach((id) => {
         const m = TALLER.materiales[id];
         const a = el('a', 'btn primary btn-mini');
-        a.href = m.archivo;
+        a.href = enlaceMaterial(id, m);
         a.target = '_blank';
         a.rel = 'noopener';
         a.textContent = '⬇ ' + m.titulo;
@@ -528,7 +528,7 @@ function renderMaterialesDocente() {
     const a = el('a', 'mat' + (m.libre ? ' libre' : '') + (abierta ? '' : ' bloqueado'));
 
     if (abierta) {
-      a.href = m.archivo;
+      a.href = enlaceMaterial(id, m);
       a.target = '_blank';
       a.rel = 'noopener';
     } else {
@@ -684,7 +684,7 @@ function renderControlMateriales() {
 
   Object.entries(fuente).forEach(([id, m]) => {
     const a = el('a', 'mat' + (m.libre ? ' libre' : ''));
-    a.href = m.archivo;
+    a.href = enlaceMaterial(id, m);
     a.target = '_blank';
     a.rel = 'noopener';
     a.appendChild(el('span', 'mat-ico', '📄'));
@@ -953,4 +953,10 @@ function conectarControles() {
       window.prompt('Copia este link:', url);
     }
   });
+}
+
+/** Enlace de un material; Pintura recibe la sala del taller para poder mostrar la sala abierta. */
+function enlaceMaterial(id, m) {
+  if (id !== 'pintura-con-la-cara') return m.archivo;
+  return m.archivo + (m.archivo.includes('?') ? '&' : '?') + 'taller=' + encodeURIComponent(app.sala);
 }

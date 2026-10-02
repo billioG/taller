@@ -40,6 +40,9 @@ function mensajeError(e) {
   if (m.includes('sala_existente')) return 'La sala ya existe.';
   if (m.includes('sala_inexistente')) return 'La sala todavía no existe.';
   if (m.includes('no_permitido')) return 'Acción no permitida en este momento.';
+  if (m.includes('pin_invalido')) return 'El PIN de la sala no es correcto. Vuelve a entrar con el PIN.';
+  if (m.includes('pin_formato')) return 'El PIN debe tener de 4 a 12 letras o números.';
+  if (m.includes('schema cache') || m.includes('PGRST202') || m.includes('PGRST204')) return 'Falta actualizar la base de datos: ejecuta supabase.sql completo en el SQL Editor de Supabase.';
   if (m.includes('encuesta_cerrada')) return 'La votación ya está cerrada.';
   if (m.includes('encuesta_inexistente')) return 'Esa encuesta ya no está activa.';
   if (m.includes('opcion_invalida')) return 'Opción no válida.';
@@ -97,6 +100,7 @@ async function pisoActualizar(sala, nombre, estado, clave) {
     p_nombre: nombre,
     p_estado: estado,
     p_clave: clave || null,
+    p_pin: pinParticipante() || null,
   });
   if (error) throw new Error(mensajeError(error));
   return data;
@@ -133,6 +137,9 @@ async function guardarEstado(sala, clave, patch) {
   }
 
   if (!res.ok) {
+    let det = '';
+    try { det = await res.text(); } catch {}
+    if (det.includes('schema cache') || det.includes('PGRST204') || det.includes('does not exist')) throw new Error(mensajeError('schema cache'));
     throw new Error('El servidor rechazó el cambio (' + res.status + ').');
   }
   const data = await res.json();
@@ -150,7 +157,7 @@ async function guardarEstado(sala, clave, patch) {
  *   aviso relee el estado real desde la base de datos.
  * - `alPresencia` recibe el arreglo de nombres conectados, en vivo.
  */
-function suscribir(sala, nombreDocente, alAviso, alPresencia, alCambiarConexion) {
+function suscribir(sala, nombreDocente, alAviso, alPresencia, alCambiarConexion, alPintura) {
   const canal = sb
     .channel('sala:' + sala, {
       config: {
@@ -159,6 +166,7 @@ function suscribir(sala, nombreDocente, alAviso, alPresencia, alCambiarConexion)
       },
     })
     .on('broadcast', { event: 'estado' }, () => alAviso())
+    .on('broadcast', { event: 'pintura' }, ({ payload }) => { if (alPintura) alPintura(payload); })
     .on('presence', { event: 'sync' }, () => {
       const estado = canal.presenceState();
       const nombres = [];
@@ -197,7 +205,7 @@ async function emitirEstado(canal) {
 
 /** Votar en la encuesta activa. Devuelve el estado con conteos nuevos. */
 async function votarEncuesta(sala, poll, voter, opcion) {
-  const { data, error } = await sb.rpc('encuesta_votar', { p_sala: sala, p_poll: poll, p_voter: voter, p_opcion: opcion });
+  const { data, error } = await sb.rpc('encuesta_votar', { p_sala: sala, p_poll: poll, p_voter: voter, p_opcion: opcion, p_pin: pinParticipante() || null });
   if (error) throw new Error(mensajeError(error));
   return data;
 }
@@ -210,7 +218,7 @@ async function encuestaEstado(sala, clave, abierta) {
 }
 
 async function enviarFrase(sala, voter, texto) {
-  const { error } = await sb.rpc('frase_enviar', { p_sala: sala, p_voter: voter, p_texto: texto });
+  const { error } = await sb.rpc('frase_enviar', { p_sala: sala, p_voter: voter, p_texto: texto, p_pin: pinParticipante() || null });
   if (error) throw new Error(mensajeError(error));
 }
 
@@ -230,8 +238,27 @@ async function limpiarFrases(sala, clave) {
   if (error) throw new Error(mensajeError(error));
 }
 
+
+/** PIN de participantes: 'abierto' (sin PIN) | 'ok' | 'mal'. */
+async function verificarPinPart(sala, pin) {
+  const { data, error } = await sb.rpc('pin_part_verificar', { p_sala: sala, p_pin: pin || '' });
+  if (error) throw new Error(mensajeError(error));
+  return data;
+}
+
+async function fijarPinPart(sala, clave, pin) {
+  const { error } = await sb.rpc('pin_part_fijar', { p_sala: sala, p_clave: clave, p_pin: pin });
+  if (error) throw new Error(mensajeError(error));
+}
+
+async function leerPinPart(sala, clave) {
+  const { data, error } = await sb.rpc('pin_part_leer', { p_sala: sala, p_clave: clave });
+  if (error) throw new Error(mensajeError(error));
+  return data || '';
+}
+
 async function enviarRespuesta(sala, poll, voter, texto) {
-  const { error } = await sb.rpc('respuesta_enviar', { p_sala: sala, p_poll: poll, p_voter: voter, p_texto: texto });
+  const { error } = await sb.rpc('respuesta_enviar', { p_sala: sala, p_poll: poll, p_voter: voter, p_texto: texto, p_pin: pinParticipante() || null });
   if (error) throw new Error(mensajeError(error));
 }
 

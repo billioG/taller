@@ -44,7 +44,74 @@ function abrirQRGrande() {
   const url = enlaceCorto();
   pintarQR($('#qrGrande'), url);
   $('#qrGrandeUrl').textContent = url.replace(/^https?:\/\//, '');
+  $('#qrGrandePin').textContent = app.pinPart ? 'PIN: ' + app.pinPart : '';
   $('#overlayQR').hidden = false;
+}
+
+// ---------------------------------------------------------------------------
+// PIN DE PARTICIPANTES (panel del facilitador)
+// ---------------------------------------------------------------------------
+function pintarPinPart() {
+  const v = $('#pinPartValor');
+  if (v) v.textContent = app.pinPart || 'Sin PIN (entrada libre)';
+}
+
+function generarPin() {
+  const a = new Uint32Array(1);
+  crypto.getRandomValues(a);
+  return String(10000 + (a[0] % 90000));
+}
+
+async function nuevoPinPart(auto) {
+  try {
+    const pin = generarPin();
+    await fijarPinPart(app.sala, app.clave, pin);
+    app.pinPart = pin;
+    guardarLS('taller.pinabierto', '');
+    pintarPinPart();
+    mostrarToast((auto ? 'Se generó el PIN de los docentes: ' : 'Nuevo PIN: ') + pin, 'ok', 6000);
+  } catch (e) {
+    mostrarToast(mensajeError(e), 'err');
+  }
+}
+
+async function quitarPinPart() {
+  if (!confirm('¿Quitar el PIN? Cualquiera con el enlace podrá entrar.')) return;
+  try {
+    await fijarPinPart(app.sala, app.clave, null);
+    app.pinPart = '';
+    guardarLS('taller.pinabierto', '1');
+    pintarPinPart();
+  } catch (e) {
+    mostrarToast(mensajeError(e), 'err');
+  }
+}
+
+async function cargarPinPart() {
+  $('#btnNuevoPinPart')?.addEventListener('click', () => nuevoPinPart(false));
+  $('#btnQuitarPinPart')?.addEventListener('click', quitarPinPart);
+  try {
+    app.pinPart = await leerPinPart(app.sala, app.clave);
+    // Primera vez: se genera uno solo para no dejar la sala abierta por descuido
+    if (!app.pinPart && !leerLS('taller.pinabierto', '')) { await nuevoPinPart(true); return; }
+    pintarPinPart();
+  } catch (e) {
+    console.warn('[taller] PIN de participantes:', e.message);
+    const v = $('#pinPartValor');
+    if (v) v.textContent = 'Ejecuta supabase.sql para activar el PIN';
+  }
+}
+
+// ---------------------------------------------------------------------------
+// AVISO DE PINTURA CON LA CARA (sala abierta por el docente)
+// ---------------------------------------------------------------------------
+function pinturaAviso(p) {
+  if (app.rol !== 'docente') return;
+  if (p && /^[A-Z0-9]{6}$/.test(p.code || '')) app.pintura = { code: p.code, kind: p.kind === 'race' ? 'race' : 'teams', ts: Date.now() };
+  else app.pintura = null;
+  const c = $('#interactivoDocente');
+  if (c) c.dataset.firma = '';
+  renderInteractivoDocente();
 }
 
 // ---------------------------------------------------------------------------
@@ -435,8 +502,9 @@ async function renderInteractivoDocente() {
   // Evitar repintar (y perder lo que escribe el docente) si nada cambió
   const miVoto = enc ? leerLS('taller.voto.' + app.sala + '.' + enc.id, '') : '';
   const miFrase = leerLS('taller.frase.' + app.sala, '');
+  const pint = app.pintura && Date.now() - app.pintura.ts < 12000 ? app.pintura : null;
   const miResp = enc && enc.tipo === 'abierta' ? leerLS('taller.resp.' + app.sala + '.' + enc.id, '') : '';
-  const firma = JSON.stringify([enc, miVoto, fr, miFrase, fr.mostrar ? __frases.firma : '', miResp, enc && enc.mostrar ? __resp.firma : '']);
+  const firma = JSON.stringify([enc, miVoto, fr, miFrase, fr.mostrar ? __frases.firma : '', miResp, enc && enc.mostrar ? __resp.firma : '', pint && pint.code]);
   if (cont.dataset.firma === firma) return;
   const escribiendo = cont.querySelector('textarea');
   if (escribiendo && document.activeElement === escribiendo && fr.abierta) {
@@ -445,6 +513,21 @@ async function renderInteractivoDocente() {
   }
   cont.dataset.firma = firma;
   cont.innerHTML = '';
+
+  if (pint) {
+    const card = el('section', 'interactivo-card pintura');
+    card.appendChild(el('span', 'interactivo-kicker', '🎨 Pintura con la cara · ' + (pint.kind === 'race' ? 'competencia abierta' : 'sala por equipos abierta')));
+    card.appendChild(el('h3', 'interactivo-tit', 'Código de la sala: ' + pint.code));
+    const a = el('a', 'btn primary', '🏁 Abrir el juego y unirme');
+    a.href = 'material/participantes/pintura-con-la-cara.html?sala=' + pint.code + '&taller=' + encodeURIComponent(app.sala);
+    a.target = '_blank';
+    a.rel = 'noopener';
+    card.appendChild(a);
+    const qr = el('div', 'qr-mini');
+    card.appendChild(qr);
+    cont.appendChild(card);
+    pintarQR(qr, new URL('p', location.href).href + '?' + pint.code);
+  }
 
   if (enc && enc.tipo === 'abierta') {
     const card = el('section', 'interactivo-card');
@@ -783,8 +866,18 @@ function initInteractivo() {
       iniciarPanelEncuesta();
       iniciarPanelFrases();
       renderInteractivoFacilitador(true);
+      cargarPinPart();
     }
-  } else if (app.estado) {
-    renderInteractivoDocente();
+  } else {
+    if (app.estado) renderInteractivoDocente();
+    // El aviso de Pintura caduca solo si el docente cierra la sala
+    setInterval(() => {
+      if (app.pintura && Date.now() - app.pintura.ts >= 12000) {
+        app.pintura = null;
+        const c = $('#interactivoDocente');
+        if (c) c.dataset.firma = '';
+        renderInteractivoDocente();
+      }
+    }, 4000);
   }
 }

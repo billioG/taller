@@ -60,6 +60,7 @@ function refrescarSuave() {
 }
 
 async function conectar() {
+  if (app.canal) return; // ya conectado (evita suscribir dos veces el mismo canal)
   if (!SB_LISTO) {
     setConexion('mal', 'Sin sincronizar');
     if (app.rol === 'docente') estadoLocalDocente();
@@ -103,7 +104,8 @@ async function conectar() {
       if (vivo) clearTimeout(timeoutId);
       setConexion(vivo ? 'ok' : 'mal', vivo ? 'En vivo' : 'Reconectando…');
       if (vivo) refrescarEstado(); // al reconectar, ponerse al día
-    }
+    },
+    (p) => { if (typeof pinturaAviso === 'function') pinturaAviso(p); }
   );
 
   // Cargar estado inicial

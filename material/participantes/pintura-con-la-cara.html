@@ -244,6 +244,13 @@
   @keyframes glow{50%{filter:brightness(1.13);}}
   #pool.disabled{opacity:.5;pointer-events:none;}
   #raceSetup,#raceHost{display:none;}
+  .pintura-aviso{display:flex;gap:18px;align-items:center;background:#fff;border:3px solid var(--brand);border-radius:18px;
+    padding:16px 20px;margin:0 0 18px;box-shadow:0 8px 24px rgba(43,76,140,.18);animation:pop .35s ease both;}
+  .pintura-aviso .qr-mini-p{width:120px;height:120px;flex:none;background:#fff;}
+  .pintura-aviso .qr-mini-p svg{width:100%;height:100%;display:block;}
+  .pav-txt{display:grid;gap:8px;}
+  .pav-code{font-size:1.8rem;letter-spacing:.2em;color:var(--brand);}
+  body.is-player .pintura-aviso, body.is-racer .pintura-aviso{display:none !important;}
   .online-grid{grid-template-columns:repeat(auto-fit,minmax(220px,1fr));}
   .field .radio{display:flex;gap:10px;align-items:flex-start;text-transform:none;letter-spacing:0;font-size:.95rem;
     font-weight:500;color:var(--ink);margin:8px 0;cursor:pointer;}
@@ -331,11 +338,8 @@
 </head>
 <body>
 <div class="barra-app"><div class="in">
-  <a class="brand" href="../../index.html">
-    <img src="../../assets/logo-icon.svg" alt="" width="38" height="38">
-    <span><strong>Taller de Scratch</strong><small>Yo Aprendo · Línea artística</small></span>
-  </a>
-  <a class="volver" href="../../index.html">← Volver al taller</a>
+  <div class="brand">$1</div>
+  <a class="volver" href="../../index.html" onclick="return cerrarPestana()">✕ Cerrar</a>
 </div></div>
 <div class="wrap">
 
@@ -381,8 +385,8 @@
 <div id="online">
   <div class="setup-card">
     <h2>🌐 Juego en línea</h2>
-    <p class="setup-lead">Cada equipo juega <b>desde su propio celular o computadora</b>, como en Kahoot.
-    El docente crea la sala y proyecta su pantalla; los equipos entran con el código.</p>
+    <p class="setup-lead">Cada participante juega <b>desde su propio celular o computadora</b>, como en Kahoot.
+    El docente crea la sala y proyecta su pantalla; los participantes entran con el código o el QR.</p>
     <div class="online-grid">
       <button class="online-card" id="cardRace" type="button">
         <div class="big">🏁</div>
@@ -397,11 +401,21 @@
       <button class="online-card" id="cardJoin" type="button">
         <div class="big">📱</div>
         <h3>Unirme con código</h3>
-        <p>Soy un equipo: entro con el código de la sala y juego desde mi dispositivo.</p>
+        <p>Entro con el código o el QR de la sala y juego desde mi dispositivo.</p>
       </button>
     </div>
     <div class="setup-err" id="onlineErr" role="alert"></div>
     <div class="controls"><button class="btn ghost" id="btnOnlineBack" type="button">← Volver</button></div>
+  </div>
+</div>
+
+<!-- Aviso: hay una sala abierta (la publica el docente) -->
+<div class="pintura-aviso" id="pinturaAviso" style="display:none" role="status" aria-live="polite">
+  <div class="qr-mini-p" id="pavQR" aria-label="Código QR para unirse"></div>
+  <div class="pav-txt">
+    <strong>🏁 ¡Hay una competencia abierta!</strong>
+    <div>Código: <b id="pavCode" class="pav-code"></b></div>
+    <button class="btn primary" id="pavUnirme" type="button">Unirme ahora</button>
   </div>
 </div>
 
@@ -490,10 +504,10 @@
       <input id="jCode" maxlength="6" placeholder="Ej: K7P2QD" autocomplete="off" autocapitalize="characters" style="text-transform:uppercase;font-weight:800;letter-spacing:.15em">
     </div>
     <div class="field">
-      <label for="jTeam">Tu nombre (o el de tu equipo)</label>
-      <input id="jTeam" maxlength="18" placeholder="Ej: Ana López o Los Pinceles" autocomplete="off">
+      <label for="jTeam">Tu nombre</label>
+      <input id="jTeam" maxlength="18" placeholder="Ej: Ana López" autocomplete="off">
     </div>
-    <div class="field">
+    <div class="field" id="jMembersWrap" style="display:none">
       <label>Integrantes <span style="text-transform:none;font-weight:600">(solo si juegas por equipos: 3 o 4)</span></label>
       <div id="jMems">
         <input class="j-mem" placeholder="Integrante 1" maxlength="20" autocomplete="off">
@@ -808,6 +822,9 @@ let turnIdx = 0;   /* índice del equipo que juega el nivel actual */
 let timeLimit = 0;    /* segundos por turno (0 = sin límite) */
 let timeLeft = 0, timeUp = false, timerId = null;
 const byId = id => document.getElementById(id);
+/* Esta página se abre en una pestaña nueva: «Cerrar» la cierra (si el navegador no lo permite, vuelve al taller). */
+function cerrarPestana(){ window.close(); setTimeout(()=>{ location.href="../../index.html"; }, 300); return false; }
+const TALLER_SALA = (()=>{ const t=(new URLSearchParams(location.search).get("taller")||"").toLowerCase(); return /^[a-z0-9][a-z0-9_-]{0,59}$/.test(t)?t:"taller-1"; })();
 
 function curTeam(){ return teams[turnIdx]; }
 function teamTag(t){ return `<span style="color:${t.color}">●</span> ${t.name}`; }
@@ -1361,7 +1378,7 @@ function hostOnJoin(m){
   if(net.started) return fail("La partida ya comenzó.");
   if(!tid) return fail("Error de identificación. Recarga e intenta de nuevo.");
   if(!name) return fail("Falta el nombre del equipo.");
-  if(members.length<3) return fail("Cada equipo necesita 3 o 4 integrantes.");
+  if(members.length<3){ netSend("joinres",{tid,ok:false,err:"Esta sala es por equipos: escribe también 3 o 4 integrantes.",needMembers:true}); return; }
   if(net.lobby.length>=6) return fail("La sala está llena (máximo 6 equipos).");
   if(net.lobby.some(t=>t.name.toLowerCase()===name.toLowerCase())) return fail("Ya hay un equipo con ese nombre.");
   net.lobby.push({tid,name,members,color:TEAM_COLORS[net.lobby.length%TEAM_COLORS.length]});
@@ -1463,7 +1480,7 @@ function playerJoin(){
       if(!payload || payload.tid!==net.tid) return;
       answered=true; done(); net.last=Date.now();
       if(payload.ok){ if(payload.kind==="race") raceEnter(payload,name); else playerEnterWaiting(payload.name||name); }
-      else { errBox("joinErr",[payload.err||"No se pudo entrar."]); netLeave(true); }
+      else { if(payload.needMembers) byId("jMembersWrap").style.display="block"; errBox("joinErr",[payload.err||"No se pudo entrar."]); netLeave(true); }
     })
     .on("broadcast",{event:"lobby"},({payload})=>{ net.last=Date.now(); if(payload) playerOnLobby(payload); })
     .on("broadcast",{event:"state"},({payload})=>{ net.last=Date.now(); if(payload) playerOnState(payload); })
@@ -1626,7 +1643,7 @@ document.querySelectorAll(".mode-btn:not(.time-btn)").forEach(b=>{
   });
   if(new URLSearchParams(location.search).get("modo")==="docente") byId("opcionesFac").open = true;
 })();
-byId("cardHost").onclick = hostCreate;
+byId("cardHost").onclick = ()=>{ hostCreate(); if(net.role==="host" && net.code) pubOpen(net.code, "teams"); };
 byId("cardJoin").onclick = ()=>playerOpenJoin("");
 byId("btnOnlineBack").onclick = ()=>document.querySelector('[data-mode="single"]').click();
 byId("btnStartOnline").onclick = hostStart;
@@ -1695,6 +1712,7 @@ function raceCreate(){
       else if(st==="CHANNEL_ERROR"||st==="TIMED_OUT"||st==="CLOSED"){ b.className="net-status bad"; b.textContent="sin conexión"; }
     });
   net.hb = setInterval(raceHeartbeat, 3000);
+  pubOpen(net.code, "race");
   clearInterval(race.clock);
   race.clock = setInterval(()=>{ if(race.started && !race.ended) byId("raceClock").textContent="⏱️ "+fmtMs(Date.now()-race.t0); }, 1000);
   raceRenderBoard();
@@ -1869,6 +1887,7 @@ function raceOnFinal(f){
   };
   const nl=window.netLeave;
   window.netLeave=function(silent){
+    pubClose(false);
     clearInterval(race.clock); clearInterval(race.hbP);
     race.active=false; race.started=false; race.ended=false; race.rows=new Map(); net.kind=null;
     document.body.classList.remove("is-racer");
@@ -1892,8 +1911,42 @@ byId("btnRaceEnd").onclick = ()=>{ if(confirm("¿Terminar la competencia y mostr
 byId("btnRaceClose").onclick = ()=>{ if(confirm("¿Cerrar la sala? Los participantes serán desconectados.")) document.querySelector('[data-mode="single"]').click(); };
 byId("rfCerrar").onclick = ()=>byId("raceFinalOv").classList.remove("show");
 
+/* ============ Publicar / escuchar la sala abierta en el canal del taller ============ */
+const pub = { ch:null, iv:null, code:"", kind:"", escucha:null, ultimo:0, tmr:null };
+function pubOpen(code, kind){
+  pubClose(true);
+  let sbc; try{ sbc = netClient(); }catch(e){ return; }
+  pub.code = code; pub.kind = kind;
+  pub.ch = sbc.channel("sala:"+TALLER_SALA, {config:{broadcast:{self:false}}}); pub.ch.subscribe();
+  const send = ()=>{ try{ pub.ch.send({type:"broadcast",event:"pintura",payload:{code:pub.code,kind:pub.kind}}); }catch(e){} };
+  pub.iv = setInterval(send, 3000); setTimeout(send, 1200);
+}
+function pubClose(silent){
+  clearInterval(pub.iv); pub.iv=null;
+  if(pub.ch){ const ch=pub.ch; pub.ch=null;
+    try{ if(!silent) ch.send({type:"broadcast",event:"pintura",payload:{code:null}}); }catch(e){}
+    setTimeout(()=>{ try{ ch.unsubscribe(); }catch(e){} }, 400); }
+  pub.code=""; pub.kind="";
+}
+function pubMostrarAviso(p){
+  const box = byId("pinturaAviso");
+  if(!p || !/^[A-Z0-9]{6}$/.test(p.code||"")){ box.style.display="none"; return; }
+  pub.ultimo = Date.now();
+  byId("pavCode").textContent = p.code;
+  try{ const q=qrcode(0,"M"); q.addData(new URL("../../p", location.href).href + "?" + p.code); q.make(); byId("pavQR").innerHTML=q.createSvgTag({cellSize:6,margin:2,scalable:true}); }catch(e){ byId("pavQR").textContent=""; }
+  byId("pavUnirme").onclick = ()=>{ box.style.display="none"; playerOpenJoin(p.code); };
+  if(!document.body.classList.contains("is-player") && !document.body.classList.contains("is-racer")) box.style.display="flex";
+}
+function pubEscuchar(){
+  let sbc; try{ sbc = netClient(); }catch(e){ return; }
+  pub.escucha = sbc.channel("sala:"+TALLER_SALA, {config:{broadcast:{self:false}}})
+    .on("broadcast",{event:"pintura"},({payload})=>pubMostrarAviso(payload||null)).subscribe();
+  pub.tmr = setInterval(()=>{ if(pub.ultimo && Date.now()-pub.ultimo>12000){ byId("pinturaAviso").style.display="none"; pub.ultimo=0; } }, 4000);
+}
+
 /* ============ INICIO ============ */
 if(!new URLSearchParams(location.search).get("sala")) loadLevel();
+if(new URLSearchParams(location.search).get("modo")!=="docente" && !new URLSearchParams(location.search).get("sala")) pubEscuchar();
 </script>
 </body>
 </html>
