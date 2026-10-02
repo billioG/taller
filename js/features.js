@@ -52,7 +52,8 @@ function pintarTimer() {
 // ---------------------------------------------------------------------------
 function mostrarToast(mensaje, tipo = 'info', duracion = 4000) {
   const contenedor = document.createElement('div');
-  contenedor.className = 'toast' + (tipo === 'ok' ? ' ok' : tipo === 'err' ? ' err' : '');
+  contenedor.className = 'toast' + (tipo === 'ok' ? ' ok' : tipo === 'err' ? ' err' : tipo === 'alerta' ? ' alerta' : '');
+  contenedor.setAttribute('role', 'status');
   contenedor.textContent = mensaje;
   document.body.appendChild(contenedor);
   setTimeout(() => {
@@ -60,6 +61,44 @@ function mostrarToast(mensaje, tipo = 'info', duracion = 4000) {
     contenedor.style.transform = 'translateY(20px)';
     setTimeout(() => contenedor.remove(), 300);
   }, duracion);
+}
+
+/** Aviso sonoro corto (opcional: si el navegador no deja, se ignora) + vibración. */
+function sonar() {
+  try {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (Ctx) {
+      const ctx = app.audioCtx || (app.audioCtx = new Ctx());
+      const t0 = ctx.currentTime;
+      [880, 1175].forEach((hz, i) => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = 'sine';
+        o.frequency.value = hz;
+        g.gain.setValueAtTime(0.0001, t0 + i * 0.18);
+        g.gain.exponentialRampToValueAtTime(0.25, t0 + i * 0.18 + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + i * 0.18 + 0.16);
+        o.connect(g).connect(ctx.destination);
+        o.start(t0 + i * 0.18);
+        o.stop(t0 + i * 0.18 + 0.18);
+      });
+    }
+  } catch {}
+  try { if (navigator.vibrate) navigator.vibrate([120, 60, 120]); } catch {}
+}
+
+/** Mensaje del facilitador a pantalla grande (docentes). */
+let __ovTimer = null;
+function mostrarMensajeGrande(texto) {
+  const ov = $('#overlayMensaje');
+  if (!ov) return;
+  $('#ovTexto').textContent = texto;
+  ov.hidden = false;
+  sonar();
+  clearTimeout(__ovTimer);
+  __ovTimer = setTimeout(() => { ov.hidden = true; }, 15000);
+  const cerrar = $('#ovCerrar');
+  if (cerrar) cerrar.focus();
 }
 
 // ---------------------------------------------------------------------------
@@ -113,6 +152,16 @@ async function generarCertificados() {
   }
 }
 
+async function reabrirTaller() {
+  try {
+    await escribirEstado(app.clave, { taller_finalizado: false, certificados_generados: null });
+    renderCertificadosGenerados([]);
+    mostrarToast('Taller reabierto: los docentes ya no ven «finalizado»', 'ok');
+  } catch (e) {
+    mostrarToast('Error: ' + e.message, 'err');
+  }
+}
+
 function renderCertificadosGenerados(certificados) {
   const cont = $('#certificadosGenerados');
   cont.innerHTML = '';
@@ -149,8 +198,8 @@ function descargarCertificado(cert) {
 function generarHtmlCertificado(c) {
   // Logo inline (cubo oficial)
   const cubo = `<svg viewBox="0 0 100 100" width="48" height="48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <polygon points="50,15 82,32 82,68 50,85 18,68 18,32" fill="none" stroke="#2B4C8C" stroke-width="3.5" stroke-linejoin="round"/>
-    <path d="M50,50 L18,32 M50,50 L82,32 M50,50 L50,85" fill="none" stroke="#2B4C8C" stroke-width="3.5" stroke-linecap="round"/>
+    <polygon points="50,15 82,32 82,68 50,85 18,68 18,32" fill="none" stroke="#202124" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M50,50 L18,32 M50,50 L82,32 M50,50 L50,85" fill="none" stroke="#202124" stroke-width="3.5" stroke-linecap="round"/>
   </svg>`;
 
   // Firma del facilitador (PNG embebido para imprimir sin red)
@@ -177,20 +226,20 @@ body{
   display:flex;align-items:center;justify-content:center;
 }
 .cert{
-  border:3px solid #2B4C8C;border-radius:12px;
+  border:3px solid #202124;border-radius:12px;
   padding:22px 40px 18px;
   text-align:center;
   width:100%;max-width:980px;
-  background:#FBF7EF;
+  background:#fff;
   display:flex;flex-direction:column;justify-content:center;
   min-height:180mm;
 }
 .cert-logo{margin:0 auto 6px}
-.cert-sello{font-size:9.5pt;text-transform:uppercase;letter-spacing:.18em;color:#2B4C8C;font-weight:800;margin-bottom:4px}
-.cert-tit{font-size:22pt;margin:0 0 2px;color:#2B4C8C;letter-spacing:.02em}
+.cert-sello{font-size:9.5pt;text-transform:uppercase;letter-spacing:.18em;color:#202124;font-weight:800;margin-bottom:4px}
+.cert-tit{font-size:22pt;margin:0 0 2px;color:#202124;letter-spacing:.02em}
 .cert-sub{font-size:12pt;margin:0 0 10px;color:#202124}
 .cert-linea{
-  width:70%;margin:10px auto 4px;border-bottom:1.5px solid #6B6157;
+  width:70%;margin:10px auto 4px;border-bottom:1.5px solid #202124;
   min-height:28pt;font-size:18pt;font-weight:700;color:#202124;
   display:flex;align-items:flex-end;justify-content:center;padding-bottom:2px;
 }
@@ -202,15 +251,15 @@ body{
   display:grid;grid-template-columns:1fr 1fr;gap:4px 28px;
   text-align:left;max-width:640px;margin:14px auto 8px;font-size:10pt;padding:0;
 }
-.cert-modulos li{list-style:none;padding:3px 0 3px 18px;position:relative;border-bottom:1px solid #E4DCCC}
-.cert-modulos li::before{content:"▸";position:absolute;left:0;color:#2B4C8C}
+.cert-modulos li{list-style:none;padding:3px 0 3px 18px;position:relative;border-bottom:1px solid #cfcfcf}
+.cert-modulos li::before{content:"▸";position:absolute;left:0;color:#202124}
 .firma-bloque{margin-top:16px;display:flex;flex-direction:column;align-items:center;gap:2px}
 .firma-bloque img{height:64px;width:auto;object-fit:contain}
-.firma-linea{width:200px;border-top:1px solid #202124;margin-top:2px;padding-top:4px;font-size:9pt;color:#6B6157}
+.firma-linea{width:200px;border-top:1px solid #202124;margin-top:2px;padding-top:4px;font-size:9pt;color:#202124}
 @media print{
   .no-print{display:none!important}
   body{background:#fff}
-  .cert{background:#FBF7EF!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;border-color:#2B4C8C}
+  .cert{background:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;border-color:#202124}
 }
 </style>
 </head>
@@ -225,7 +274,7 @@ body{
   <p class="cert-body">
     Por haber construido un proyecto interactivo funcional sobre un contenido
     de su propia asignatura, junto con un plan de clase para aplicarlo
-    con sus estudiantes, <strong>dado en el mes de ${mesAnio}</strong>.
+    con sus estudiantes, dado en el mes de ${mesAnio}.
   </p>
   <ul class="cert-modulos">
     <li>Construcción de un recurso interactivo funcional</li>
@@ -238,7 +287,7 @@ body{
     <div class="firma-linea">Firma del facilitador</div>
   </div>
 </div>
-<div class="no-print" style="position:fixed;bottom:12px;left:0;right:0;text-align:center;color:#6B6157;font-size:9pt">
+<div class="no-print" style="position:fixed;bottom:12px;left:0;right:0;text-align:center;color:#202124;font-size:9pt">
   Usa imprimir → orientación horizontal (horizontal / landscape)
 </div>
 </body></html>`;
@@ -271,6 +320,7 @@ function renderPisoFacilitador() {
     if (estado === PISO_ESTADOS.CONCEDIDO || estado === PISO_ESTADOS.ACEPTADO) {
       item.classList.add('tiene-piso');
     }
+    if (estado === PISO_ESTADOS.SOLICITANDO) item.classList.add('pidiendo');
     item.appendChild(el('span', 'piso-nombre', nombre));
     const badge = el('span', 'piso-badge', textoEstadoPiso(estado));
     item.appendChild(badge);
@@ -337,6 +387,7 @@ async function actualizarPisoEnEstado(nombre, nuevoEstado) {
 async function solicitarPiso() {
   if (app.rol !== 'docente') return;
   await actualizarPisoEnEstado(app.nombre, PISO_ESTADOS.SOLICITANDO);
+  mostrarToast('🙋 Pediste la palabra. El facilitador lo está viendo.', 'ok', 4000);
   renderPisoParticipante();
   // La solicitud caduca sola si el facilitador no responde
   clearTimeout(pisoLocal.timeoutId);
@@ -387,6 +438,25 @@ function renderPisoParticipante() {
   }
   const miEstado = app.estado?.piso?.[app.nombre]?.estado || PISO_ESTADOS.NADA;
 
+  // Aviso fuerte cuando el facilitador te invita o te da la palabra
+  if (miEstado !== app.pisoPrev) {
+    if (miEstado === PISO_ESTADOS.INVITADO) {
+      mostrarToast('📨 El facilitador te invita a hablar', 'alerta', 8000);
+      sonar();
+    } else if (miEstado === PISO_ESTADOS.CONCEDIDO) {
+      mostrarToast('🎤 ¡Tienes la palabra!', 'ok', 6000);
+      sonar();
+    } else if (app.pisoPrev === PISO_ESTADOS.SOLICITANDO && miEstado === PISO_ESTADOS.NADA && app.pisoPrevSolicitud) {
+      mostrarToast('El facilitador no pudo darte la palabra ahora', 'info', 5000);
+    }
+    app.pisoPrev = miEstado;
+  }
+  app.pisoPrevSolicitud = miEstado === PISO_ESTADOS.SOLICITANDO;
+
+  cont.className = 'piso-participante ' + (
+    miEstado === PISO_ESTADOS.NADA ? 'p-nada'
+    : miEstado === PISO_ESTADOS.SOLICITANDO ? 'p-solicitando'
+    : miEstado === PISO_ESTADOS.INVITADO ? 'p-invitado' : 'p-tiene');
   cont.hidden = false;
   acc.innerHTML = '';
   estadoDiv.textContent = '';
@@ -430,7 +500,7 @@ async function cargarScratchEnDocentes() {
     return;
   }
   scratchProjectIdActual = pid;
-  const url = urlScratch(pid);
+  const url = urlScratch(pid, Date.now());
   try {
     await escribirEstado(app.clave, { scratch_project_id: pid, scratch_url: url });
   } catch (e) {
@@ -455,8 +525,29 @@ async function limpiarScratch() {
 }
 
 /** URL del iframe de Scratch. Solo con ID numérico; /embed porque el editor no admite iframes. */
-function urlScratch(pid) {
-  return TALLER.scratch.editorBaseUrl + pid + (TALLER.scratch.sufijo || '/embed');
+function urlScratch(pid, v) {
+  return TALLER.scratch.editorBaseUrl + pid + (TALLER.scratch.sufijo || '/embed') + (v ? '?v=' + v : '');
+}
+
+/** Versión de refresco guardada por el facilitador en scratch_url (?v=NNN). */
+function versionScratch() {
+  const m = /[?]v=(\d{1,15})$/.exec(String(app.estado?.scratch_url || ''));
+  return m ? m[1] : '';
+}
+
+/** Facilitador: obliga a los docentes a recargar el visor de Scratch con la última versión guardada. */
+async function refrescarScratch() {
+  const pid = String(app.estado?.scratch_project_id || scratchProjectIdActual || '');
+  if (!/^\d{1,20}$/.test(pid)) {
+    mostrarToast('Primero carga un proyecto de Scratch', 'err');
+    return;
+  }
+  try {
+    await escribirEstado(app.clave, { scratch_project_id: pid, scratch_url: urlScratch(pid, Date.now()) });
+    mostrarToast('Vista de Scratch actualizada para los docentes', 'ok');
+  } catch (e) {
+    mostrarToast('Error: ' + e.message, 'err');
+  }
 }
 
 function renderScratchDocente() {
@@ -472,17 +563,20 @@ function renderScratchDocente() {
     if (app.rol === 'docente' && !$('#vistaScratch').hidden && window.__irAEnVivo) window.__irAEnVivo();
     return;
   }
-  // Solo se recrea el iframe si cambió el proyecto (no reiniciar el juego en cada refresco)
-  if (cont.dataset.pid !== pid) {
+  // Solo se recrea el iframe si cambió el proyecto o el facilitador pulsó «Actualizar»
+  const ver = versionScratch();
+  const clave = pid + '|' + ver;
+  if (cont.dataset.pid !== clave) {
+    if (cont.dataset.pid && app.rol === 'docente') mostrarToast('🐱 El facilitador actualizó el proyecto de Scratch', 'info', 5000);
     cont.innerHTML = '';
     const f = document.createElement('iframe');
-    f.src = urlScratch(pid);
+    f.src = urlScratch(pid, ver);
     f.title = 'Scratch: proyecto ' + pid;
     f.setAttribute('allow', 'clipboard-write; fullscreen');
     f.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-forms');
     f.setAttribute('referrerpolicy', 'no-referrer');
     cont.appendChild(f);
-    cont.dataset.pid = pid;
+    cont.dataset.pid = clave;
   }
   info.hidden = false;
   info.textContent = 'Proyecto Scratch #' + pid + ' — en vivo';
@@ -508,7 +602,7 @@ function aplicarEstado() {
         aviso.classList.add('nuevo');
         setTimeout(() => aviso.classList.remove('nuevo'), 2500);
         if (app.rol === 'docente') {
-          mostrarToast('📢 ' + e.mensaje, 'info', 6000);
+          mostrarMensajeGrande(e.mensaje);
         }
       }
     } else {
@@ -554,6 +648,7 @@ function notificarCertificadoDocente() {
   if (app.rol !== 'docente') return;
   const certs = app.estado?.certificados_generados || [];
   if (!certs.length && !app.estado?.taller_finalizado) {
+    app.certificadoNotificado = false;
     const panel = $('#certListoPanel');
     if (panel) panel.hidden = true;
     return;
@@ -645,6 +740,11 @@ function conectarControlesExtra() {
   // Scratch
   $('#btnCargarScratch')?.addEventListener('click', cargarScratchEnDocentes);
   $('#btnLimpiarScratch')?.addEventListener('click', limpiarScratch);
+  $('#btnRefrescarScratch')?.addEventListener('click', refrescarScratch);
+  $('#btnReiniciarFinal')?.addEventListener('click', reabrirTaller);
+  $('#pillPiso')?.addEventListener('click', () => {
+    $('#seccionPiso')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
 
   // Mostrar/ocultar secciones de facilitador según config
   if (TALLER.certificado?.habilitado) $('#seccionFinalizar').hidden = false;
@@ -672,5 +772,30 @@ function initExtra() {
 /** Refresca los paneles del facilitador que dependen del estado en vivo (piso, certificados). */
 function aplicarEstadoFacilitadorExtra() {
   if (typeof renderPisoFacilitador === 'function') renderPisoFacilitador();
-  if (app.estado?.certificados_generados) renderCertificadosGenerados(app.estado.certificados_generados);
+  renderCertificadosGenerados(app.estado?.certificados_generados || []);
+
+  // Quién pide la palabra: píldora fija arriba + toast + sonido solo con solicitudes nuevas
+  const piso = app.estado?.piso || {};
+  const pidiendo = Object.keys(piso).filter((n) => piso[n] && piso[n].estado === PISO_ESTADOS.SOLICITANDO);
+  const pill = $('#pillPiso');
+  if (pill) {
+    pill.hidden = !pidiendo.length;
+    const t = $('#txtPiso');
+    if (t) t.textContent = pidiendo.length;
+  }
+  const nuevos = pidiendo.filter((n) => !(app.pidiendoPrev || []).includes(n));
+  app.pidiendoPrev = pidiendo;
+  if (nuevos.length) {
+    mostrarToast('🙋 ' + nuevos.join(', ') + (nuevos.length > 1 ? ' piden' : ' pide') + ' la palabra', 'alerta', 9000);
+    sonar();
+  }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  const ov = $('#overlayMensaje');
+  const cerrar = $('#ovCerrar');
+  if (cerrar && ov) cerrar.addEventListener('click', () => { ov.hidden = true; });
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Escape' && ov && !ov.hidden) ov.hidden = true;
+  });
+});

@@ -82,6 +82,14 @@
     </div>
 
     <div class="top-der">
+      <div class="timer-top" id="timerTop" hidden>
+        <output class="timer-valor" id="timerValor" title="Cronómetro de la sesión">00:00</output>
+        <button class="btn btn-mini primary" id="btnTimer" type="button">Iniciar</button>
+        <button class="btn btn-mini ghost" id="btnTimerReset" type="button" title="Reiniciar cronómetro">↺</button>
+      </div>
+      <button class="pill pill-piso" id="pillPiso" type="button" hidden title="Ver quién pide la palabra">
+        🙋 <span id="txtPiso">0</span> piden la palabra
+      </button>
       <span class="pill" id="pillConexion" title="Estado de la sincronización">
         <span class="punto" id="puntoConexion"></span>
         <span id="txtConexion">Conectando…</span>
@@ -122,12 +130,6 @@
             <div id="bloqueActual" class="bloque-cuerpo"></div>
             <div id="materialDelPaso"></div>
           </section>
-
-          <!-- Piso / Palabra (participante) -->
-          <div class="piso-participante" id="pisoParticipante" hidden>
-            <div class="piso-estado" id="pisoEstado"></div>
-            <div class="piso-acciones" id="pisoAcciones"></div>
-          </div>
 
           <footer class="pie-docente">
             <p id="pieTexto"></p>
@@ -208,14 +210,6 @@
             </div>
           </div>
 
-          <div class="control-timer">
-            <h3>Cronómetro de la sesión</h3>
-            <div class="timer">
-              <output class="timer-valor" id="timerValor">00:00</output>
-              <button class="btn" id="btnTimer" type="button">Iniciar</button>
-              <button class="btn ghost" id="btnTimerReset" type="button">Reiniciar</button>
-            </div>
-          </div>
         </section>
 
         <section class="bloque bloque-panel">
@@ -250,6 +244,7 @@
           <p class="bloque-nota">Al pulsar, se genera el certificado para cada participante conectado con su nombre.</p>
           <div class="fila-form">
             <button class="btn primary" id="btnFinalizarTaller" type="button">🎓 Finalizar taller y generar certificados</button>
+            <button class="btn ghost" id="btnReiniciarFinal" type="button" title="Quita el aviso de «taller finalizado» a los docentes">↺ Reabrir taller</button>
           </div>
           <div id="certificadosGenerados" class="certificados-lista"></div>
         </section>
@@ -270,6 +265,10 @@
             <button class="btn primary" id="btnCargarScratch" type="button">Cargar en vista docentes</button>
             <button class="btn ghost" id="btnLimpiarScratch" type="button">Quitar</button>
           </div>
+          <div class="fila-form">
+            <button class="btn" id="btnRefrescarScratch" type="button">🔄 Actualizar para los docentes</button>
+          </div>
+          <p class="bloque-nota">Scratch no transmite el editor en vivo. Guarda tu proyecto (Archivo → Guardar ahora) y pulsa «Actualizar»: a los docentes se les recarga solo la vista, sin que ellos hagan nada. Para mostrar el trabajo mientras lo haces, comparte pantalla.</p>
           <p id="scratchEstado" class="bloque-nota"></p>
         </section>
 
@@ -279,6 +278,22 @@
 
     </div>
   </main>
+
+  <!-- Piso / Palabra (participante): barra fija, siempre visible -->
+  <div class="piso-participante" id="pisoParticipante" hidden>
+    <div class="piso-estado" id="pisoEstado"></div>
+    <div class="piso-acciones" id="pisoAcciones"></div>
+  </div>
+</div>
+
+<!-- Mensaje del facilitador a pantalla grande (docentes) -->
+<div class="overlay-mensaje" id="overlayMensaje" hidden role="alertdialog" aria-live="assertive" aria-labelledby="ovTitulo">
+  <div class="overlay-caja">
+    <div class="overlay-ico" aria-hidden="true">📣</div>
+    <h2 id="ovTitulo">Mensaje del facilitador</h2>
+    <p id="ovTexto"></p>
+    <button class="btn primary" id="ovCerrar" type="button">Entendido</button>
+  </div>
 </div>
 
 

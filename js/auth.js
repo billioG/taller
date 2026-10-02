@@ -26,6 +26,18 @@ function init() {
   $('#puertaSub').textContent = TALLER.subtitulo;
   app.sala = salaDeUrl();
 
+  // Salir: se conecta ANTES de la auto-entrada (si no, nunca funcionaba tras recargar).
+  $('#btnSalir').addEventListener('click', () => {
+    try { if (app.canal) app.canal.unsubscribe(); } catch {}
+    clearInterval(app.timer.iv);
+    clearInterval(app.sondeo);
+    guardarLS(LS.pinHash, '');
+    guardarLS(LS.rol, '');
+    guardarClaveSesion(''); // limpia sessionStorage
+    // NO borramos LS.nombre para que la próxima vez solo dé Enter
+    location.reload();
+  });
+
   // Limpieza: versiones antiguas guardaban el PIN en localStorage.
   try { localStorage.removeItem('taller.clave'); } catch { }
 
@@ -136,16 +148,6 @@ function init() {
     entrar();
   });
 
-  // Volver a la puerta desde la app
-  $('#btnSalir').addEventListener('click', () => {
-    if (app.canal) app.canal.unsubscribe();
-    clearInterval(app.timer.iv);
-    guardarLS(LS.pinHash, '');
-    guardarLS(LS.rol, '');
-    guardarClaveSesion(''); // limpia sessionStorage
-    // NO borramos LS.nombre para que la próxima vez solo dé Enter
-    location.reload();
-  });
 }
 
 function entrar() {
@@ -158,6 +160,7 @@ function entrar() {
   if (pie) pie.textContent = TALLER.bienvenida.recordatorio;
 
   if (app.rol === 'facilitador') {
+    $('#timerTop').hidden = false;
     $('#panelFacilitador').hidden = false;
     renderVistaPrevia();
     renderNotas();

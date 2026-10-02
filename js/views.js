@@ -715,6 +715,11 @@ async function abrirSeccion(idSec, idBloque) {
     bloque_actual: bloque ? bloque.id : null,
     secciones_vistas: vistas,
   };
+  // Si el taller estaba «finalizado» y se vuelve a navegar, se reabre solo.
+  if (app.estado?.taller_finalizado) {
+    patch.taller_finalizado = false;
+    patch.certificados_generados = null;
+  }
 
   if (SB_LISTO && !clave) {
     mostrarConfigError('No se encontró la clave de facilitador. Vuelve a entrar con tu PIN.');
@@ -873,6 +878,8 @@ function conectarControles() {
     try {
       await escribirEstado(clave(), { mensaje: m });
       guardarLS(LS.mensaje, m);
+      const n = (app.conectados || []).filter((x) => x && x !== 'Facilitador').length;
+      mostrarToast('✓ Mensaje enviado a ' + n + (n === 1 ? ' docente' : ' docentes') + ': «' + m + '»', 'ok', 5000);
     } catch (e) {
       mostrarConfigError(mensajeError(e));
     }
@@ -883,6 +890,7 @@ function conectarControles() {
     try {
       await escribirEstado(clave(), { mensaje: '' });
       guardarLS(LS.mensaje, '');
+      mostrarToast('Mensaje retirado de las pantallas', 'info', 3000);
     } catch (e) {
       mostrarConfigError(mensajeError(e));
     }

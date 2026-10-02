@@ -8,10 +8,10 @@
 <style>
   @page { size: letter landscape; margin: 12mm 14mm; }
   .cert{
-    border:3px solid var(--indigo);
+    border:3px solid var(--tinta);
     border-radius:12px; padding:22px 40px 18px;
     text-align:center; margin:8px auto;
-    background:#FBF7EF;
+    background:#fff;
     max-width:980px;
     min-height:170mm;
     display:flex; flex-direction:column; justify-content:center;
@@ -20,12 +20,12 @@
   .cert-logo img{ width:48px; height:48px; }
   .cert-sello{
     font-size:9.5pt; text-transform:uppercase; letter-spacing:.18em;
-    color:var(--indigo); font-weight:800; margin-bottom:4px;
+    color:var(--tinta); font-weight:800; margin-bottom:4px;
   }
-  .cert-tit{ font-size:22pt; margin:0 0 2px; color:var(--indigo); letter-spacing:.02em; }
+  .cert-tit{ font-size:22pt; margin:0 0 2px; color:var(--tinta); letter-spacing:.02em; }
   .cert-sub{ font-size:12pt; margin:0 0 10px; }
   .cert-linea{
-    width:70%; margin:10px auto 4px; border-bottom:1.5px solid var(--gris);
+    width:70%; margin:10px auto 4px; border-bottom:1.5px solid var(--tinta);
     min-height:28pt; font-size:18pt; font-weight:700;
     display:flex; align-items:flex-end; justify-content:center; padding-bottom:2px;
   }
@@ -39,14 +39,14 @@
     list-style:none; padding:0;
   }
   .cert-modulos li{ list-style:none; padding:3px 0 3px 18px; position:relative; border-bottom:1px solid var(--linea); }
-  .cert-modulos li::before{ content:"▸"; position:absolute; left:0; color:var(--indigo); }
+  .cert-modulos li::before{ content:"▸"; position:absolute; left:0; color:var(--tinta); }
   .firma-bloque{ margin-top:16px; display:flex; flex-direction:column; align-items:center; gap:2px; }
   .firma-bloque img{ height:64px; width:auto; object-fit:contain; }
-  .firma-linea{ width:200px; border-top:1px solid var(--tinta); margin-top:2px; padding-top:4px; font-size:9pt; color:var(--gris); }
+  .firma-linea{ width:200px; border-top:1px solid var(--tinta); margin-top:2px; padding-top:4px; font-size:9pt; color:var(--tinta); }
   @media print{
     .barra, .aviso, .pie-pagina{ display:none !important; }
     body{ background:#fff; }
-    .cert{ background:#FBF7EF !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .cert{ background:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   }
 </style>
 </head>
@@ -70,12 +70,12 @@
 
     <p style="margin:0;">Se otorga a</p>
     <div class="cert-linea"></div>
-    <p style="margin:0; font-size:10pt; color:var(--gris);">Nombre del participante</p>
+    <p style="margin:0; font-size:10pt; color:var(--tinta);">Nombre del participante</p>
 
     <p class="cert-body">
       Por haber construido un proyecto interactivo funcional sobre un contenido
       de su propia asignatura, junto con un plan de clase para aplicarlo
-      con sus estudiantes, <strong>dado en el mes de noviembre de 2026</strong>.
+      con sus estudiantes, dado en el mes de noviembre de 2026.
     </p>
 
     <ul class="cert-modulos">
