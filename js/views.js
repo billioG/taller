@@ -490,8 +490,35 @@ function renderMaterialesDocente() {
   const cont = $('#listaMateriales');
   cont.innerHTML = '';
 
+  // Certificado personal cuando el facilitador finaliza el taller
+  const certs = app.estado?.certificados_generados || [];
+  const mio = certs.find((c) => c.nombre && app.nombre
+    && c.nombre.trim().toLowerCase() === app.nombre.trim().toLowerCase());
+  const finalizado = !!app.estado?.taller_finalizado;
+
+  if (mio || finalizado) {
+    const banner = el('div', 'cert-banner');
+    if (mio) {
+      banner.appendChild(el('strong', null, '🎓 Tu certificado está listo'));
+      banner.appendChild(el('p', null, 'Se generó con tu nombre: ' + mio.nombre));
+      const btn = el('button', 'btn primary', 'Ver / imprimir mi certificado');
+      btn.type = 'button';
+      btn.addEventListener('click', () => {
+        if (typeof descargarCertificado === 'function') descargarCertificado(mio);
+      });
+      banner.appendChild(btn);
+    } else {
+      banner.appendChild(el('strong', null, '🎓 Taller finalizado'));
+      banner.appendChild(el('p', null,
+        'El facilitador ya cerró la sesión. Si escribiste tu nombre al entrar, tu certificado aparece aquí. Si no, pide la plantilla o que te lo genere.'));
+    }
+    cont.appendChild(banner);
+  }
+
   Object.entries(TALLER.materiales).forEach(([id, m]) => {
-    const abierta = m.libre || abrirMaterial(id);
+    // Certificado se desbloquea al finalizar
+    const abierta = m.libre || abrirMaterial(id)
+      || (id === 'certificado' && finalizado);
     const a = el('a', 'mat' + (m.libre ? ' libre' : '') + (abierta ? '' : ' bloqueado'));
 
     if (abierta) {
@@ -506,14 +533,15 @@ function renderMaterialesDocente() {
       });
     }
 
-    a.appendChild(el('span', 'mat-ico', abierta ? '📄' : '🔒'));
+    a.appendChild(el('span', 'mat-ico', abierta ? (id === 'certificado' ? '🎓' : '📄') : '🔒'));
 
     const c = el('span', 'mat-cuerpo');
     c.appendChild(el('span', 'mat-tit', m.titulo));
     c.appendChild(el('span', 'mat-desc', m.desc));
     a.appendChild(c);
 
-    a.appendChild(el('span', 'mat-momento', m.libre ? 'Libre' : m.momento));
+    a.appendChild(el('span', 'mat-momento',
+      id === 'certificado' && finalizado ? 'Disponible' : (m.libre ? 'Libre' : m.momento)));
     cont.appendChild(a);
   });
 }

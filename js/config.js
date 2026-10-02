@@ -24,7 +24,7 @@ const TALLER = {
   // ------------------------------------------------------------------
   titulo: 'Taller de Programación Visual con Scratch',
   subtitulo: 'Una sesión de dos horas para construir un recurso interactivo de su propia asignatura',
-  entidad: 'YoAprendo',
+  entidad: 'Yo Aprendo',
   version: '1.0',
 
   // Si cambias esto, cambia también el archivo CNAME
@@ -132,7 +132,7 @@ const TALLER = {
     titulo: 'Certificado de finalización',
     subtitulo: 'Taller de Programación Visual con Scratch',
     duracion: '2 horas · 1 sesión',
-    entidad: 'YoAprendo',
+    entidad: 'Yo Aprendo',
     // Se genera cuando el facilitador pulsa "Finalizar taller"
     // Usa el nombre que el participante escribió al entrar
   },

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Certificado · Taller de Scratch</title>
+<title>Certificado · Yo Aprendo</title>
 <link rel="stylesheet" href="../material.css">
 <style>
   .cert{
@@ -12,26 +12,36 @@
     text-align:center; margin:16px 0 20px;
     background:linear-gradient(180deg, #FBF7EF, #fff);
   }
+  .cert-logo{ margin:0 auto 10px; }
+  .cert-logo img{ width:56px; height:56px; }
   .cert-sello{
     font-size:10pt; text-transform:uppercase; letter-spacing:.18em;
-    color:var(--indigo); font-weight:800; margin-bottom:16px;
+    color:var(--indigo); font-weight:800; margin-bottom:10px;
   }
-  .cert-tit{ font-size:26pt; margin:0 0 4px; color:var(--indigo); letter-spacing:.02em; }
+  .cert-tit{ font-size:24pt; margin:0 0 4px; color:var(--indigo); letter-spacing:.02em; }
   .cert-sub{ font-size:13pt; margin:0 0 6px; }
   .cert-linea{
-    width:78%; margin:22px auto; border-bottom:1px solid var(--gris);
-    height:34pt; font-size:16pt;
+    width:78%; margin:18px auto 6px; border-bottom:1px solid var(--gris);
+    height:36pt; font-size:18pt; font-weight:700;
+    display:flex; align-items:flex-end; justify-content:center;
   }
   .cert-modulos{
     display:grid; grid-template-columns:1fr 1fr; gap:5px 26px;
     text-align:left; max-width:560px; margin:20px auto 22px; font-size:10pt;
+    list-style:none; padding:0;
   }
   .cert-modulos li{ list-style:none; padding:4px 0 4px 22px; position:relative; border-bottom:1px solid var(--linea); }
   .cert-modulos li::before{ content:"▸"; position:absolute; left:0; color:var(--indigo); }
-  .cert-dur{ font-size:11pt; margin:0 0 18px; color:var(--gris); }
+  .cert-dur{ font-size:11pt; margin:0 0 14px; color:var(--gris); }
+  .saberes{ font-size:9pt; color:var(--gris); letter-spacing:.08em; margin:6px 0 0; }
   .firmas{ display:grid; grid-template-columns:1fr 1fr; gap:34px; margin-top:34px; }
   .firma{ border-top:1px solid var(--tinta); padding-top:6px; font-size:9.5pt; color:var(--gris); }
   @media (max-width:620px){ .cert-modulos, .firmas{ grid-template-columns:1fr; } }
+  @media print{
+    .barra{ display:none !important; }
+    body{ background:#fff; }
+    .cert{ background:#FBF7EF !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  }
 </style>
 </head>
 <body>
@@ -45,12 +55,16 @@
 <div class="pagina">
 
   <div class="cert">
-    <div class="cert-sello">YoAprendo · Certifica</div>
+    <div class="cert-logo">
+      <img src="../../assets/logo-icon.svg" alt="Yo Aprendo">
+    </div>
+    <div class="cert-sello">Yo Aprendo · Certifica</div>
     <h1 class="cert-tit">Certificado de finalización</h1>
     <p class="cert-sub">Taller de Programación Visual con Scratch</p>
     <p class="cert-dur">1 sesión · 2 horas</p>
+    <p class="saberes">Saber · Saber hacer · Saber ser</p>
 
-    <p style="margin:0;">Se otorga a</p>
+    <p style="margin:18px 0 0;">Se otorga a</p>
     <div class="cert-linea"></div>
     <p style="margin:0; font-size:11pt; color:var(--gris);">Nombre del participante</p>
 
@@ -60,12 +74,12 @@
       con sus estudiantes.
     </p>
 
-    <div class="cert-modulos">
+    <ul class="cert-modulos">
       <li>Construcción de un recurso interactivo funcional</li>
       <li>Secuencia, condición e interacción</li>
       <li>Diseño de una actividad evaluable</li>
       <li>Esquema de una clase de 45 minutos</li>
-    </div>
+    </ul>
 
     <div class="firmas">
       <div class="firma">Firma del facilitador</div>
@@ -75,11 +89,12 @@
 
   <div class="aviso">
     <p class="aviso-tit">Cómo usarlo</p>
-    <p>Imprime con Ctrl+P (o el botón de arriba), elige <strong>tamaño carta</strong> y guárdalo. Se entrega al final de la sesión con la fecha escrita a mano.</p>
+    <p>Al finalizar el taller, el facilitador genera el certificado con tu nombre.
+    También puedes imprimir esta plantilla en blanco (Ctrl+P, tamaño carta) y completar a mano.</p>
   </div>
 
   <div class="pie-pagina">
-    Taller de Programación Visual con Scratch · Yo Aprendo
+    Taller de Programación Visual con Scratch · Yo Aprendo · Formación Continua
   </div>
 </div>
 

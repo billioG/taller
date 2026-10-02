@@ -80,10 +80,14 @@ async function generarCertificados() {
   try {
     // Leer estado actual para obtener conectados
     const estado = await leerEstado(app.sala);
-    const conectados = app.conectados.filter(n => n !== 'Facilitador');
+    let conectados = (app.conectados || []).filter(n => n && n !== 'Facilitador');
+    // Si presence no trajo nombres, intentar del estado
+    if (!conectados.length && Array.isArray(app.estado?.conectados)) {
+      conectados = app.estado.conectados.filter(n => n && n !== 'Facilitador');
+    }
 
     if (!conectados.length) {
-      mostrarToast('No hay participantes para certificar', 'err');
+      mostrarToast('No hay participantes conectados con nombre para certificar', 'err');
       return;
     }
 
@@ -177,7 +181,7 @@ body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;fon
 <body>
 <div class="cert">
   <div class="cert-logo">${cubo}</div>
-  <div class="cert-sello">${c.entidad} · Certifica</div>
+  <div class="cert-sello">Yo Aprendo · Certifica</div>
   <h1 class="cert-tit">${c.titulo}</h1>
   <p class="cert-sub">${c.subtitulo}</p>
   <p class="cert-dur">${c.duracion}</p>
@@ -201,7 +205,7 @@ body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;fon
   </div>
 </div>
 <div style="text-align:center;margin-top:20px;color:#6B6157;font-size:9pt" class="no-print">
-  Generado automáticamente · ${c.entidad} · Formación Continua
+  Generado automáticamente · Yo Aprendo · Formación Continua · Saber · Saber hacer · Saber ser
 </div>
 </body></html>`;
 }

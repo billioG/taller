@@ -865,3 +865,17 @@ body.proyiendo .aviso-facilitador{ visibility:hidden; }
 }
 .momento-wow .wow-ico { font-size: 1.4rem; line-height: 1; flex: none; }
 .momento-wow strong { color: #8A6914; }
+
+
+/* Certificado del participante al finalizar */
+.cert-banner{
+  background:linear-gradient(135deg,#E8EDF7,#FBF7EF);
+  border:2px solid var(--indigo);
+  border-radius:var(--r-m);
+  padding:var(--s4) var(--s5);
+  margin-bottom:var(--s4);
+  display:grid; gap:var(--s2);
+}
+.cert-banner strong{ color:var(--indigo); font-size:1.1rem; }
+.cert-banner p{ margin:0; color:var(--tinta); }
+.cert-banner .btn{ justify-self:start; margin-top:var(--s2); }
