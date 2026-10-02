@@ -48,13 +48,14 @@
       </button>
 
       <form class="form-pin" id="formPin" hidden>
-        <label for="inpPin">PIN de facilitador</label>
+        <label for="inpPin">Código de facilitador</label>
         <div class="fila-form">
-          <input id="inpPin" type="password" inputmode="numeric" placeholder="••••" autocomplete="current-password" maxlength="40">
+          <input id="inpPin" type="text" inputmode="text" placeholder="Código del taller" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="40">
           <button class="btn primary" type="submit">Entrar</button>
           <button class="btn ghost" id="btnCancelarPin" type="button">Cancelar</button>
         </div>
-        <p class="pin-error" id="pinError" hidden>Ese PIN no es correcto.</p>
+        <p class="pin-hint">Letras y números. Distingue mayúsculas.</p>
+        <p class="pin-error" id="pinError" hidden>Ese código no es correcto.</p>
       </form>
     </div>
   </div>

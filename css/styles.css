@@ -137,6 +137,7 @@ a { color:var(--indigo); }
 
 .form-pin{ margin-top:var(--s3); text-align:left; }
 .form-pin label{ display:block; font-weight:650; margin-bottom:var(--s2); }
+.pin-hint{ font-size:.85rem; color:var(--gris); margin:.35rem 0 0; }
 .pin-error{
   margin:var(--s2) 0 0; color:var(--mal); font-weight:650; font-size:.92rem;
 }
