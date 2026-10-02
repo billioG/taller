@@ -447,6 +447,77 @@ end $$;
 revoke all on function public.encuesta_estado(text, text, boolean) from public;
 grant execute on function public.encuesta_estado(text, text, boolean) to anon, authenticated;
 
+-- Preguntas de respuesta libre: cada participante escribe su respuesta (una por pregunta).
+create table if not exists public.respuestas (
+  id      bigint generated always as identity primary key,
+  sala    text not null,
+  poll_id text not null,
+  voter   text not null,
+  texto   text not null check (char_length(texto) between 1 and 200),
+  creada  timestamptz not null default now(),
+  unique (sala, poll_id, voter)
+);
+alter table public.respuestas enable row level security;
+revoke all on public.respuestas from anon, authenticated;
+
+create or replace function public.respuesta_enviar(p_sala text, p_poll text, p_voter text, p_texto text)
+returns void
+language plpgsql security definer
+set search_path = public, extensions
+as $$
+declare
+  enc jsonb;
+  t   text := btrim(regexp_replace(coalesce(p_texto, ''), '\s+', ' ', 'g'));
+begin
+  if p_voter is null or char_length(p_voter) not between 6 and 64 then
+    raise exception 'votante_invalido' using errcode = 'P0001';
+  end if;
+  if char_length(t) not between 1 and 200 then
+    raise exception 'respuesta_invalida' using errcode = 'P0001';
+  end if;
+  select encuesta into enc from public.estado_sala where sala = p_sala;
+  if not found or enc is null or enc ->> 'id' is distinct from p_poll or enc ->> 'tipo' is distinct from 'abierta' then
+    raise exception 'encuesta_inexistente' using errcode = 'P0001';
+  end if;
+  if coalesce((enc ->> 'abierta')::boolean, false) is not true then
+    raise exception 'encuesta_cerrada' using errcode = 'P0001';
+  end if;
+  if (select count(*) from public.respuestas where sala = p_sala and poll_id = p_poll) >= 300
+     and not exists (select 1 from public.respuestas where sala = p_sala and poll_id = p_poll and voter = p_voter) then
+    raise exception 'frases_llenas' using errcode = 'P0001';
+  end if;
+  insert into public.respuestas (sala, poll_id, voter, texto) values (p_sala, p_poll, p_voter, t)
+  on conflict (sala, poll_id, voter) do update set texto = excluded.texto, creada = now();
+end $$;
+
+create or replace function public.respuestas_leer(p_sala text, p_poll text)
+returns table (id bigint, texto text)
+language sql stable security definer
+set search_path = public, extensions
+as $$
+  select r.id, r.texto from public.respuestas r
+  where r.sala = p_sala and r.poll_id = p_poll order by r.id limit 300
+$$;
+
+create or replace function public.respuesta_borrar(p_sala text, p_id bigint, p_clave text)
+returns void
+language plpgsql security definer
+set search_path = public, extensions
+as $$
+begin
+  if not public.clave_valida(p_sala, p_clave) then
+    raise exception 'no_permitido' using errcode = 'P0001';
+  end if;
+  delete from public.respuestas where sala = p_sala and id = p_id;
+end $$;
+
+revoke all on function public.respuesta_enviar(text, text, text, text) from public;
+revoke all on function public.respuestas_leer(text, text)               from public;
+revoke all on function public.respuesta_borrar(text, bigint, text)      from public;
+grant execute on function public.respuesta_enviar(text, text, text, text) to anon, authenticated;
+grant execute on function public.respuestas_leer(text, text)               to anon, authenticated;
+grant execute on function public.respuesta_borrar(text, bigint, text)      to anon, authenticated;
+
 revoke all on function public.encuesta_votar(text, text, text, int) from public;
 revoke all on function public.frase_enviar(text, text, text)         from public;
 revoke all on function public.frases_leer(text)                       from public;

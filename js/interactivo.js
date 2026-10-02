@@ -56,6 +56,9 @@ const ENCUESTAS_RAPIDAS = [
   { pregunta: '¿Crees que tus estudiantes harían algo así?', opciones: ['Sí', 'Tal vez', 'No'] },
   { pregunta: '¿Cómo vas con el ejercicio?', opciones: ['Ya lo logré', 'Voy en camino', 'Me trabé'] },
   { pregunta: '¿Cuándo lo llevarías a tu aula?', opciones: ['Esta semana', 'Este mes', 'Aún no sé'] },
+  { pregunta: '¿Qué dudas tienes hasta ahora?', tipo: 'abierta' },
+  { pregunta: '¿Qué fue lo más difícil de este paso?', tipo: 'abierta' },
+  { pregunta: 'Una palabra que describa cómo te sientes', tipo: 'abierta' },
 ];
 
 /** Devuelve la encuesta del estado solo si tiene forma válida (nunca se pinta algo inesperado). */
@@ -63,11 +66,16 @@ function encuestaValida(e) {
   if (!e || typeof e !== 'object') return null;
   if (typeof e.id !== 'string' || !/^[a-z0-9]{1,20}$/.test(e.id)) return null;
   if (typeof e.pregunta !== 'string' || !e.pregunta || e.pregunta.length > 200) return null;
-  if (!Array.isArray(e.opciones) || e.opciones.length < 2 || e.opciones.length > 6) return null;
+  const libre = e.tipo === 'abierta';
+  if (!Array.isArray(e.opciones)) return null;
+  if (!libre && (e.opciones.length < 2 || e.opciones.length > 6)) return null;
+  if (libre && e.opciones.length) return null;
   if (!e.opciones.every((o) => typeof o === 'string' && o && o.length <= 80)) return null;
   const conteos = Array.isArray(e.conteos) ? e.conteos : [];
   return {
     id: e.id,
+    tipo: libre ? 'abierta' : 'opciones',
+    mostrar: e.mostrar === true,
     pregunta: e.pregunta,
     opciones: e.opciones,
     abierta: e.abierta === true,
@@ -108,6 +116,47 @@ async function votarAhora(i) {
   } catch (e) {
     mostrarToast(e.message, 'err');
     refrescarEstado();
+  }
+}
+
+// ---------------------------------------------------------------------------
+// PREGUNTAS DE RESPUESTA LIBRE
+// ---------------------------------------------------------------------------
+let __resp = { poll: '', lista: [], firma: '', pidiendo: false, t: 0 };
+
+/** Lee las respuestas de la pregunta libre activa (máx. 1 lectura cada 1.5 s). */
+async function refrescarRespuestas(poll, forzar) {
+  if (!SB_LISTO || !sb || !poll || __resp.pidiendo) return false;
+  if (__resp.poll !== poll) { __resp = { poll, lista: [], firma: '', pidiendo: false, t: 0 }; forzar = true; }
+  if (!forzar && Date.now() - __resp.t < 1500) return false;
+  __resp.pidiendo = true;
+  try {
+    const lista = await leerRespuestas(app.sala, poll);
+    __resp.t = Date.now();
+    const firma = lista.map((r) => r.id + ':' + r.texto).join('|');
+    const cambio = firma !== __resp.firma;
+    __resp.lista = lista;
+    __resp.firma = firma;
+    return cambio;
+  } catch (e) {
+    console.warn('[taller] respuestas:', e.message);
+    return false;
+  } finally {
+    __resp.pidiendo = false;
+  }
+}
+
+async function enviarMiRespuesta(enc, texto) {
+  try {
+    await enviarRespuesta(app.sala, enc.id, miVotanteId(), texto);
+    guardarLS('taller.resp.' + app.sala + '.' + enc.id, texto);
+    await emitirEstado(app.canal);
+    mostrarToast('✓ ¡Respuesta enviada!', 'ok');
+    const c = $('#interactivoDocente');
+    if (c) c.dataset.firma = '';
+    renderInteractivoDocente();
+  } catch (e) {
+    mostrarToast(e.message, 'err');
   }
 }
 
@@ -366,10 +415,12 @@ async function renderInteractivoDocente() {
   const enc = encuestaValida(e.encuesta);
   const fr = fraseEstado();
 
+  if (enc && enc.tipo === 'abierta' && enc.mostrar) await refrescarRespuestas(enc.id, false);
+
   // Nueva encuesta abierta: avisar y llevar a «En vivo»
   if (enc && enc.abierta && app.encuestaVista !== enc.id) {
     app.encuestaVista = enc.id;
-    mostrarToast('📊 Nueva encuesta: ¡vota!', 'alerta', 6000);
+    mostrarToast(enc.tipo === 'abierta' ? '❓ Nueva pregunta: ¡responde!' : '📊 Nueva encuesta: ¡vota!', 'alerta', 6000);
     sonar();
     if (typeof window.__irAEnVivo === 'function') window.__irAEnVivo();
   }
@@ -384,7 +435,8 @@ async function renderInteractivoDocente() {
   // Evitar repintar (y perder lo que escribe el docente) si nada cambió
   const miVoto = enc ? leerLS('taller.voto.' + app.sala + '.' + enc.id, '') : '';
   const miFrase = leerLS('taller.frase.' + app.sala, '');
-  const firma = JSON.stringify([enc, miVoto, fr, miFrase, fr.mostrar ? __frases.firma : '']);
+  const miResp = enc && enc.tipo === 'abierta' ? leerLS('taller.resp.' + app.sala + '.' + enc.id, '') : '';
+  const firma = JSON.stringify([enc, miVoto, fr, miFrase, fr.mostrar ? __frases.firma : '', miResp, enc && enc.mostrar ? __resp.firma : '']);
   if (cont.dataset.firma === firma) return;
   const escribiendo = cont.querySelector('textarea');
   if (escribiendo && document.activeElement === escribiendo && fr.abierta) {
@@ -394,7 +446,45 @@ async function renderInteractivoDocente() {
   cont.dataset.firma = firma;
   cont.innerHTML = '';
 
-  if (enc) {
+  if (enc && enc.tipo === 'abierta') {
+    const card = el('section', 'interactivo-card');
+    card.appendChild(el('span', 'interactivo-kicker', '❓ Pregunta abierta' + (enc.abierta ? '' : ' · cerrada')));
+    card.appendChild(el('h3', 'interactivo-tit', enc.pregunta));
+    if (enc.abierta) {
+      const ta = document.createElement('textarea');
+      ta.className = 'frase-input';
+      ta.maxLength = 200;
+      ta.rows = 3;
+      ta.placeholder = 'Escribe tu respuesta…';
+      ta.value = miResp;
+      ta.setAttribute('aria-label', 'Tu respuesta');
+      const cuenta = el('span', 'frase-cuenta', ta.value.length + '/200');
+      ta.addEventListener('input', () => { cuenta.textContent = ta.value.length + '/200'; });
+      const btn = el('button', 'btn primary', miResp ? 'Actualizar mi respuesta' : 'Enviar respuesta');
+      btn.type = 'button';
+      btn.addEventListener('click', async () => {
+        const v = ta.value.trim();
+        if (!v) { mostrarToast('Escribe tu respuesta primero', 'err'); return; }
+        btn.disabled = true;
+        await enviarMiRespuesta(enc, v);
+        btn.disabled = false;
+      });
+      card.appendChild(ta);
+      const fila = el('div', 'frase-fila');
+      fila.appendChild(cuenta);
+      fila.appendChild(btn);
+      card.appendChild(fila);
+    } else if (miResp) {
+      card.appendChild(el('p', 'bloque-nota', 'Tu respuesta: «' + miResp + '»'));
+    }
+    if (enc.mostrar) {
+      const muro = el('div', 'resp-muro');
+      __resp.lista.forEach((r) => muro.appendChild(el('div', 'resp-chip', r.texto)));
+      if (!__resp.lista.length) muro.appendChild(el('p', 'bloque-nota', 'Todavía no hay respuestas.'));
+      card.appendChild(muro);
+    }
+    cont.appendChild(card);
+  } else if (enc) {
     const card = el('section', 'interactivo-card');
     card.appendChild(el('span', 'interactivo-kicker', '📊 Encuesta en vivo' + (enc.abierta ? '' : ' · cerrada')));
     card.appendChild(el('h3', 'interactivo-tit', enc.pregunta));
@@ -471,26 +561,38 @@ function iniciarPanelEncuesta() {
   ENCUESTAS_RAPIDAS.forEach((q) => {
     const b = el('button', 'btn btn-mini', q.pregunta);
     b.type = 'button';
-    b.addEventListener('click', () => lanzarEncuesta(q.pregunta, q.opciones));
+    b.addEventListener('click', () => lanzarEncuesta(q.pregunta, q.opciones || [], q.tipo));
     cont.appendChild(b);
   });
+  const tipoSel = $('#encTipo');
+  const sincronizarTipo = () => {
+    const libre = tipoSel.value === 'abierta';
+    $('#encOpcionesWrap').hidden = libre;
+    $('#btnLanzarEnc').textContent = libre ? 'Lanzar pregunta abierta' : 'Lanzar encuesta';
+  };
+  tipoSel.addEventListener('change', sincronizarTipo);
+  sincronizarTipo();
   $('#btnLanzarEnc').addEventListener('click', () => {
     const p = $('#encPregunta').value.trim();
-    const ops = $('#encOpciones').value.split('\n').map((x) => x.trim()).filter(Boolean);
+    const libre = tipoSel.value === 'abierta';
+    const ops = libre ? [] : $('#encOpciones').value.split('\n').map((x) => x.trim()).filter(Boolean);
     if (!p) { mostrarToast('Escribe la pregunta', 'err'); return; }
-    if (ops.length < 2 || ops.length > 6) { mostrarToast('Pon entre 2 y 6 opciones, una por línea', 'err'); return; }
+    if (!libre && (ops.length < 2 || ops.length > 6)) { mostrarToast('Pon entre 2 y 6 opciones, una por línea', 'err'); return; }
     if (ops.some((o) => o.length > 80) || p.length > 200) { mostrarToast('Texto demasiado largo', 'err'); return; }
-    lanzarEncuesta(p, ops).then(() => { $('#encPregunta').value = ''; $('#encOpciones').value = ''; });
+    lanzarEncuesta(p, ops, libre ? 'abierta' : 'opciones').then(() => { $('#encPregunta').value = ''; $('#encOpciones').value = ''; });
   });
 }
 
-async function lanzarEncuesta(pregunta, opciones) {
+async function lanzarEncuesta(pregunta, opciones, tipo) {
   try {
     const id = Date.now().toString(36);
+    const libre = tipo === 'abierta';
     await escribirEstado(app.clave, {
-      encuesta: { id, pregunta, opciones, abierta: true, conteos: opciones.map(() => 0) },
+      encuesta: libre
+        ? { id, tipo: 'abierta', pregunta, opciones: [], abierta: true, mostrar: false }
+        : { id, tipo: 'opciones', pregunta, opciones, abierta: true, conteos: opciones.map(() => 0) },
     });
-    mostrarToast('📊 Encuesta lanzada', 'ok');
+    mostrarToast(libre ? '❓ Pregunta lanzada' : '📊 Encuesta lanzada', 'ok');
     renderInteractivoFacilitador();
   } catch (e) {
     mostrarToast(mensajeError(e), 'err');
@@ -568,13 +670,48 @@ async function renderInteractivoFacilitador(forzar) {
       const card = el('div', 'enc-activa');
       card.appendChild(el('h3', 'interactivo-tit', enc.pregunta));
       card.appendChild(el('span', 'interactivo-kicker', enc.abierta ? '● Votación abierta' : 'Votación cerrada'));
-      const barras = el('div', 'enc-lista');
-      dibujarBarras(barras, enc, null, null);
-      card.appendChild(barras);
+      if (enc.tipo === 'abierta') {
+        await refrescarRespuestas(enc.id, !!forzar);
+        card.appendChild(el('p', 'enc-total', __resp.lista.length + (__resp.lista.length === 1 ? ' respuesta' : ' respuestas')));
+        const lista = el('div', 'frases-lista');
+        __resp.lista.forEach((r) => {
+          const fila = el('div', 'frase-item');
+          fila.appendChild(el('span', 'frase-texto', r.texto));
+          const x = el('button', 'btn btn-mini ghost', '✕');
+          x.type = 'button';
+          x.title = 'Quitar esta respuesta';
+          x.addEventListener('click', async () => {
+            try {
+              await borrarRespuesta(app.sala, r.id, app.clave);
+              await emitirEstado(app.canal);
+              await refrescarRespuestas(enc.id, true);
+              renderInteractivoFacilitador(true);
+            } catch (err) { mostrarToast(mensajeError(err), 'err'); }
+          });
+          fila.appendChild(x);
+          lista.appendChild(fila);
+        });
+        card.appendChild(lista);
+      } else {
+        const barras = el('div', 'enc-lista');
+        dibujarBarras(barras, enc, null, null);
+        card.appendChild(barras);
+      }
       const acc = el('div', 'fila-form');
       const bc = el('button', 'btn ' + (enc.abierta ? 'primary' : ''), enc.abierta ? 'Cerrar votación' : 'Reabrir votación');
       bc.type = 'button';
       bc.addEventListener('click', () => cambiarEstadoEncuesta(!enc.abierta));
+      if (enc.tipo === 'abierta') {
+        const bm = el('button', 'btn', enc.mostrar ? 'Ocultar respuestas a los docentes' : 'Mostrar respuestas a los docentes');
+        bm.type = 'button';
+        bm.addEventListener('click', async () => {
+          try {
+            await escribirEstado(app.clave, { encuesta: { id: enc.id, tipo: 'abierta', pregunta: enc.pregunta, opciones: [], abierta: enc.abierta, mostrar: !enc.mostrar } });
+            renderInteractivoFacilitador(true);
+          } catch (err) { mostrarToast(mensajeError(err), 'err'); }
+        });
+        acc.appendChild(bm);
+      }
       const bq = el('button', 'btn ghost', 'Quitar de las pantallas');
       bq.type = 'button';
       bq.addEventListener('click', quitarEncuesta);

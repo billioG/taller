@@ -296,6 +296,11 @@
   .barra-app .volver:hover{background:var(--brand-l);}
   .hud{top:62px;}
   :focus-visible{outline:3px solid #E8B23A;outline-offset:2px;}
+  .opciones-fac{margin-top:16px;}
+  .opciones-fac > summary{display:inline-block;cursor:pointer;list-style:none;font-weight:700;font-size:.85rem;
+    color:#fff;opacity:.85;border:1px dashed rgba(255,255,255,.55);border-radius:999px;padding:6px 14px;}
+  .opciones-fac > summary::-webkit-details-marker{display:none;}
+  .opciones-fac[open] > summary{opacity:1;background:rgba(255,255,255,.14);}
   @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important;}}
 </style>
 </head>
@@ -311,8 +316,10 @@
 
 <header class="hero">
   <h1>🎨 Desafío: programa "Pintura con la cara"</h1>
-  <p>Eres el/la docente programador/a. Arma cada script eligiendo los bloques <b>en el orden correcto</b>.
-  Si te equivocas, te explico por qué. 🎯</p>
+  <p>Arma cada script eligiendo los bloques <b>en el orden correcto</b>.
+  Si te equivocas, te explico por qué. Trabajas a tu ritmo, desde tu propio dispositivo. 🎯</p>
+  <details class="opciones-fac" id="opcionesFac">
+  <summary>⚙️ Opciones del facilitador: juego por equipos o en línea</summary>
   <div class="modes">
     <span class="mode-label">Modo de juego:</span>
     <button class="mode-btn active" data-mode="single">👨‍🏫 Individual</button>
@@ -322,10 +329,11 @@
   <div class="modes">
     <span class="mode-label">⏱️ Tiempo por turno:</span>
     <button class="mode-btn time-btn" data-time="30">30 s</button>
-    <button class="mode-btn time-btn active" data-time="60">60 s</button>
+    <button class="mode-btn time-btn" data-time="60">60 s</button>
     <button class="mode-btn time-btn" data-time="90">90 s</button>
-    <button class="mode-btn time-btn" data-time="0">Sin límite</button>
+    <button class="mode-btn time-btn active" data-time="0">Sin límite</button>
   </div>
+  </details>
 </header>
 
 <!-- SETUP DE EQUIPOS -->
@@ -701,8 +709,8 @@ const TEAM_COLORS = ["#e5534b","#3d8bfd","#14c087","#9966FF","#FF8C1A","#0FA98C"
 let teams = [];    /* [{name, color, members:[], stars, bonus}] — registrados en el setup */
 let turnIdx = 0;   /* índice del equipo que juega el nivel actual */
 /* Temporizador tipo Kahoot */
-let timeLimit = 60;    /* segundos por turno (0 = sin límite) */
-let timeLeft = 60, timeUp = false, timerId = null;
+let timeLimit = 0;    /* segundos por turno (0 = sin límite) */
+let timeLeft = 0, timeUp = false, timerId = null;
 const byId = id => document.getElementById(id);
 
 function curTeam(){ return teams[turnIdx]; }
@@ -1507,6 +1515,17 @@ document.querySelectorAll(".mode-btn:not(.time-btn)").forEach(b=>{
     return orig.call(this,ev);
   };
 });
+(function(){
+  const ajustar = (m)=>{
+    const want = m==="single" ? 0 : (timeLimit===0 ? 60 : timeLimit);
+    const b = document.querySelector('.time-btn[data-time="'+want+'"]'); if(b) b.click();
+  };
+  document.querySelectorAll(".mode-btn:not(.time-btn)").forEach(b=>{
+    const prev=b.onclick;
+    b.onclick=function(ev){ const r=prev.call(this,ev); ajustar(b.dataset.mode); return r; };
+  });
+  if(new URLSearchParams(location.search).get("modo")==="docente") byId("opcionesFac").open = true;
+})();
 byId("cardHost").onclick = hostCreate;
 byId("cardJoin").onclick = ()=>playerOpenJoin("");
 byId("btnOnlineBack").onclick = ()=>document.querySelector('[data-mode="single"]').click();

@@ -1000,3 +1000,9 @@ button.enc-opcion, button.enc-fila{ cursor:pointer; }
 .frases-lista{ display:grid; gap:var(--s2); margin-top:var(--s3); max-height:320px; overflow:auto; }
 .frase-item{ display:flex; align-items:center; gap:var(--s2); padding:8px 12px; background:var(--papel); border:1px solid var(--linea); border-radius:var(--r-m); }
 .frase-texto{ flex:1; overflow-wrap:anywhere; }
+
+.enc-sub{ font-size:1rem; margin:var(--s3) 0 var(--s2); color:var(--indigo); }
+.enc-label{ font-weight:700; font-size:.9rem; }
+.enc-form select{ width:100%; font:inherit; padding:12px 14px; border:2px solid var(--linea); border-radius:var(--r-m); background:#fff; }
+.resp-muro{ display:flex; flex-wrap:wrap; gap:var(--s2); margin-top:var(--s3); }
+.resp-chip{ background:var(--indigo-l); border:1px solid var(--indigo); color:var(--indigo-d); padding:8px 14px; border-radius:var(--r-m); font-weight:600; overflow-wrap:anywhere; max-width:100%; }

@@ -44,6 +44,7 @@ function mensajeError(e) {
   if (m.includes('encuesta_inexistente')) return 'Esa encuesta ya no está activa.';
   if (m.includes('opcion_invalida')) return 'Opción no válida.';
   if (m.includes('frases_cerradas')) return 'El facilitador aún no abre las frases.';
+  if (m.includes('respuesta_invalida')) return 'Escribe entre 1 y 200 caracteres.';
   if (m.includes('frase_invalida')) return 'Escribe entre 1 y 140 caracteres.';
   if (m.includes('frases_llenas')) return 'Ya se recibieron todas las frases posibles.';
   if (m.includes('votante_invalido')) return 'No se pudo identificar tu navegador. Recarga la página.';
@@ -226,5 +227,21 @@ async function borrarFrase(sala, id, clave) {
 
 async function limpiarFrases(sala, clave) {
   const { error } = await sb.rpc('frases_limpiar', { p_sala: sala, p_clave: clave });
+  if (error) throw new Error(mensajeError(error));
+}
+
+async function enviarRespuesta(sala, poll, voter, texto) {
+  const { error } = await sb.rpc('respuesta_enviar', { p_sala: sala, p_poll: poll, p_voter: voter, p_texto: texto });
+  if (error) throw new Error(mensajeError(error));
+}
+
+async function leerRespuestas(sala, poll) {
+  const { data, error } = await sb.rpc('respuestas_leer', { p_sala: sala, p_poll: poll });
+  if (error) throw new Error(mensajeError(error));
+  return Array.isArray(data) ? data : [];
+}
+
+async function borrarRespuesta(sala, id, clave) {
+  const { error } = await sb.rpc('respuesta_borrar', { p_sala: sala, p_id: id, p_clave: clave });
   if (error) throw new Error(mensajeError(error));
 }

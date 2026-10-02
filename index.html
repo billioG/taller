@@ -263,16 +263,23 @@
         <!-- Encuestas en vivo -->
         <section class="bloque bloque-panel" id="seccionEncuesta" hidden>
           <h2 class="bloque-tit">📊 Encuestas en vivo</h2>
-          <p class="bloque-nota">Lanza una pregunta rápida: los docentes votan desde su pantalla y ves los resultados al instante.</p>
+          <p class="bloque-nota">Lanza una pregunta: de opciones (votan y ves barras) o de respuesta libre (escriben lo que piensan). Puedes usar las rápidas de abajo o escribir la tuya.</p>
           <div id="encPresets" class="enc-presets"></div>
-          <details class="enc-custom">
-            <summary>Crear mi propia pregunta</summary>
+          <div class="enc-custom">
+            <h3 class="enc-sub">Escribir mi propia pregunta</h3>
             <div class="enc-form">
-              <input id="encPregunta" type="text" maxlength="120" placeholder="Pregunta">
-              <textarea id="encOpciones" rows="4" maxlength="500" placeholder="Una opción por línea (de 2 a 6)"></textarea>
+              <label class="enc-label" for="encTipo">Tipo de pregunta</label>
+              <select id="encTipo">
+                <option value="opciones">Opción múltiple (votan y se ven barras)</option>
+                <option value="abierta">Respuesta libre (cada quien escribe lo que quiera)</option>
+              </select>
+              <input id="encPregunta" type="text" maxlength="200" placeholder="Escribe tu pregunta aquí">
+              <div id="encOpcionesWrap">
+                <textarea id="encOpciones" rows="4" maxlength="500" placeholder="Una opción por línea (de 2 a 6)"></textarea>
+              </div>
               <button class="btn primary" id="btnLanzarEnc" type="button">Lanzar encuesta</button>
             </div>
-          </details>
+          </div>
           <div id="encActiva"></div>
         </section>
 

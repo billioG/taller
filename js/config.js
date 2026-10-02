@@ -226,7 +226,7 @@ const TALLER = {
     'pintura-con-la-cara': {
       titulo: '🎨 Pintura con la cara',
       desc: 'Desafío interactivo de bloques con detección facial. Úsalo como ejemplo avanzado de expresión artística o estación para quien termine antes.',
-      archivo: 'material/participantes/pintura-con-la-cara.html',
+      archivo: 'material/participantes/pintura-con-la-cara.html?modo=docente',
       libre: true,
       momento: 'Línea artística · práctica',
     },
