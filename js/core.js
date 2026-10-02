@@ -85,6 +85,7 @@ function esc(v) {
 /** Qué materiales se habilitan en cada paso. */
 const MATERIALES_POR_BLOQUE = {
   s1b2: ['tarjetas-de-bloques'],
+  s1b3: ['receta-scratch'],
   s1b4: ['pintura-con-la-cara'],
   s1b5: ['plan-de-clase', 'rubrica'],
   s1b6: ['encuesta-salida'],
@@ -121,4 +122,9 @@ function guardarPinParticipante(p) {
     if (p) sessionStorage.setItem('taller.pinpart', p);
     else sessionStorage.removeItem('taller.pinpart');
   } catch { }
+}
+
+/** ¿El facilitador ya abrió el primer paso? Antes de eso los docentes están en la sala de espera. */
+function sesionAbierta() {
+  return !!(app.estado && app.estado.bloque_actual);
 }

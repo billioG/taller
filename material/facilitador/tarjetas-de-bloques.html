@@ -19,9 +19,10 @@
   .t-amarillo{ background:#FFF3BF; border-color:#CC9E00; color:#5C4600; }
   .t-azul{ background:#D6E8FF; border-color:#3373CC; color:#123A6E; }
   .t-verde{ background:#D8F2D8; border-color:#389438; color:#14531A; }
-  .t-naranja{ background:#FFE4C7; border-color:#DB6E00; color:#7A3B00; }
+  .t-naranja{ background:#FFEBC2; border-color:#CF8B17; color:#5C3F00; }
   .t-morado{ background:#E6DAFF; border-color:#774DCB; color:#3D2470; }
-  .t-turquesa{ background:#D2F2F0; border-color:#2D8E8A; color:#14504D; }
+  .t-celeste{ background:#DDF0F9; border-color:#2E8EB8; color:#124C66; }
+  .t-variables{ background:#FFE0C2; border-color:#DB6E00; color:#7A3B00; }
   .instruccion{
     background:var(--indigo-l); border-left:5px solid var(--indigo);
     padding:13px 17px; border-radius:0 8px 8px 0; margin:14px 0 20px;
@@ -55,20 +56,20 @@
 
   <h2>Juego 1 · el saludo que responde (5 tarjetas)</h2>
   <div class="hoja">
-    <div class="tarj t-amarillo">cuando se haga clic en la bandera verde</div>
-    <div class="tarj t-azul">decir «¡Hola! ¿Cómo te llamas?» durante 2 segundos</div>
-    <div class="tarj t-verde">preguntar «¿Cómo te llamas?» y esperar</div>
-    <div class="tarj t-azul">decir «Hola » + respuesta durante 2 segundos</div>
-    <div class="tarj t-azul">decir «¡Buena respuesta!» durante 1 segundo</div>
+    <div class="tarj t-amarillo">al presionar bandera verde</div>
+    <div class="tarj t-morado">decir «¡Hola! ¿Cómo te llamas?» durante 2 segundos</div>
+    <div class="tarj t-celeste">preguntar «¿Cómo te llamas?» y esperar</div>
+    <div class="tarj t-morado">decir (unir «Hola » respuesta) durante 2 segundos</div>
+    <div class="tarj t-morado">decir «¡Buena respuesta!» durante 1 segundo</div>
   </div>
 
   <h2 class="salto">Juego 2 · el personaje que se mueve (5 tarjetas)</h2>
   <div class="hoja">
-    <div class="tarj t-amarillo">cuando se haga clic en la bandera verde</div>
-    <div class="tarj t-azul">moverse 10 pasos</div>
-    <div class="tarj t-azul">girar 15 grados a la derecha</div>
+    <div class="tarj t-amarillo">al presionar bandera verde</div>
+    <div class="tarj t-azul">mover 10 pasos</div>
+    <div class="tarj t-azul">girar ↻ 15 grados</div>
     <div class="tarj t-morado">cambiar disfraz</div>
-    <div class="tarj t-naranja">repetir 10 veces { }</div>
+    <div class="tarj t-naranja">repetir (10)</div>
   </div>
 
   <h2>Juego 3 · el semáforo (5 tarjetas)</h2>
@@ -77,16 +78,16 @@
     <div class="tarj t-morado">cambiar disfraz a verde</div>
     <div class="tarj t-amarillo">al recibir «mensaje rojo»</div>
     <div class="tarj t-morado">cambiar disfraz a rojo</div>
-    <div class="tarj t-amarillo">al hacer clic al ratón</div>
+    <div class="tarj t-amarillo">al hacer clic en este objeto</div>
   </div>
 
   <h2>Juego 4 · el contador (5 tarjetas)</h2>
   <div class="hoja">
-    <div class="tarj t-turquesa">fijar puntos a 0</div>
-    <div class="tarj t-turquesa">cambiar puntos en 1</div>
-    <div class="tarj t-turquesa">cambiar puntos en −1</div>
-    <div class="tarj t-naranja">si &lt; respuesta &gt; número &gt; entonces</div>
-    <div class="tarj t-azul">decir «Más bajo» durante 1 segundo</div>
+    <div class="tarj t-variables">fijar [puntos] a 0</div>
+    <div class="tarj t-variables">cambiar [puntos] en 1</div>
+    <div class="tarj t-variables">cambiar [puntos] en −1</div>
+    <div class="tarj t-naranja">si (respuesta) &gt; (número) entonces</div>
+    <div class="tarj t-morado">decir «Más bajo» durante 1 segundo</div>
   </div>
 
   <div class="recorte" style="margin-top:24px;">

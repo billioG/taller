@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Receta en Scratch · Taller de Scratch</title>
+<link rel="stylesheet" href="../material.css">
+<style>
+  .paso{ display:grid; grid-template-columns:34px 1fr; gap:12px; margin:10px 0; break-inside:avoid; }
+  .paso .n{ width:30px; height:30px; border-radius:50%; background:var(--indigo); color:#fff; font-weight:800;
+    display:flex; align-items:center; justify-content:center; font-size:10.5pt; }
+  .paso p{ margin:0 0 4px; }
+  .pila{ background:var(--papel); border:1px solid var(--linea); border-radius:10px; padding:10px 14px; margin:8px 0 4px; line-height:2.1; }
+  .pila .sangria{ margin-left:22px; }
+  .pila .sangria2{ margin-left:44px; }
+  .receta-tit{ display:flex; align-items:center; gap:10px; }
+  .min{ font-size:9pt; font-weight:800; background:var(--indigo-l); color:var(--indigo); padding:3px 10px; border-radius:999px; }
+</style>
+</head>
+<body>
+
+<div class="barra">
+  <span class="barra-txt"><strong>Receta en Scratch</strong>Los bloques en orden, paso a paso</span>
+  <a href="#" onclick="window.print();return false;">⬇ Guardar como PDF</a>
+  <a class="secundario" href="../../index.html" onclick="window.close();setTimeout(function(){location.href='../../index.html'},300);return false;">✕ Cerrar</a>
+</div>
+
+<div class="pagina">
+
+  <div class="cabecera">
+    <div>
+      <h1>Receta en Scratch</h1>
+      <p class="h1-sub">Construye tu recurso: del saludo a tu «sí / inténtalo de nuevo»</p>
+    </div>
+    <div class="marca"><img src="../../assets/logo-icon.svg" alt=""><span>Yo Aprendo</span></div>
+  </div>
+
+  <div class="aviso aviso-azul">
+    <p class="aviso-tit">Antes de empezar</p>
+    <p>Entra a <b>scratch.mit.edu</b>, inicia sesión y pulsa <b>Crear</b>. Arriba, en el icono 🌐, elige <b>Español Latinoamericano</b> para ver los bloques como en esta receta. Los colores te ayudan: <b>amarillo</b> = eventos, <b>morado</b> = apariencia, <b>celeste</b> = sensores, <b>verde</b> = operadores, <b>naranja</b> = control.</p>
+  </div>
+
+  <h2 class="receta-tit">Receta 1 · El saludo que responde <span class="min">25–40 min</span></h2>
+  <p>Un personaje que te saluda, te pregunta tu nombre y te responde con él.</p>
+
+  <div class="paso"><span class="n">1</span><div>
+    <p>Deja el gato o elige otro personaje con el botón <b>Elige un objeto</b> (abajo a la derecha).</p></div></div>
+  <div class="paso"><span class="n">2</span><div>
+    <p>En <b>Eventos</b>, arrastra el bloque «al presionar bandera verde» al área de trabajo. Todo lo que cuelgue de él se ejecuta al pulsar la bandera.</p>
+    <div class="pila"><span class="bloque-codigo b-amarillo">al presionar [bandera verde]</span></div></div></div>
+  <div class="paso"><span class="n">3</span><div>
+    <p>En <b>Apariencia</b>, toma «decir … durante … segundos» y encájalo <b>debajo</b>. Escribe tu saludo.</p>
+    <div class="pila"><span class="bloque-codigo b-amarillo">al presionar [bandera verde]</span><br>
+      <span class="bloque-codigo b-morado">decir [¡Hola! Soy tu guía] durante (2) segundos</span></div></div></div>
+  <div class="paso"><span class="n">4</span><div>
+    <p>En <b>Sensores</b>, agrega «preguntar … y esperar» y escribe tu pregunta.</p>
+    <div class="pila"><span class="bloque-codigo b-celeste">preguntar [¿Cómo te llamas?] y esperar</span></div></div></div>
+  <div class="paso"><span class="n">5</span><div>
+    <p>Agrega otro «decir … durante … segundos». En su espacio coloca el bloque «unir» de <b>Operadores</b>. En la primera casilla escribe <code>Hola </code> (con un espacio al final) y en la segunda arrastra «respuesta» de <b>Sensores</b>.</p>
+    <div class="pila"><span class="bloque-codigo b-morado">decir (<span class="bloque-codigo b-verde">unir [Hola ] (<span class="bloque-codigo b-celeste">respuesta</span>)</span>) durante (2) segundos</span></div></div></div>
+  <div class="paso"><span class="n">6</span><div>
+    <p><b>Pruébalo:</b> pulsa la bandera verde, escribe tu nombre y presiona Enter. Si el personaje te saluda con tu nombre, ya tienes interacción.</p></div></div>
+
+  <h2 class="receta-tit">Receta 2 · «Si aciertas, estrella; si no, inténtalo de nuevo» <span class="min">40–60 min</span></h2>
+  <p>La misma lógica de una buena actividad de aula: el estudiante responde y el recurso reacciona según lo que respondió.</p>
+
+  <div class="paso"><span class="n">1</span><div>
+    <p>Cambia tu pregunta por una de <b>tu tema</b>. Ejemplo de matemáticas: «¿Cuánto es 7 × 8?».</p></div></div>
+  <div class="paso"><span class="n">2</span><div>
+    <p>En <b>Control</b>, arrastra «si … entonces … si no» y colócalo <b>debajo</b> de «preguntar … y esperar».</p></div></div>
+  <div class="paso"><span class="n">3</span><div>
+    <p>En <b>Operadores</b>, toma el bloque « ( ) = ( ) » y ponlo en el hueco hexagonal del «si». A la izquierda arrastra «respuesta» (Sensores); a la derecha escribe la respuesta correcta.</p>
+    <div class="pila"><span class="bloque-codigo b-naranja">si &lt;<span class="bloque-codigo b-verde">(<span class="bloque-codigo b-celeste">respuesta</span>) = [56]</span>&gt; entonces</span></div></div></div>
+  <div class="paso"><span class="n">4</span><div>
+    <p>Dentro del <b>«si»</b>, el mensaje de acierto. Dentro del <b>«si no»</b>, el de intentar otra vez.</p>
+    <div class="pila">
+      <span class="bloque-codigo b-naranja">si &lt;(respuesta) = [56]&gt; entonces</span><br>
+      <span class="sangria"><span class="bloque-codigo b-morado">decir [¡Correcto! ⭐] durante (2) segundos</span></span><br>
+      <span class="bloque-codigo b-naranja">si no</span><br>
+      <span class="sangria"><span class="bloque-codigo b-morado">decir [Casi… ¡inténtalo de nuevo!] durante (2) segundos</span></span></div></div></div>
+  <div class="paso"><span class="n">5</span><div>
+    <p>Opcional: en <b>Sonido</b>, agrega «iniciar sonido» dentro del «si» para celebrar el acierto.</p></div></div>
+  <div class="paso"><span class="n">6</span><div>
+    <p><b>Pruébalo dos veces:</b> una con la respuesta correcta y otra con una equivocada. Los dos caminos tienen que funcionar.</p></div></div>
+
+  <div class="aviso">
+    <p class="aviso-tit">Si el «si» nunca dice que acertaste</p>
+    <p>Scratch compara el texto <b>exacto</b>. Revisa que la respuesta correcta esté escrita igual (sin espacios de más). En los números no hay problema; en las palabras, usa respuestas cortas.</p>
+  </div>
+
+  <h2 class="receta-tit">Receta 3 · Súmale puntos (ruta media) <span class="min">si te sobra tiempo</span></h2>
+  <div class="paso"><span class="n">1</span><div>
+    <p>En <b>Variables</b>, pulsa <b>Crear una variable</b>, llámala <code>puntos</code> y déjala «para todos los objetos».</p></div></div>
+  <div class="paso"><span class="n">2</span><div>
+    <p>Justo debajo de «al presionar bandera verde», agrega «fijar [puntos] a (0)». Dentro del «si», agrega «cambiar [puntos] en (1)».</p>
+    <div class="pila">
+      <span class="bloque-codigo b-amarillo">al presionar [bandera verde]</span><br>
+      <span class="bloque-codigo b-variables">fijar [puntos] a (0)</span><br>
+      <span class="bloque-codigo b-celeste">preguntar [¿Cuánto es 7 × 8?] y esperar</span><br>
+      <span class="bloque-codigo b-naranja">si &lt;(respuesta) = [56]&gt; entonces</span><br>
+      <span class="sangria"><span class="bloque-codigo b-variables">cambiar [puntos] en (1)</span></span><br>
+      <span class="sangria"><span class="bloque-codigo b-morado">decir [¡Correcto! ⭐] durante (2) segundos</span></span></div></div></div>
+  <div class="paso"><span class="n">3</span><div>
+    <p>Para repetir varias preguntas, envuelve la pregunta y el «si» dentro de «repetir (3)» (<b>Control</b>).</p></div></div>
+
+  <h2 class="receta-tit">Guardar y compartir <span class="min">100–112 min</span></h2>
+  <div class="paso"><span class="n">1</span><div><p>Menú <b>Archivo → Guardar ahora</b> (con tu sesión iniciada).</p></div></div>
+  <div class="paso"><span class="n">2</span><div><p>Pulsa <b>Compartir</b>. Copia el enlace de la barra de direcciones.</p></div></div>
+  <div class="paso"><span class="n">3</span><div><p>Ábrelo en otra pestaña o en tu celular. Si carga, ya es material de clase.</p></div></div>
+
+  <h2>Si algo falla</h2>
+  <table>
+    <thead><tr><th>Lo que pasa</th><th>Qué hacer</th></tr></thead>
+    <tbody>
+      <tr><td>El bloque no se pega</td><td>Acércalo más hasta que aparezca una línea blanca bajo el bloque anterior. Suelta ahí.</td></tr>
+      <tr><td>No pasa nada al pulsar la bandera</td><td>Revisa que todos los bloques cuelguen de «al presionar bandera verde».</td></tr>
+      <tr><td>Se ve «Hola Ana» pegado, sin espacio</td><td>Escribe un espacio después de «Hola » en el bloque «unir».</td></tr>
+      <tr><td>El «si» no se activa</td><td>El texto debe ser idéntico. Prueba con una respuesta de una sola palabra.</td></tr>
+      <tr><td>Los mensajes pasan muy rápido</td><td>Sube «durante (2) segundos» a 3, o agrega «esperar (1) segundos».</td></tr>
+      <tr><td>Perdiste tu proyecto</td><td>Entra a «Mis cosas» (arriba a la derecha) y ábrelo. Si iniciaste sesión, Scratch lo guarda cada cierto tiempo.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="pie-pagina">
+    Taller de Programación Visual con Scratch · Yo Aprendo
+  </div>
+</div>
+
+</body>
+</html>

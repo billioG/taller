@@ -124,6 +124,9 @@
 
         <!-- Vista 1: lo que el facilitador está mostrando ahora -->
         <div id="vistaEnVivo">
+          <!-- Sala de espera: cuenta regresiva hasta el taller -->
+          <div id="esperaDocente" class="espera" hidden></div>
+
           <div class="progreso progreso-sticky" id="progresoSesion" aria-label="Avance de la sesión"></div>
 
           <!-- Encuesta en vivo / frase final / imagen -->
@@ -210,6 +213,8 @@
 
         <section class="bloque bloque-panel">
           <h2 class="bloque-tit">Control de la sesión</h2>
+          <p class="bloque-nota">Hasta que abras el primer paso, los docentes ven una cuenta regresiva y solo pueden leer los materiales libres.</p>
+          <div class="fila-form" style="margin-bottom:var(--s3)"><button class="btn ghost" id="btnVolverEspera" type="button">⏪ Volver a la sala de espera</button></div>
           <div class="control-mensaje">
             <label for="inpMensaje">Mensaje para todos (aparece arriba, en grande)</label>
             <div class="fila-form">
@@ -234,7 +239,7 @@
         </section>
 
         <section class="bloque bloque-panel">
-          <h2 class="bloque-tit">Quién está conectado</h2>
+          <h2 class="bloque-tit">¿Quién está conectado?</h2>
           <div id="listaConectados" class="lista-conectados"></div>
         </section>
 
@@ -259,6 +264,7 @@
           </div>
           <div class="fila-form">
             <button class="btn primary" id="btnCopiarLink" type="button">Copiar link para docentes</button>
+            <button class="btn" id="btnCopiarInvitacion" type="button">✉ Copiar invitación (enlace + PIN)</button>
             <button class="btn ghost" id="btnDebug" type="button">Probar conexión</button>
           </div>
         </section>
@@ -319,15 +325,15 @@
 
         <!-- Piso / Palabra (facilitador) -->
         <section class="bloque bloque-panel" id="seccionPiso" hidden>
-          <h2 class="bloque-tit">🎤 Piso / Palabra</h2>
-          <p class="bloque-nota">Gestiona quién tiene la palabra. Tú puedes invitar o conceder/quitar el piso.</p>
+          <h2 class="bloque-tit">🎤 La palabra</h2>
+          <p class="bloque-nota">Gestiona quién tiene la palabra. Puedes invitar, conceder o quitar la palabra.</p>
           <div id="listaPiso" class="lista-piso"></div>
         </section>
 
         <!-- Scratch embebido (facilitador configura el project ID) -->
         <section class="bloque bloque-panel" id="seccionScratch" hidden>
           <h2 class="bloque-tit">🐱 Scratch en vivo</h2>
-          <p class="bloque-nota">Pega el ID del proyecto de Scratch para embeber el editor en la vista de los docentes.</p>
+          <p class="bloque-nota">Pega el ID del proyecto de Scratch (solo el número de la dirección) para mostrarlo en la vista de los docentes.</p>
           <div class="fila-form">
             <input id="inpScratchProjectId" type="text" placeholder="Ej: 123456789 (solo números)" inputmode="numeric" maxlength="20">
             <button class="btn primary" id="btnCargarScratch" type="button">Cargar en vista docentes</button>
@@ -417,6 +423,7 @@
 <script src="js/features.js"></script>
 <script src="js/interactivo.js"></script>
 <script src="js/cuenta.js"></script>
+<script src="js/espera.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

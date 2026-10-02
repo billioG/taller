@@ -24,9 +24,13 @@ const TALLER = {
   // DATOS GENERALES
   // ------------------------------------------------------------------
   titulo: 'Taller de Programación Visual con Scratch',
-  subtitulo: 'Una sesión de dos horas para construir un recurso interactivo de su propia asignatura',
+  subtitulo: 'Una sesión de dos horas para construir un recurso interactivo de tu propia asignatura',
   entidad: 'Yo Aprendo',
   version: '1.0',
+
+  // Día del taller. La sala de espera muestra una cuenta regresiva hasta esta fecha y hora
+  // (hora de Guatemala, UTC-6). Cambia la hora aquí si es distinta.
+  fecha: { inicio: '2026-11-23T08:00:00-06:00', texto: 'lunes 23 de noviembre' },
 
   // Si cambias esto, cambia también el archivo CNAME
   dominio: 'taller.yoaprendo.online',
@@ -108,9 +112,16 @@ const TALLER = {
       alFinalizar: true, // se habilita cuando el facilitador finaliza el taller
       momento: 'Después del taller',
     },
+    'receta-scratch': {
+      titulo: '🐱 Receta en Scratch: paso a paso',
+      desc: 'Los bloques en orden para armar tu saludo que responde y tu «sí / inténtalo de nuevo».',
+      archivo: 'material/participantes/receta-scratch.html',
+      libre: false,
+      momento: 'Construcción guiada',
+    },
     'pintura-con-la-cara': {
       titulo: '🎨 Pintura con la cara',
-      desc: 'Desafío interactivo: ordena bloques para pintar con el movimiento de la cara (extensión de vídeo / detección facial). Ideal para expresión artística.',
+      desc: 'Desafío interactivo: ordena bloques para pintar con el movimiento de la cara (extensión de video / detección facial). Ideal para expresión artística.',
       archivo: 'material/participantes/pintura-con-la-cara.html',
       libre: false,
       momento: 'Línea artística · práctica',
@@ -158,9 +169,23 @@ const TALLER = {
   // MATERIALES — VERSIÓN FACILITADOR (con notas de guiado, tiempos, respuestas)
   // ------------------------------------------------------------------
   materialesFacilitador: {
+    'paso-a-paso-scratch': {
+      titulo: '🐱 Paso a paso en Scratch (guion del facilitador)',
+      desc: 'Qué construir en vivo, con qué bloques, qué decir y cómo resolver los errores más comunes.',
+      archivo: 'material/facilitador/paso-a-paso-scratch.html',
+      libre: true,
+      momento: 'Antes de la sesión',
+    },
+    'receta-scratch': {
+      titulo: '🐱 Receta en Scratch (versión de los docentes)',
+      desc: 'Lo que ven los docentes al llegar a la construcción guiada.',
+      archivo: 'material/participantes/receta-scratch.html',
+      libre: false,
+      momento: 'Construcción guiada',
+    },
     'paso-a-paso-app': {
       titulo: '🧭 Paso a paso: cómo operar la app',
-      desc: 'Antes, durante y después del taller: PIN, QR, pasos, encuestas, Pintura con la cara, certificados.',
+      desc: 'Antes, durante y después del taller: invitación, PIN, QR, pasos, encuestas, Pintura con la cara y certificados.',
       archivo: 'material/facilitador/paso-a-paso-app.html',
       libre: true,
       momento: 'Antes de la sesión',
@@ -385,7 +410,7 @@ const TALLER = {
     ],
     frasesUtiles: [
       'Alguien se traba: "Cuénteme qué está viendo." No le des la solución.',
-      'Alguien termina muy rápido: "Ahora ayúdeme a alguien de su mesa diez minutos."',
+      'Alguien termina muy rápido: "Ahora ayude a alguien de su mesa durante diez minutos."',
       'Alguien se disculpa: "Gracias por decirlo. Le va a pasar a todo el grupo."',
       'Se acaba el tiempo: "Guarden ahora lo que tengan. Guardado es mejor que perdido."',
       'Vuelve una pregunta ya contestada: repite la respuesta, no regañes.',
@@ -394,7 +419,7 @@ const TALLER = {
       {
         objecion: 'Los chicos ya lo saben mejor',
         respuesta:
-          'Tiene razón en una parte: ellos mueven los bloques más rápido. Pero dígame algo: ¿cuántos de mis estudiantes saben por qué la Constitución de 1917 cambió la historia de este país? Usted sí. Y nadie más en esta sala lo sabe.',
+          'Tiene razón en una parte: ellos mueven los bloques más rápido. Pero dígame algo: ¿cuántos de sus estudiantes saben explicar los derechos y deberes de un ciudadano? Usted sí. Esa parte solo usted la puede enseñar.',
       },
       {
         objecion: 'No tengo tiempo',

@@ -14,11 +14,12 @@
   }
   .m{ color:#3373CC; }
   .a{ color:#774DCB; }
-  .e{ color:#CC9E00; }
-  .c{ color:#DB6E00; }
-  .s{ color:#389438; }
-  .v{ color:#2D8E8A; }
-  .o{ color:#E6495C; }
+  .sn{ color:#A12FA1; }
+  .e{ color:#8A6D00; }
+  .c{ color:#A86E00; }
+  .sen{ color:#1F7494; }
+  .o{ color:#2F7D2F; }
+  .v{ color:#B85A00; }
   .lista-b{ display:flex; flex-wrap:wrap; gap:5px; }
   .nota-p{ font-size:9.5pt; color:var(--gris); margin:4px 0 0; }
 </style>
@@ -50,105 +51,105 @@
   <div class="familia m">
     <h2 class="familia-tit">Movimiento · azul</h2>
     <div class="lista-b">
-      <span class="bloque-codigo b-azul">moverse (10) pasos</span>
-      <span class="bloque-codigo b-azul">girar (15) grados ▶</span>
+      <span class="bloque-codigo b-azul">mover (10) pasos</span>
+      <span class="bloque-codigo b-azul">girar ↻ (15) grados</span>
       <span class="bloque-codigo b-azul">ir a x: (0) y: (0)</span>
       <span class="bloque-codigo b-azul">cambiar x en (10)</span>
       <span class="bloque-codigo b-azul">cambiar y en (10)</span>
-      <span class="bloque-codigo b-azul">apuntar a (90°)</span>
+      <span class="bloque-codigo b-azul">apuntar en dirección (90)</span>
     </div>
   </div>
 
   <div class="familia a">
     <h2 class="familia-tit">Apariencia · morado</h2>
     <div class="lista-b">
-      <span class="bloque-codigo b-morado">decir (¡Hola!) por (2) seg</span>
-      <span class="bloque-codigo b-morado">pensar (Hmmm…) por (2) seg</span>
-      <span class="bloque-codigo b-morado">cambiar disfraz a (2)</span>
+      <span class="bloque-codigo b-morado">decir [¡Hola!] durante (2) segundos</span>
+      <span class="bloque-codigo b-morado">pensar [Hmm…] durante (2) segundos</span>
+      <span class="bloque-codigo b-morado">cambiar disfraz a [disfraz2]</span>
       <span class="bloque-codigo b-morado">cambiar tamaño en (10)</span>
       <span class="bloque-codigo b-morado">mostrar</span>
-      <span class="bloque-codigo b-morado">escribir en pantalla (texto)</span>
-      <span class="bloque-codigo b-morado">emoji (😊)</span>
+      <span class="bloque-codigo b-morado">esconder</span>
+    </div>
+  </div>
+
+  <div class="familia sn">
+    <h2 class="familia-tit">Sonido · fucsia</h2>
+    <div class="lista-b">
+      <span class="bloque-codigo b-fucsia">tocar sonido [Miau] hasta que termine</span>
+      <span class="bloque-codigo b-fucsia">iniciar sonido [Miau]</span>
     </div>
   </div>
 
   <div class="familia e">
-    <h2 class="familia-tit">Eventos · amarillo · «cuando pase esto…»</h2>
+    <h2 class="familia-tit">Eventos · amarillo · «cuando pasa algo…»</h2>
     <div class="lista-b">
-      <span class="bloque-codigo b-amarillo">al click en bandera verde ▶</span>
-      <span class="bloque-codigo b-amarillo">al presionar tecla (espacio)</span>
-      <span class="bloque-codigo b-amarillo">al click del ratón</span>
-      <span class="bloque-codigo b-amarillo">al recibir (mensaje1)</span>
-      <span class="bloque-codigo b-amarillo">enviar (mensaje1)</span>
-      <span class="bloque-codigo b-amarillo">enviar (mensaje1) y esperar</span>
+      <span class="bloque-codigo b-amarillo">al presionar [bandera verde]</span>
+      <span class="bloque-codigo b-amarillo">al presionar tecla [espacio]</span>
+      <span class="bloque-codigo b-amarillo">al hacer clic en este objeto</span>
+      <span class="bloque-codigo b-amarillo">al recibir [mensaje1]</span>
+      <span class="bloque-codigo b-amarillo">enviar [mensaje1]</span>
+      <span class="bloque-codigo b-amarillo">enviar [mensaje1] y esperar</span>
     </div>
     <p class="nota-p">Piensa en un timbre: cuando lo tocas en una habitación, alguien lo oye en otra y responde.</p>
   </div>
 
   <div class="familia c">
-    <h2 class="familia-tit">Control · naranja · la estructura</h2>
+    <h2 class="familia-tit">Control · naranja claro · la estructura</h2>
     <div class="lista-b">
-      <span class="bloque-codigo b-naranja">esperar (1) seg</span>
-      <span class="bloque-codigo b-naranja">repetir (10) { }</span>
-      <span class="bloque-codigo b-naranja">repetir hasta que { }</span>
-      <span class="bloque-codigo b-naranja">si < > entonces { }</span>
-      <span class="bloque-codigo b-naranja">si < > entonces { } si no { }</span>
-      <span class="bloque-codigo b-naranja">esperar hasta que { }</span>
+      <span class="bloque-codigo b-naranja">esperar (1) segundos</span>
+      <span class="bloque-codigo b-naranja">repetir (10)</span>
+      <span class="bloque-codigo b-naranja">por siempre</span>
+      <span class="bloque-codigo b-naranja">repetir hasta que &lt; &gt;</span>
+      <span class="bloque-codigo b-naranja">si &lt; &gt; entonces</span>
+      <span class="bloque-codigo b-naranja">si &lt; &gt; entonces … si no</span>
+      <span class="bloque-codigo b-naranja">esperar hasta que &lt; &gt;</span>
     </div>
   </div>
 
-  <div class="familia s">
-    <h2 class="familia-tit">Sensación · verde</h2>
+  <div class="familia sen">
+    <h2 class="familia-tit">Sensores · celeste · para preguntar y detectar</h2>
     <div class="lista-b">
-      <span class="bloque-codigo b-verde">preguntar (¿Nombre?) y esperar</span>
-      <span class="bloque-codigo b-verde">respuesta</span>
-      <span class="bloque-codigo b-verde">¿tocando el borde?</span>
-      <span class="bloque-codigo b-verde">¿tocando (objeto)?</span>
-      <span class="bloque-codigo b-verde">¿tecla (espacio) presionada?</span>
+      <span class="bloque-codigo b-celeste">preguntar [¿Cómo te llamas?] y esperar</span>
+      <span class="bloque-codigo b-celeste">respuesta</span>
+      <span class="bloque-codigo b-celeste">¿tocando [el borde]?</span>
+      <span class="bloque-codigo b-celeste">¿tocando [objeto]?</span>
+      <span class="bloque-codigo b-celeste">¿tecla [espacio] presionada?</span>
     </div>
   </div>
 
   <div class="familia o">
-    <h2 class="familia-tit">Operadores · rojo · para comparar y calcular</h2>
+    <h2 class="familia-tit">Operadores · verde · para comparar y calcular</h2>
     <div class="lista-b">
-      <span class="bloque-codigo b-rojo">( ) + ( )</span>
-      <span class="bloque-codigo b-rojo">( ) − ( )</span>
-      <span class="bloque-codigo b-rojo">( ) × ( )</span>
-      <span class="bloque-codigo b-rojo">( ) > ( )</span>
-      <span class="bloque-codigo b-rojo">( ) < ( )</span>
-      <span class="bloque-codigo b-rojo">unir ( ) con ( )</span>
-      <span class="bloque-codigo b-rojo">número al azar (1) a (10)</span>
+      <span class="bloque-codigo b-verde">( ) + ( )</span>
+      <span class="bloque-codigo b-verde">( ) − ( )</span>
+      <span class="bloque-codigo b-verde">( ) * ( )</span>
+      <span class="bloque-codigo b-verde">( ) &gt; ( )</span>
+      <span class="bloque-codigo b-verde">( ) &lt; ( )</span>
+      <span class="bloque-codigo b-verde">( ) = ( )</span>
+      <span class="bloque-codigo b-verde">unir [hola ] [mundo]</span>
+      <span class="bloque-codigo b-verde">elegir número al azar entre (1) y (10)</span>
     </div>
   </div>
 
   <div class="familia v">
-    <h2 class="familia-tit">Variables · turquesa · el número que cambia</h2>
+    <h2 class="familia-tit">Variables · naranja oscuro · el número que cambia</h2>
     <div class="lista-b">
-      <span class="bloque-codigo b-turquesa">fijar [puntos] en (0)</span>
-      <span class="bloque-codigo b-turquesa">cambiar [puntos] en (1)</span>
-      <span class="bloque-codigo b-turquesa">cambiar [puntos] en (−1)</span>
-      <span class="bloque-codigo b-turquesa">mostrar [puntos]</span>
-      <span class="bloque-codigo b-turquesa">ocultar [puntos]</span>
+      <span class="bloque-codigo b-variables">fijar [puntos] a (0)</span>
+      <span class="bloque-codigo b-variables">cambiar [puntos] en (1)</span>
+      <span class="bloque-codigo b-variables">cambiar [puntos] en (−1)</span>
+      <span class="bloque-codigo b-variables">mostrar variable [puntos]</span>
+      <span class="bloque-codigo b-variables">esconder variable [puntos]</span>
     </div>
-    <p class="nota-p">Se crean en la categoría Variables. Usa <strong>una</strong> a la vez.</p>
-  </div>
-
-  <div class="familia s">
-    <h2 class="familia-tit">Sonido · verde</h2>
-    <div class="lista-b">
-      <span class="bloque-codigo b-verde">reproducir (Miau) hasta el fin</span>
-      <span class="bloque-codigo b-verde">empezar sonido (Miau)</span>
-      <span class="bloque-codigo b-verde">reproducir (Pop) por (1) seg</span>
-    </div>
+    <p class="nota-p">Se crean con el botón «Crear una variable», en la categoría Variables. Usa <strong>una</strong> a la vez.</p>
   </div>
 
   <div class="aviso aviso-verde" style="margin-top:18px;">
-    <p class="aviso-tit">Tu proyecto en la sesión (3 bloques)</p>
+    <p class="aviso-tit">Tu proyecto en la sesión: un sombrero y tres bloques</p>
     <p>
-      <span class="bloque-codigo b-amarillo">al click en bandera verde ▶</span><br>
-      <span class="bloque-codigo b-morado" style="margin-left:14px;">decir (¡Hola! ¿Cómo te llamas?) por 2 seg</span><br>
-      <span class="bloque-codigo b-verde" style="margin-left:14px;">preguntar (¿Cómo te llamas?) y esperar</span><br>
-      <span class="bloque-codigo b-morado" style="margin-left:14px;">decir (unir (Hola ) con (respuesta)) por 2 seg</span>
+      <span class="bloque-codigo b-amarillo">al presionar [bandera verde]</span><br>
+      <span class="bloque-codigo b-morado" style="margin-left:14px;">decir [¡Hola! ¿Cómo te llamas?] durante (2) segundos</span><br>
+      <span class="bloque-codigo b-celeste" style="margin-left:14px;">preguntar [¿Cómo te llamas?] y esperar</span><br>
+      <span class="bloque-codigo b-morado" style="margin-left:14px;">decir (unir [Hola ] (respuesta)) durante (2) segundos</span>
     </p>
   </div>
 

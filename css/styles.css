@@ -1107,3 +1107,69 @@ body:has(.piso-participante:not([hidden])) .wrap{ padding-bottom:84px; }
 @keyframes relojTiembla{ 0%,100%{ transform:rotate(-12deg) scale(1); } 50%{ transform:rotate(12deg) scale(1.15); } }
 @keyframes ovTiempoIn{ from{ opacity:0; transform:scale(.9); } to{ opacity:1; transform:scale(1); } }
 @media (prefers-reduced-motion: reduce){ .reloj-fin, .cuenta.danger, .proy-cuenta.urgente{ animation:none; } }
+
+/* --- Sala de espera (cuenta regresiva) --- */
+.en-espera #progresoSesion, .en-espera #sesionActual, .en-espera #vistaEnVivo section.bloque.slide,
+.en-espera .piso-participante, .en-espera #interactivoDocente, .en-espera #tabScratch,
+.en-espera .pie-docente{ display:none !important; }
+.espera{
+  position:relative; overflow:hidden; border-radius:var(--r-l); min-height:min(78vh, 640px);
+  display:flex; align-items:center; justify-content:center; text-align:center; color:#fff;
+  background:linear-gradient(135deg,#1E3663,#2B4C8C,#4C3AA8,#1E3663); background-size:300% 300%;
+  animation:esperaFondo 16s ease-in-out infinite; padding:var(--s6) var(--s4); margin-bottom:var(--s4);
+  box-shadow:var(--shadow-2);
+}
+@keyframes esperaFondo{ 0%,100%{ background-position:0% 50%; } 50%{ background-position:100% 50%; } }
+.espera-fondo{ position:absolute; inset:0; pointer-events:none; }
+.espera-pieza{
+  position:absolute; bottom:-60px; background:var(--c); color:#fff; font-weight:700; font-size:.9rem;
+  padding:8px 16px; border-radius:10px; opacity:.0; white-space:nowrap;
+  border-bottom:4px solid rgba(0,0,0,.22); box-shadow:0 6px 14px rgba(0,0,0,.25);
+  animation:esperaFlota 22s linear infinite;
+}
+@keyframes esperaFlota{
+  0%{ transform:translateY(0) rotate(-6deg); opacity:0; }
+  10%{ opacity:.85; }
+  50%{ transform:translateY(-48vh) rotate(5deg); }
+  90%{ opacity:.85; }
+  100%{ transform:translateY(-105vh) rotate(-4deg); opacity:0; }
+}
+.espera-contenido{ position:relative; z-index:1; max-width:760px; width:100%; }
+.espera-kicker{ display:inline-block; font-size:.85rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; background:rgba(255,255,255,.16); padding:6px 16px; border-radius:999px; }
+.espera-tit{ font-size:clamp(1.8rem, 1.2rem + 3vw, 3.2rem); line-height:1.1; margin:var(--s3) 0 var(--s2); color:#fff; }
+.espera-palabra{ display:inline-block; opacity:0; animation:esperaPalabra .7s ease-out forwards; }
+@keyframes esperaPalabra{ from{ opacity:0; transform:translateY(24px) scale(.9); } to{ opacity:1; transform:none; } }
+.espera-fecha{ font-size:clamp(1.2rem, 1rem + 1.4vw, 1.8rem); font-weight:800; color:#FFD966; text-transform:capitalize; margin-bottom:var(--s4); }
+.espera-cuenta{ display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:var(--s3); margin:var(--s4) auto; max-width:620px; }
+.espera-tile{
+  background:rgba(255,255,255,.14); border:2px solid rgba(255,255,255,.35); border-radius:var(--r-l);
+  padding:var(--s3) var(--s2); backdrop-filter:blur(4px);
+}
+.espera-num{ display:block; font-family:var(--font-num); font-weight:900; font-size:clamp(2.2rem, 1.4rem + 4vw, 4.4rem); line-height:1; font-variant-numeric:tabular-nums; }
+.espera-num.flip{ animation:esperaFlip .55s ease-out; }
+@keyframes esperaFlip{ 0%{ transform:rotateX(90deg); opacity:.2; } 100%{ transform:none; opacity:1; } }
+.espera-lab{ display:block; margin-top:var(--s1); font-size:.8rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; opacity:.9; }
+.espera-msg{ font-size:1.15rem; font-weight:700; margin:var(--s3) 0; }
+.espera.ya .espera-tile{ animation:esperaLatido 1s ease-in-out infinite; border-color:#FFD966; }
+@keyframes esperaLatido{ 50%{ transform:scale(1.05); box-shadow:0 0 0 10px rgba(255,217,102,.2); } }
+.espera-acc{ margin:var(--s4) 0 var(--s3); }
+.espera-nota{ font-size:.92rem; opacity:.85; margin:0; }
+@media (max-width:520px){ .espera-cuenta{ gap:var(--s2); } .espera-tile{ padding:var(--s2) 4px; } }
+@media (prefers-reduced-motion: reduce){
+  .espera, .espera-pieza, .espera-palabra, .espera-num.flip, .espera.ya .espera-tile{ animation:none; opacity:1; }
+  .espera-pieza{ display:none; }
+}
+
+/* Ajustes de la sala de espera */
+.espera-palabra{ margin-right:.3em; }
+.espera-fecha{ text-transform:none; }
+.espera-fecha::first-letter{ text-transform:uppercase; }
+@keyframes esperaFlota{
+  0%{ transform:translateY(0) rotate(-6deg); opacity:0; }
+  12%{ opacity:.38; }
+  50%{ transform:translateY(-48vh) rotate(5deg); }
+  88%{ opacity:.38; }
+  100%{ transform:translateY(-105vh) rotate(-4deg); opacity:0; }
+}
+.espera-contenido{ text-shadow:0 2px 10px rgba(10,20,50,.45); }
+.espera-tile{ background:rgba(20,30,80,.42); }

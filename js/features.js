@@ -649,6 +649,7 @@ function aplicarEstado() {
   renderMaterialesDocente();
   renderSesionActual();
   if (typeof renderInteractivoDocente === 'function') renderInteractivoDocente();
+  if (typeof actualizarEspera === 'function') actualizarEspera();
 
   // Docente: avisar y ofrecer su certificado en cuanto se finaliza el taller
   if (app.rol === 'docente') {
@@ -775,6 +776,7 @@ function conectarControlesExtra() {
 // ---------------------------------------------------------------------------
 function initExtra() {
   conectarControlesExtra();
+  if (typeof actualizarEspera === 'function') actualizarEspera();
   if (typeof initInteractivo === 'function') initInteractivo();
   // Render inicial de piso/scratch si ya hay estado
   if (app.estado) {

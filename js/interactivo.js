@@ -853,6 +853,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (n && !n.hidden) n.hidden = true;
   });
   $('#btnProyectarQR')?.addEventListener('click', abrirQRGrande);
+  $('#btnCopiarInvitacion')?.addEventListener('click', () => {
+    const pin = app.pinPart ? '\nPIN de la sala: ' + app.pinPart : '';
+    const txt = TALLER.titulo + ' · ' + ((TALLER.fecha && TALLER.fecha.texto) || '') +
+      '\nEntra aquí: ' + enlaceCorto() + pin +
+      '\nAntes del taller puedes leer los materiales en la pestaña «Materiales».';
+    const ok = () => mostrarToast('✓ Invitación copiada: pégala en WhatsApp o en un correo', 'ok', 5000);
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(ok, () => window.prompt('Copia la invitación:', txt));
+    else window.prompt('Copia la invitación:', txt);
+  });
 });
 
 /** Se llama al entrar (desde entrar() vía initExtra). */

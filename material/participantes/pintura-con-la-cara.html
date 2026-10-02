@@ -338,7 +338,10 @@
 </head>
 <body>
 <div class="barra-app"><div class="in">
-  <div class="brand">$1</div>
+  <div class="brand">
+    <img src="../../assets/logo-icon.svg" alt="" width="38" height="38">
+    <span><strong>Taller de Scratch</strong><small>Yo Aprendo · Línea artística</small></span>
+  </div>
   <a class="volver" href="../../index.html" onclick="return cerrarPestana()">✕ Cerrar</a>
 </div></div>
 <div class="wrap">
@@ -610,7 +613,7 @@
   </div>
 </div>
 
-<footer>🎨 Pintura con la cara · Yo Aprendo · Desafío interactivo para talleres docentes · Scratch 4</footer>
+<footer>🎨 Pintura con la cara · Yo Aprendo · Desafío interactivo para talleres docentes</footer>
 </div>
 
 <!-- COMPETENCIA: resultado para participantes -->
@@ -647,7 +650,7 @@ const levels = [
 {
   title:"Nivel 1 · Preparar la cámara y el lienzo",
   mission:"La computadora necesita ver por la webcam y dejar el pincel listo para dibujar.",
-  task:"Ordena 5 bloques: primero la cámara, después la transparencia, y recién ahí el lápiz.",
+  task:"Ordena 5 bloques: primero la cámara, después la transparencia, y solo entonces el lápiz.",
   hint:"Piénsalo como preparar un pincel real: 1) abrir la ventana (cámara), 2) regular la luz (transparencia), 3) papel en blanco (borrar), 4) mojar el pincel (bajar lápiz), 5) elegir el grosor.",
   solution:["v-enc","v-trans","p-borrar","p-bajar","p-g5"],
   pool:[
@@ -677,8 +680,8 @@ const levels = [
 {
   title:"Nivel 2 · Saludar al artista",
   mission:"El programa debe esperar a que haya una persona frente a la cámara antes de invitarla a pintar.",
-  task:"Ordena 2 bloques. Ojo: hay bloques que parecen parecidos pero hacen otra cosa.",
-  hint:"Aquí NO se verifica: se ESPERA. Primero el bloque 'esperar hasta que…' y recién después el mensaje.",
+  task:"Ordena 2 bloques. Ojo: hay bloques casi iguales que hacen otra cosa.",
+  hint:"Aquí NO se verifica: se ESPERA. Primero el bloque 'esperar hasta que…' y solo después el mensaje.",
   solution:["c-wait","l-hello"],
   pool:[
     {id:"c-wait", name:"esperar hasta que se detecta una cara",
@@ -686,7 +689,7 @@ const levels = [
      note:"¡Perfecto! 'Esperar hasta que' pausa el script hasta que pase la condición: nadie pinta antes de tiempo."},
     {id:"l-hello", name:"decir el saludo",
      html:`<div class="blk" ${L}>decir <span class="inp" style="min-width:250px">Ponte frente a la cámara y pinta con la nariz 👃</span> por <span class="inp">2</span> segundos</div>`,
-     note:"¡Genial! El mensaje recién aparece cuando hay alguien listo frente a la cámara."},
+     note:"¡Genial! El mensaje aparece solo cuando hay alguien listo frente a la cámara."},
     {id:"l-bye", wrong:"Ese mensaje es para cuando se PIERDE la cara dentro del bucle, no para el saludo inicial. Y duraría apenas 0.1 seg.",
      html:`<div class="blk" ${L}>decir <span class="inp">no veo ninguna cara 🙈</span> por <span class="inp">0.1</span> segundos</div>`},
     {id:"h-detect", wrong:"Ese bloque INICIA un script nuevo cuando aparece una cara. Aquí necesitamos ESPERAR dentro del mismo script, con la bandera.",
@@ -708,7 +711,7 @@ const levels = [
     {id:"forever", name:"por siempre",
      cOpen:true,
      html:`<div class="cblk" ${C}><div class="cbar top"><span class="ico">🔁</span>por siempre</div></div>`,
-     note:"¡Ese es! Es un bucle infinito: lo que va adentro se repite cuadro por cuadro (unos 30 veces por segundo)."},
+     note:"¡Ese es! Es un bucle infinito: lo que va adentro se repite cuadro por cuadro (unas 30 veces por segundo)."},
     {id:"f-nose", name:"ir a nariz",
      html:`<div class="blk" ${F}><span class="ico">🙂</span>ir a nariz</div>`,
      note:"¡Bien! Como se repite en el bucle, el pincel queda 'pegado' a tu cara todo el tiempo."},
@@ -717,7 +720,7 @@ const levels = [
      note:"¡Excelente! El pincel ahora gira con tu cabeza: giro completo, trazo cambiante."},
     {id:"m-xy", wrong:"Eso lo mandaría a una posición fija de la pantalla. Queremos que siga tu nariz, que se mueve contigo.",
      html:`<div class="blk" ${M}><span class="ico">🧭</span>ir a x: <span class="inp">0</span> y: <span class="inp">0</span></div>`},
-    {id:"f-dir90", wrong:"Dirección fija = el pincel siempre mira al mismo lado. Usa el bloque que usa la inclinación de la cara.",
+    {id:"f-dir90", wrong:"Dirección fija = el pincel siempre mira al mismo lado. Usa el bloque que toma la inclinación de la cara.",
      html:`<div class="blk" ${F}><span class="ico">🙂</span>apuntar en dirección de <span class="inp">90</span></div>`},
     {id:"s-wait", wrong:"Una espera larga haría que el pincel se quede trabado y 'salte' por la pantalla en vez de seguirte suavemente.",
      html:`<div class="blk" ${C}><span class="ico">⏳</span>esperar <span class="inp">1</span> segundos</div>`}

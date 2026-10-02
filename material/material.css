@@ -151,10 +151,13 @@ tr{ break-inside:avoid; }
 .b-amarillo{ background:#FFD500; color:#4C4C4C; border-bottom-color:#CC9E00; }
 .b-azul{ background:#4C97FF; border-bottom-color:#3373CC; }
 .b-verde{ background:#59C059; border-bottom-color:#389438; }
-.b-naranja{ background:#FF8C1A; border-bottom-color:#DB6E00; }
+.b-naranja{ background:#FFAB19; color:#4C3300; border-bottom-color:#CF8B17; }
 .b-morado{ background:#9966FF; border-bottom-color:#774DCB; }
 .b-rojo{ background:#FF6680; border-bottom-color:#E6495C; }
 .b-turquesa{ background:#4EC5C1; border-bottom-color:#2D8E8A; }
+.b-celeste{ background:#5CB1D6; border-bottom-color:#2E8EB8; }
+.b-fucsia{ background:#CF63CF; border-bottom-color:#BD42BD; }
+.b-variables{ background:#FF8C1A; border-bottom-color:#DB6E00; }
 
 .codigo-linea{
   background:var(--papel); border:1px solid var(--linea); border-radius:8px;

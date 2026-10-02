@@ -15,7 +15,7 @@ function renderSesionActual() {
   if (!cont || !bc) return;
 
   // Sin estado aún: pantalla de bienvenida mientras el facilitador abre la sesión
-  if (!app.estado?.seccion_actual) {
+  if (!sesionAbierta()) {
     cont.innerHTML = '';
     cont.appendChild(el('span', 'sesion-kicker', TALLER.entidad));
     cont.appendChild(el('h2', 'sesion-tit', TALLER.bienvenida?.titulo || 'Bienvenido al taller'));
@@ -204,7 +204,7 @@ function renderVistaPrevia() {
   if (!ses || !bc) return;
 
   // Sin sección abierta todavía
-  if (!app.estado?.seccion_actual) {
+  if (!sesionAbierta()) {
     ses.innerHTML = '';
     ses.appendChild(el('span', 'sesion-kicker', TALLER.entidad));
     ses.appendChild(el('h2', 'sesion-tit', 'Aún no hay sección abierta'));
@@ -342,7 +342,7 @@ function renderNotasDelPaso(bloque) {
 // MODO PROYECCIÓN (pantalla completa solo diapositiva)
 // ---------------------------------------------------------------------------
 function obtenerPasoActual() {
-  if (!app.estado?.seccion_actual) return null;
+  if (!sesionAbierta()) return null;
   const sec = TALLER.secciones.find((s) => s.id === app.estado.seccion_actual);
   if (!sec) return null;
   let idx = sec.bloques.findIndex((b) => b.id === app.estado.bloque_actual);
@@ -803,7 +803,7 @@ function conectarControles() {
       const sec = TALLER.secciones.find((s) => s.id === app.estado?.seccion_actual)
         || TALLER.secciones[0];
       // Si aún no hay sección abierta, abrir la primera
-      if (!app.estado?.seccion_actual) {
+      if (!sesionAbierta()) {
         await abrirSeccion(sec.id, sec.bloques[0].id);
         return;
       }
