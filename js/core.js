@@ -88,7 +88,6 @@ const MATERIALES_POR_BLOQUE = {
   s1b3: ['receta-scratch'],
   s1b4: ['pintura-con-la-cara'],
   s1b5: ['plan-de-clase', 'rubrica'],
-  s1b6: ['encuesta-salida'],
 };
 
 /** Secciones vistas guardadas en el navegador (tolera datos corruptos). */

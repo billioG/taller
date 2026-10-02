@@ -185,7 +185,7 @@ function descargarCertificado(cert) {
   const html = generarHtmlCertificado(cert);
   const w = window.open('', '_blank');
   if (!w) {
-    mostrarToast('Tu navegador bloqueó la ventana. Permite ventanas emergentes para imprimir el certificado.', 'err', 7000);
+    mostrarToast('Tu navegador bloqueó la ventana. Permite ventanas emergentes para ver el certificado.', 'err', 7000);
     return;
   }
   w.opener = null;
@@ -292,7 +292,7 @@ body{
   </div>
 </div>
 <div class="no-print" style="position:fixed;bottom:12px;left:0;right:0;text-align:center;color:#202124;font-size:9pt">
-  Usa imprimir → orientación horizontal (horizontal / landscape)
+  Para guardarlo: Imprimir → Guardar como PDF → orientación horizontal
 </div>
 </body></html>`;
 }
@@ -694,9 +694,9 @@ function notificarCertificadoDocente() {
     panel.appendChild(el('div', 'cert-listo-ico', '🎓'));
     panel.appendChild(el('strong', 'cert-listo-tit', '¡Tu certificado está listo!'));
     panel.appendChild(el('p', 'cert-listo-txt',
-      'Se generó con tu nombre: «' + mio.nombre + '». Puedes verlo e imprimirlo ahora.'));
+      'Se generó con tu nombre: «' + mio.nombre + '». Puedes verlo y guardarlo como PDF ahora.'));
     const acciones = el('div', 'cert-listo-acciones');
-    const btnVer = el('button', 'btn primary', 'Ver / imprimir certificado');
+    const btnVer = el('button', 'btn primary', 'Ver y guardar mi certificado (PDF)');
     btnVer.type = 'button';
     btnVer.addEventListener('click', () => {
       if (typeof descargarCertificado === 'function') descargarCertificado(mio);

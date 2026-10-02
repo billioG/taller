@@ -64,21 +64,21 @@ const TALLER = {
   materiales: {
     'guia-participante': {
       titulo: 'Guía del participante',
-      desc: 'Qué vas a hacer, qué traer y qué NO haremos.',
+      desc: 'Lo que vas a hacer, lo que debes traer y lo que NO haremos.',
       archivo: 'material/participantes/guia-participante.html',
       libre: true,
       momento: 'Antes de la sesión',
     },
     'hoja-de-bloques': {
       titulo: 'Hoja de referencia de bloques',
-      desc: 'Todos los bloques del taller en una hoja. Imprímela y tenla al lado.',
+      desc: 'Todos los bloques del taller en una hoja. Ábrela en otra pestaña mientras trabajas.',
       archivo: 'material/participantes/hoja-de-bloques.html',
       libre: true,
       momento: 'Para toda la sesión',
     },
     'tarjetas-de-bloques': {
       titulo: 'Tarjetas de bloques',
-      desc: 'Para imprimir grande y recortar. Se usan en la demostración.',
+      desc: 'Para ordenar en pantalla: cuatro juegos que se usan en la demostración.',
       archivo: 'material/participantes/tarjetas-de-bloques.html',
       libre: false,
       momento: 'Demostración',
@@ -94,13 +94,6 @@ const TALLER = {
       titulo: 'Mi rúbrica',
       desc: 'Para revisar tu propio proyecto antes de mostrarlo.',
       archivo: 'material/participantes/rubrica.html',
-      libre: false,
-      momento: 'Cierre',
-    },
-    'encuesta-salida': {
-      titulo: 'Encuesta de salida',
-      desc: 'Cinco preguntas. Se llena en el cierre de la sesión.',
-      archivo: 'material/participantes/encuesta-salida.html',
       libre: false,
       momento: 'Cierre',
     },
@@ -171,7 +164,7 @@ const TALLER = {
   materialesFacilitador: {
     'paso-a-paso-scratch': {
       titulo: '🐱 Paso a paso en Scratch (guion del facilitador)',
-      desc: 'Qué construir en vivo, con qué bloques, qué decir y cómo resolver los errores más comunes.',
+      desc: 'Lo que construyes en vivo, los bloques exactos, lo que dices y cómo resolver los errores más comunes.',
       archivo: 'material/facilitador/paso-a-paso-scratch.html',
       libre: true,
       momento: 'Antes de la sesión',
@@ -233,8 +226,8 @@ const TALLER = {
       momento: 'Cierre',
     },
     'encuesta-salida': {
-      titulo: 'Encuesta de salida (facilitador)',
-      desc: 'Con guía de interpretación de respuestas para un eventual nivel 2.',
+      titulo: 'Encuesta de salida (referencia)',
+      desc: 'Referencia: las cinco preguntas. En la plataforma se lanzan desde «Encuestas en vivo» («Salida 1/5» a «Salida 5/5»).',
       archivo: 'material/facilitador/encuesta-salida.html',
       libre: false,
       momento: 'Cierre',
@@ -301,7 +294,7 @@ const TALLER = {
             'Observa el “error a propósito”: bandera verde sin bloques. ¿Qué falta?',
           ],
           guioFacilitador:
-            'MOMENTO WOW 1 — El silencio de la bandera: abre Scratch, personaje visible, CERO bloques, clic en bandera verde. Pregunta: «¿Por qué no pasó nada?». Deja que respondan. Cierra con: «La computadora solo hace lo que le escribimos, en orden, como una receta». Luego las 4 reglas en voz alta. Diagnóstico rápido (manos al aire, sin tabular): ¿ha creado material digital alguna vez? Del 1 al 5, comodidad con la PC. ¿Cree que sus estudiantes harían algo así?',
+            'MOMENTO WOW 1 — El silencio de la bandera: abre Scratch, personaje visible, CERO bloques, clic en bandera verde. Pregunta: «¿Por qué no pasó nada?». Deja que respondan. Cierra con: «La computadora solo hace lo que le escribimos, en orden, como una receta». Luego las 4 reglas en voz alta. Diagnóstico rápido (con la encuesta rápida de la app, sin tabular): ¿ha creado material digital alguna vez? Del 1 al 5, comodidad con la PC. ¿Cree que sus estudiantes harían algo así?',
           soloFacilitador: false,
         },
         {
@@ -313,11 +306,11 @@ const TALLER = {
             'Mira el recorrido completo que hace el facilitador: saludo → pregunta → respuesta. Fíjate en el ORDEN de los bloques. Después te toca a ti con el mismo patrón.',
           pasos: [
             'Observa la demo: un personaje que pregunta y responde según lo que escribes.',
-            'Con las tarjetas (si las tienes), ordena: ¿qué va primero, qué va después?',
+            'Con las tarjetas en pantalla, ordena los bloques: ¿qué va primero y qué va después?',
             'Pregunta clave: ¿qué pasaría si el saludo viniera después de la respuesta?',
           ],
           guioFacilitador:
-            'MOMENTO WOW 2 — Narrar cada bloque: “Ahora le digo que espere una respuesta… ahora comparo…”. Al repartir tarjetas NO corrijas el orden: pregunta qué pasaría si está mal. Que el error salga solo. Cierra con la analogía: secuencia = receta; si pones el horno al final, el pastel no se cocina. Deja el proyecto demo abierto 10 segundos en silencio para que “sientan” que funciona.',
+            'MOMENTO WOW 2 — Narrar cada bloque: “Ahora le digo que espere una respuesta… ahora comparo…”. Al compartir el enlace de las tarjetas NO corrijas el orden: pregunta qué pasaría si está mal. Que el error salga solo. Cierra con la analogía: secuencia = receta; si pones el horno al final, el pastel no se cocina. Deja el proyecto demo abierto 10 segundos en silencio para que “sientan” que funciona.',
           soloFacilitador: false,
         },
         {
@@ -334,7 +327,7 @@ const TALLER = {
             'Bandera verde. Si funciona, respira: ya tienes interacción.',
           ],
           guioFacilitador:
-            'MOMENTO WOW 3 — El primer “¡respondió!”. Ve mesa por mesa cuando oigas la primera risa o sorpresa. Celebra en voz alta sin señalar a nadie en particular: “Escuchen eso: eso es interacción”. No respondas dudas solo por chat: dilas en voz alta. Si alguien lleva >2 min trabado: “cierre Scratch y ábralo de nuevo”. Anuncia tiempo a los 15 y 25 min de este bloque. Vocabulario de aula: secuencia, condición, interacción.',
+            'MOMENTO WOW 3 — El primer “¡respondió!”. Fíjate en el chat y en los micrófonos: cuando llegue la primera sorpresa, celébrala en voz alta sin señalar a nadie en particular: “Escuchen eso: eso es interacción”. No respondas dudas solo por chat: dilas en voz alta. Si alguien lleva >2 min trabado: “cierre Scratch y ábralo de nuevo”. Anuncia tiempo a los 15 y 25 min de este bloque. Vocabulario de aula: secuencia, condición, interacción.',
           soloFacilitador: false,
         },
         {
@@ -352,7 +345,7 @@ const TALLER = {
             'ARTÍSTICA: cuento o pieza que el estudiante dirige, o prueba «Pintura con la cara» (en Materiales).',
           ],
           guioFacilitador:
-            'MOMENTO WOW 4 — El tema del programa en pantalla. Anuncia las tres rutas SIN jerarquía. Básica = “lista para el aula”, nunca “la fácil”. Quien termine antes → tutor de mesa 10 min. Minuto 85: si más de la mitad sigue en básica, repite en voz alta el patrón si/entonces con un ejemplo de ciudadana o mates. Pide a 2 voluntarios (si hay confianza) que muestren 20 segundos: no para evaluar, para contagiar.',
+            'MOMENTO WOW 4 — El tema del programa en pantalla. Anuncia las tres rutas SIN jerarquía. Básica = “lista para el aula”, nunca “la fácil”. Quien termine antes → ayuda a un compañero por el chat 10 min. Minuto 85: si más de la mitad sigue en básica, repite en voz alta el patrón si/entonces con un ejemplo de ciudadana o mates. Pide a 2 voluntarios (si hay confianza) que compartan pantalla 20 segundos: no para evaluar, para contagiar.',
           soloFacilitador: false,
         },
         {
@@ -369,7 +362,7 @@ const TALLER = {
             'Define 2 o 3 criterios de éxito — no más.',
           ],
           guioFacilitador:
-            'MOMENTO WOW 5 — El celular. Pide que alguien abra el enlace en el teléfono y lo levante. Ese gesto vale más que cualquier diapositiva sobre “recursos digitales”. Ayuda a quienes no encuentran “Compartir”. Plan de clase: máximo 3 criterios. Si el tiempo aprieta, el enlace publicado es el mínimo no negociable.',
+            'MOMENTO WOW 5 — El celular. Pide que alguien abra el enlace en su teléfono y lo muestre a la cámara, o que confirme en el chat que abrió. Ese gesto vale más que cualquier diapositiva sobre “recursos digitales”. Ayuda a quienes no encuentran “Compartir”. Plan de clase: máximo 3 criterios. Si el tiempo aprieta, el enlace publicado es el mínimo no negociable.',
           soloFacilitador: false,
         },
         {
@@ -381,7 +374,7 @@ const TALLER = {
             'Cierra el círculo: una fecha concreta de implementación (día, grupo, hora). Responde la encuesta de salida. Al terminar el taller, tu certificado aparece aquí con tu nombre.',
           pasos: [
             'Escribe: implementaré [tema] el [fecha] con [grupo] a las [hora].',
-            'Completa la encuesta de salida (5 preguntas).',
+            'Responde las 5 preguntas de la encuesta de salida que aparecen en pantalla.',
             'Recoge tu certificado cuando se habilite.',
           ],
           guioFacilitador:
@@ -410,7 +403,7 @@ const TALLER = {
     ],
     frasesUtiles: [
       'Alguien se traba: "Cuénteme qué está viendo." No le des la solución.',
-      'Alguien termina muy rápido: "Ahora ayude a alguien de su mesa durante diez minutos."',
+      'Alguien termina muy rápido: "Ahora ayude a alguien por el chat durante diez minutos."',
       'Alguien se disculpa: "Gracias por decirlo. Le va a pasar a todo el grupo."',
       'Se acaba el tiempo: "Guarden ahora lo que tengan. Guardado es mejor que perdido."',
       'Vuelve una pregunta ya contestada: repite la respuesta, no regañes.',

@@ -5,37 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tarjetas de bloques · Taller de Scratch</title>
 <link rel="stylesheet" href="../material.css">
-<style>
-  .hoja{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-  @media (max-width:620px){ .hoja{ grid-template-columns:1fr; } }
-  .tarj{
-    border:2px solid var(--indigo); border-radius:10px;
-    padding:14px 16px; min-height:76pt;
-    display:flex; align-items:center;
-    font-size:12pt; font-weight:700; line-height:1.35;
-    break-inside:avoid; page-break-inside:avoid;
-    text-align:center; justify-content:center;
-  }
-  .t-amarillo{ background:#FFF3BF; border-color:#CC9E00; color:#5C4600; }
-  .t-azul{ background:#D6E8FF; border-color:#3373CC; color:#123A6E; }
-  .t-verde{ background:#D8F2D8; border-color:#389438; color:#14531A; }
-  .t-naranja{ background:#FFEBC2; border-color:#CF8B17; color:#5C3F00; }
-  .t-morado{ background:#E6DAFF; border-color:#774DCB; color:#3D2470; }
-  .t-celeste{ background:#DDF0F9; border-color:#2E8EB8; color:#124C66; }
-  .t-variables{ background:#FFE0C2; border-color:#DB6E00; color:#7A3B00; }
-  .instruccion{
-    background:var(--indigo-l); border-left:5px solid var(--indigo);
-    padding:13px 17px; border-radius:0 8px 8px 0; margin:14px 0 20px;
-  }
-  .instruccion p{ margin:0; }
-  .instruccion p+p{ margin-top:7px; }
-</style>
 </head>
 <body>
 
 <div class="barra">
-  <span class="barra-txt"><strong>Tarjetas de bloques</strong>Imprime en grande y recorta.</span>
-  <a href="#" onclick="window.print();return false;">⬇ Guardar como PDF</a>
+  <span class="barra-txt"><strong>Tarjetas de bloques</strong>Ordénalas en pantalla, sin imprimir</span>
   <a class="secundario" href="../../index.html" onclick="window.close();setTimeout(function(){location.href='../../index.html'},300);return false;">✕ Cerrar</a>
 </div>
 
@@ -44,63 +18,23 @@
   <div class="cabecera">
     <div>
       <h1>Tarjetas de bloques</h1>
-      <p class="h1-sub">Demostración · Úsalas antes de tocar la computadora</p>
+      <p class="h1-sub">Demostración · úsalas antes de abrir Scratch</p>
     </div>
     <div class="marca"><img src="../../assets/logo-icon.svg" alt=""><span>Yo Aprendo</span></div>
   </div>
 
-  <div class="instruccion">
-    <p><strong>Para ti:</strong> ordena las tarjetas para que el personaje salude y responda. No hay una sola forma correcta. Prueba, equivócate, prueba de nuevo.</p>
-    <p><strong>Impresión:</strong> en A5 o carta, escala 100%. Recorta por las líneas.</p>
+  <div class="aviso aviso-azul">
+    <p class="aviso-tit">¿Cómo se juega?</p>
+    <p>Toca las tarjetas en el orden que creas correcto: aparecen en «Tu orden». Toca una tarjeta colocada para devolverla. Cuando termines, pulsa <b>Comprobar</b>. Prueba, cambia y vuelve a probar: equivocarse aquí no cuesta nada.</p>
   </div>
 
-  <h2>Juego 1 · El saludo que responde (5 tarjetas)</h2>
-  <div class="hoja">
-    <div class="tarj t-amarillo">al presionar bandera verde</div>
-    <div class="tarj t-morado">decir «¡Hola! ¿Cómo te llamas?» durante 2 segundos</div>
-    <div class="tarj t-celeste">preguntar «¿Cómo te llamas?» y esperar</div>
-    <div class="tarj t-morado">decir (unir «Hola » respuesta) durante 2 segundos</div>
-    <div class="tarj t-morado">decir «¡Buena respuesta!» durante 1 segundo</div>
-  </div>
-
-  <h2 class="salto">Juego 2 · El personaje que se mueve (5 tarjetas)</h2>
-  <div class="hoja">
-    <div class="tarj t-amarillo">al presionar bandera verde</div>
-    <div class="tarj t-azul">mover 10 pasos</div>
-    <div class="tarj t-azul">girar ↻ 15 grados</div>
-    <div class="tarj t-morado">cambiar disfraz</div>
-    <div class="tarj t-naranja">repetir (10)</div>
-  </div>
-
-  <h2>Juego 3 · El semáforo (5 tarjetas)</h2>
-  <div class="hoja">
-    <div class="tarj t-amarillo">al recibir «mensaje verde»</div>
-    <div class="tarj t-morado">cambiar disfraz a verde</div>
-    <div class="tarj t-amarillo">al recibir «mensaje rojo»</div>
-    <div class="tarj t-morado">cambiar disfraz a rojo</div>
-    <div class="tarj t-amarillo">al hacer clic en este objeto</div>
-  </div>
-
-  <h2>Juego 4 · El contador (5 tarjetas)</h2>
-  <div class="hoja">
-    <div class="tarj t-variables">fijar [puntos] a 0</div>
-    <div class="tarj t-variables">cambiar [puntos] en 1</div>
-    <div class="tarj t-variables">cambiar [puntos] en −1</div>
-    <div class="tarj t-naranja">si (respuesta) &gt; (número) entonces</div>
-    <div class="tarj t-morado">decir «Más bajo» durante 1 segundo</div>
-  </div>
-
-  <div class="recorte" style="margin-top:24px;">
-    <div class="rotulo">Tarjeta en blanco · escribe la tuya</div>
-    <div class="hoja" style="grid-template-columns:1fr;">
-      <div class="tarj" style="min-height:64pt; color:#999;">escribe aquí</div>
-    </div>
-  </div>
+  <div id="juegos"></div>
 
   <div class="pie-pagina">
     Taller de Programación Visual con Scratch · Yo Aprendo
   </div>
 </div>
 
+<script src="../tarjetas.js"></script>
 </body>
 </html>

@@ -206,3 +206,40 @@ tr{ break-inside:avoid; }
   }
   .bloque-codigo{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
 }
+/* ---------- Tarjetas en pantalla ---------- */
+.juego{ border:1px solid var(--linea); border-radius:12px; padding:14px 18px; margin:16px 0; background:#fff; break-inside:avoid; }
+.juego h2{ margin-top:0; }
+.zona{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+@media (max-width:620px){ .zona{ grid-template-columns:1fr; } }
+.zona h3{ margin:0 0 6px; font-size:10pt; text-transform:uppercase; letter-spacing:.06em; color:var(--gris); }
+.mazo, .orden{ display:grid; gap:8px; margin:0; padding:0; list-style:none; min-height:60px; }
+.orden li{ margin:0; }
+.vacio{ color:var(--gris); font-style:italic; font-size:10pt; margin:0; }
+.tj{
+  font:inherit; font-size:10.5pt; font-weight:700; line-height:1.3; text-align:left; width:100%;
+  padding:10px 12px; border-radius:10px; border:2px solid; cursor:pointer;
+}
+.tj:hover{ filter:brightness(.97); transform:translateY(-1px); }
+.tj-amarillo{ background:#FFF3BF; border-color:#CC9E00; color:#5C4600; }
+.tj-azul{ background:#D6E8FF; border-color:#3373CC; color:#123A6E; }
+.tj-morado{ background:#E6DAFF; border-color:#774DCB; color:#3D2470; }
+.tj-naranja{ background:#FFEBC2; border-color:#CF8B17; color:#5C3F00; }
+.tj-celeste{ background:#DDF0F9; border-color:#2E8EB8; color:#124C66; }
+.tj-variables{ background:#FFE0C2; border-color:#DB6E00; color:#7A3B00; }
+.acciones{ display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; }
+.btn-j{ font:inherit; font-weight:800; padding:9px 20px; border-radius:999px; border:2px solid var(--indigo); background:#fff; color:var(--indigo); cursor:pointer; }
+.btn-j.primario{ background:var(--indigo); color:#fff; }
+.resultado{ margin-top:10px; font-weight:700; }
+.resultado.bien{ background:var(--jade-l); border-left:5px solid var(--jade); padding:10px 14px; border-radius:0 8px 8px 0; }
+.resultado.mal{ background:#FDECEA; border-left:5px solid var(--mal); padding:10px 14px; border-radius:0 8px 8px 0; }
+.resultado.aviso-j{ background:var(--maiz-l); border-left:5px solid var(--maiz); padding:10px 14px; border-radius:0 8px 8px 0; }
+
+/* ---------- Formularios que se llenan en pantalla ---------- */
+.editable:focus, .lineas .c[contenteditable]:focus, .escribir:focus{ outline:2px solid var(--indigo); background:#F4F7FD; }
+.lineas .c[contenteditable]{ height:auto; min-height:26pt; }
+td.editable{ cursor:text; }
+.circulo{ cursor:pointer; font-size:14pt; user-select:none; }
+.circulo.sel{ color:var(--indigo); font-weight:900; }
+.op{ cursor:pointer; }
+.op.sel .cir{ background:var(--indigo); box-shadow:inset 0 0 0 3px #fff; }
+@media print{ .aviso-relleno{ display:none !important; } .editable:focus, .lineas .c[contenteditable]:focus{ outline:none; background:none; } }

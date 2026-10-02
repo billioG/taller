@@ -128,6 +128,15 @@ const ENCUESTAS_RAPIDAS = [
   { pregunta: 'Una palabra que describa cómo te sientes', tipo: 'abierta' },
 ];
 
+/** Encuesta de salida del taller: se lanzan una por una desde el panel. */
+const ENCUESTA_SALIDA = [
+  { etiqueta: 'Salida 1/5 · Comodidad con Scratch', pregunta: '¿Qué tan cómodo/a te sientes creando con Scratch ahora?', opciones: ['1 · Igual o menos', '2', '3', '4', '5 · Muy cómodo/a'] },
+  { etiqueta: 'Salida 2/5 · Qué vas a implementar', pregunta: '¿Qué vas a implementar y en qué fecha?', tipo: 'abierta' },
+  { etiqueta: 'Salida 3/5 · Qué faltó o qué sobró', pregunta: '¿Qué le faltó al taller y qué habría que quitar?', tipo: 'abierta' },
+  { etiqueta: 'Salida 4/5 · ¿Lo recomendarías?', pregunta: '¿Recomendarías este taller a otro colega?', opciones: ['Sí', 'Tal vez', 'No'] },
+  { etiqueta: 'Salida 5/5 · Próximo tema', pregunta: '¿Qué contenido de tu asignatura te gustaría construir después?', tipo: 'abierta' },
+];
+
 /** Devuelve la encuesta del estado solo si tiene forma válida (nunca se pinta algo inesperado). */
 function encuestaValida(e) {
   if (!e || typeof e !== 'object') return null;
@@ -642,11 +651,20 @@ function iniciarPanelEncuesta() {
   if (!cont || cont.dataset.listo) return;
   cont.dataset.listo = '1';
   ENCUESTAS_RAPIDAS.forEach((q) => {
-    const b = el('button', 'btn btn-mini', q.pregunta);
+    const b = el('button', 'btn btn-mini', q.etiqueta || q.pregunta);
     b.type = 'button';
     b.addEventListener('click', () => lanzarEncuesta(q.pregunta, q.opciones || [], q.tipo));
     cont.appendChild(b);
   });
+  cont.parentNode.insertBefore(el('h3', 'enc-sub', 'Encuesta de salida (cinco preguntas, una por una)'), cont.nextSibling);
+  const salida = el('div', 'enc-presets');
+  ENCUESTA_SALIDA.forEach((q) => {
+    const b = el('button', 'btn btn-mini', q.etiqueta);
+    b.type = 'button';
+    b.addEventListener('click', () => lanzarEncuesta(q.pregunta, q.opciones || [], q.tipo));
+    salida.appendChild(b);
+  });
+  cont.parentNode.insertBefore(salida, cont.nextSibling.nextSibling);
   const tipoSel = $('#encTipo');
   const sincronizarTipo = () => {
     const libre = tipoSel.value === 'abierta';

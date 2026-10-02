@@ -479,7 +479,7 @@ function renderMaterialesDocente() {
     if (mio) {
       banner.appendChild(el('strong', null, '🎓 Tu certificado está listo'));
       banner.appendChild(el('p', null, 'Se generó con tu nombre: ' + mio.nombre));
-      const btn = el('button', 'btn primary', 'Ver / imprimir mi certificado');
+      const btn = el('button', 'btn primary', 'Ver y guardar mi certificado (PDF)');
       btn.type = 'button';
       btn.addEventListener('click', () => {
         if (typeof descargarCertificado === 'function') descargarCertificado(mio);
