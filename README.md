@@ -25,11 +25,11 @@ La sincronización usa **Broadcast de Supabase**: cuando avanzas, el cambio lleg
 taller/
 ├── index.html            la app
 ├── CNAME                 taller.yoaprendo.online
-├── supabase.sql          el esquema de la base de datos
+├── supabase.sql          esquema, políticas RLS y funciones (ejecutar completo)
 ├── assets/               logo e isotipo Yo Aprendo (SVG)
 ├── marca/                línea gráfica / brief de marca
 ├── js/
-│   ├── config.js         ← EDITA ESTE. Contenido, materiales, textos y PIN.
+│   ├── config.js         ← EDITA ESTE. Contenido, materiales y textos.
 │   ├── supabase.js       cliente Supabase
 │   ├── core.js           estado y utilidades
 │   ├── auth.js           puerta y PIN
@@ -37,6 +37,7 @@ taller/
 │   ├── views.js          vistas docente / facilitador
 │   ├── features.js       cronómetro, piso, Scratch, certificados
 │   └── app.js            arranque
+├── vendor/supabase.js    supabase-js fijado (sin CDN en tiempo de ejecución)
 ├── css/styles.css
 ├── material/             8 páginas imprimibles (HTML)
 └── pdf/                  los mismos 8, ya en PDF
@@ -44,32 +45,19 @@ taller/
 
 ---
 
-## Cambiar el PIN de facilitador
+## PIN de facilitador
 
-El PIN por defecto es **YoAprendo26**. Cámbialo si vas a publicar o compartir el repositorio.
+El PIN **no está en el código ni en el repositorio**. Vive en la base de datos como hash bcrypt (tabla `sala_claves`, invisible para la API) y se verifica en el servidor.
 
-1. Elige el PIN nuevo.
-2. Abre la app en el navegador, presiona F12 y pega esto en la consola (sustituye `MIPIN`):
-
-```js
-await crypto.subtle.digest('SHA-256', new TextEncoder().encode('taller-scratch:MIPIN'))
-  .then(b => [...new Uint8Array(b)].map(x => x.toString(16).padStart(2,'0')).join(''))
-```
-
-3. Copia el resultado.
-4. Pégalo en `js/config.js`, en el campo `pinHash`.
-5. Actualiza también la columna `clave` de la tabla `estado_sala` en Supabase (SQL Editor):
+Para fijarlo o cambiarlo, en Supabase → **SQL Editor** (mínimo 8 caracteres):
 
 ```sql
-update public.estado_sala set clave = 'TU-PIN-NUEVO';
+select public.fijar_clave('taller-1', 'TU-PIN-NUEVO');
 ```
 
-6. Sube el cambio a GitHub.
+> Si venías de la versión anterior, el PIN viejo (`YoAprendo26`) estuvo publicado en este repositorio: **cámbialo con la línea de arriba antes de usar el taller**.
 
-En el código fuente solo aparece el hash SHA-256, nunca el PIN en texto plano.  
-La clave en texto plano se guarda únicamente en **sessionStorage** (se borra al cerrar la pestaña o el navegador). No se persiste en `localStorage`.
-
-> Mientras la pestaña siga abierta no tienes que volver a escribir el PIN. Si cierras el navegador o pulsas **Salir**, la próxima vez te lo pedirá de nuevo.
+El PIN se escribe en un campo oculto y solo se guarda en **sessionStorage** (se borra al cerrar la pestaña). Si cierras el navegador o pulsas **Salir**, la próxima vez te lo pedirá de nuevo.
 
 ---
 
@@ -181,10 +169,7 @@ Espera un minuto a que GitHub Pages despliegue.
 
 Si ambos puntos funcionan, ya estás listo para el taller.
 
-> **Importante:** el PIN de la app debe coincidir con la columna `clave` de la
-> tabla `estado_sala` en Supabase. Si no coinciden, la base rechaza la escritura
-> aunque el PIN sea correcto en el navegador. PIN actual por defecto: **YoAprendo26**.
-> Si cambias el PIN, actualiza también esa columna (ver sección «Cambiar el PIN»).
+> **Importante:** el PIN se fija en Supabase con `select public.fijar_clave('taller-1', 'TU-PIN');` (ver «PIN de facilitador»). No hay PIN en `config.js`.
 
 ---
 
@@ -324,7 +309,7 @@ foreach ($d in $docs) {
 | **Enviar mensaje general** | **No** | **Sí** |
 | Ver la lista de conectados | No | Sí |
 
-La seguridad no está en el código del navegador (que cualquiera puede ver), sino en una política de la base de datos: solo se puede escribir si la clave que llega en la cabecera coincide con la de la fila. Eso está en `supabase.sql`.
+La seguridad no está en el código del navegador (que cualquiera puede ver), sino en una política de la base de datos: solo se puede escribir si la clave que llega en la cabecera coincide con el hash guardado (tabla privada `sala_claves`). Los avisos en vivo (broadcast) no se creen: cada pantalla relee el estado real de la base. Todo esto está en `supabase.sql`.
 
 **La clave que escribas es tu contraseña de facilitador.** No se la pases a nadie.
 
@@ -334,11 +319,11 @@ La seguridad no está en el código del navegador (que cualquiera puede ver), si
 
 | Síntoma | Causa probable | Solución |
 |---|---|---|
-| El PIN no entra | Hash desactualizado en config.js | Recalcula el hash con la consola y pégalo en `pinHash` |
-| El PIN entra pero no guarda secciones | El PIN de la app no es el mismo de la fila en Supabase | Abre `estado_sala` en Supabase y revisa la columna `clave` |
+| El PIN no entra | PIN distinto al fijado en la base | Vuelve a fijarlo con `select public.fijar_clave('taller-1', 'NUEVO');` |
+| El PIN entra pero no guarda secciones | Se rotó el PIN con la sesión abierta | Pulsa Salir y vuelve a entrar con el PIN nuevo |
 | Los docentes no ven los cambios | La app no está conectada a Supabase | Si arriba dice «Sin sincronizar», falta pegar URL y anonKey en `js/supabase.js`. Si dice «En vivo» y aun así no llega, recarga la pestaña del docente |
-| El mensaje «Rechazado: 401» | La anon key está mal copiada | Vuelve a copiarla en Project Settings → API |
-| El mensaje «Could not find the ... column» | La tabla se creó con otro esquema | Borra la tabla en Supabase y vuelve a correr `supabase.sql` completo |
+| «El servidor rechazó el cambio (401)» | La anon key está mal copiada | Vuelve a copiarla en Project Settings → API |
+| «Could not find the … function/column» | No se ejecutó la versión nueva de `supabase.sql` | Ejecuta `supabase.sql` completo (es idempotente) |
 | Conectados en 0 aunque haya gente dentro | El websocket se suspendió (móviles en segundo plano) | Al volver a la pestaña la app re-lee el estado sola. Si persiste, recarga |
 | Veo el panel de facilitador queriendo ver el de docente | La sesión de facilitador sigue activa en esta pestaña | Usa ventana de incógnito para la vista de docente, o dale **Salir** primero |
 | El dominio no carga | Certificado HTTPS pendiente | Espera. Puede tardar hasta 24 horas. Verifica que el CNAME esté en el registro. |

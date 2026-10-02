@@ -34,7 +34,8 @@ function renderSesionActual() {
   cont.appendChild(el('p', 'sesion-concepto', sec.concepto));
 
   const prod = el('div', 'sesion-producto');
-  prod.innerHTML = '<strong>Producto de hoy:</strong> ' + sec.producto;
+  prod.appendChild(el('strong', null, 'Producto de hoy:'));
+  prod.appendChild(document.createTextNode(' ' + sec.producto));
   cont.appendChild(prod);
 
   // Qué bloque mostrar
@@ -82,18 +83,23 @@ function renderSesionActual() {
 function conectarTabsDocente() {
   const tVivo = $('#tabEnVivo');
   const tMat = $('#tabMateriales');
+  const tScr = $('#tabScratch');
   if (!tVivo || tVivo.dataset.listo) return;
   tVivo.dataset.listo = '1';
-  const mostrar = (vivo) => {
-    $('#vistaEnVivo').hidden = !vivo;
-    $('#vistaMateriales').hidden = vivo;
-    tVivo.classList.toggle('activa', vivo);
-    tMat.classList.toggle('activa', !vivo);
-    if (!vivo) $('#tabPuntoMat').hidden = true;
+  const mostrar = (vista) => {
+    $('#vistaEnVivo').hidden = vista !== 'vivo';
+    $('#vistaMateriales').hidden = vista !== 'mat';
+    $('#vistaScratch').hidden = vista !== 'scratch';
+    tVivo.classList.toggle('activa', vista === 'vivo');
+    tMat.classList.toggle('activa', vista === 'mat');
+    tScr.classList.toggle('activa', vista === 'scratch');
+    if (vista === 'mat') $('#tabPuntoMat').hidden = true;
   };
-  tVivo.addEventListener('click', () => mostrar(true));
-  tMat.addEventListener('click', () => mostrar(false));
-  window.__irAMateriales = () => mostrar(false);
+  tVivo.addEventListener('click', () => mostrar('vivo'));
+  tMat.addEventListener('click', () => mostrar('mat'));
+  tScr.addEventListener('click', () => mostrar('scratch'));
+  window.__irAMateriales = () => mostrar('mat');
+  window.__irAEnVivo = () => mostrar('vivo');
 }
 
 /** Tira compacta de avance: las sesiones + pasos de la actual. Sin scroll. */
@@ -606,7 +612,9 @@ function renderNotas() {
   c3.appendChild(el('h3', null, 'Respuestas a las cinco objeciones'));
   n.respuestasRapidas.forEach((r) => {
     const p = el('p');
-    p.innerHTML = '<strong>«' + r.objecion + '»</strong><br>' + r.respuesta;
+    p.appendChild(el('strong', null, '«' + r.objecion + '»'));
+    p.appendChild(document.createElement('br'));
+    p.appendChild(document.createTextNode(r.respuesta));
     c3.appendChild(p);
   });
   cont.appendChild(c3);
@@ -716,13 +724,18 @@ async function abrirSeccion(idSec, idBloque) {
   try {
     await escribirEstado(clave, patch);
   } catch (e) {
-    // Puede que la fila no exista todavía
+    // Solo se crea la sala si de verdad no existe; si existe, el error es otro (p. ej. PIN).
+    let existe = true;
+    try { existe = !!(await leerEstado(app.sala)); } catch { existe = true; }
+    if (existe) {
+      mostrarConfigError(mensajeError(e));
+      return;
+    }
     try {
-      await crearEstado(app.sala, clave, patch);
-      app.estado = { ...(app.estado || {}), ...patch };
-      await emitirEstado(app.canal, app.estado);
+      await crearEstado(app.sala, clave);
+      await escribirEstado(clave, patch);
     } catch (e2) {
-      mostrarConfigError(e2.message);
+      mostrarConfigError(mensajeError(e2));
       return;
     }
   }
@@ -861,7 +874,7 @@ function conectarControles() {
       await escribirEstado(clave(), { mensaje: m });
       guardarLS(LS.mensaje, m);
     } catch (e) {
-      mostrarConfigError(e.message);
+      mostrarConfigError(mensajeError(e));
     }
   });
 
@@ -871,7 +884,7 @@ function conectarControles() {
       await escribirEstado(clave(), { mensaje: '' });
       guardarLS(LS.mensaje, '');
     } catch (e) {
-      mostrarConfigError(e.message);
+      mostrarConfigError(mensajeError(e));
     }
   });
 
@@ -889,17 +902,22 @@ function conectarControles() {
       cont.insertBefore(d, $('#configEstado'));
       setConexion('ok', 'En vivo');
     } catch (e) {
-      mostrarConfigError('Falló la prueba: ' + e.message);
+      mostrarConfigError('Falló la prueba: ' + mensajeError(e));
     }
   });
 
   $('#btnCopiarLink').addEventListener('click', () => {
     const url = location.origin + location.pathname + '?sala=' + encodeURIComponent(app.sala);
-    navigator.clipboard.writeText(url).then(() => {
+    const ok = () => {
       const b = $('#btnCopiarLink');
       const t = b.textContent;
       b.textContent = '¡Copiado!';
       setTimeout(() => (b.textContent = t), 2000);
-    });
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(ok, () => window.prompt('Copia este link:', url));
+    } else {
+      window.prompt('Copia este link:', url);
+    }
   });
 }

@@ -1,14 +1,15 @@
 /* ==========================================================================
    Taller de Scratch · Cliente de Supabase
    --------------------------------------------------------------------------
-   Usa el cliente oficial (supabase-js) desde el CDN de esm.sh. Solo dos cosas:
-   una tabla `estado_sala` y un canal de presencia por sala.
+   Usa supabase-js incluido en /vendor (sin depender de CDN en tiempo de
+   ejecución). Una tabla `estado_sala`, funciones RPC y un canal por sala.
 
    Si SUPABASE_URL / SUPABASE_ANON_KEY no están rellenados, la app arranca en
    MODO LOCAL: todo funciona, pero cada quien navega por su cuenta y no hay
    sincronización en vivo. Sirve para probar sin configurar nada.
 
-   Configuración paso a paso en ../README.md
+   La anon key es PÚBLICA por diseño: la seguridad está en las políticas RLS y
+   funciones de supabase.sql, no en ocultar esta clave.
    ========================================================================== */
 
 const CFG = {
@@ -29,19 +30,32 @@ let sb = null;
 // Cabecera personalizada: la lee la política RLS "escribir con clave correcta".
 const HDR_CLAVE = 'x-taller-clave';
 
-async function initSupabase() {
-  if (!SB_LISTO) return null;
-  try {
-    const mod = await import('https://esm.sh/@supabase/supabase-js@2');
-    sb = mod.createClient(CFG.url, CFG.anonKey);
-    return sb;
-  } catch (e) {
-    setConexion('mal', 'Error al cargar Supabase: ' + e.message);
-    throw e;
-  }
+const TABLA = 'estado_sala';
+
+/** Traduce los errores técnicos de Postgres a mensajes entendibles. */
+function mensajeError(e) {
+  const m = String((e && (e.message || e.details)) || e || '');
+  if (m.includes('clave_corta')) return 'El PIN debe tener al menos 8 caracteres.';
+  if (m.includes('sala_invalida')) return 'El código de sala no es válido.';
+  if (m.includes('sala_existente')) return 'La sala ya existe.';
+  if (m.includes('sala_inexistente')) return 'La sala todavía no existe.';
+  if (m.includes('no_permitido')) return 'Acción no permitida en este momento.';
+  if (m.includes('Failed to fetch') || m.includes('NetworkError')) return 'Sin conexión con el servidor.';
+  return m || 'Error desconocido';
 }
 
-const TABLA = 'estado_sala';
+async function initSupabase() {
+  if (!SB_LISTO || sb) return sb;
+  if (!window.supabase || typeof window.supabase.createClient !== 'function') {
+    const msg = 'No se pudo cargar la librería de Supabase';
+    setConexion('mal', msg);
+    throw new Error(msg);
+  }
+  sb = window.supabase.createClient(CFG.url, CFG.anonKey, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  });
+  return sb;
+}
 
 /** Lee el estado de una sala. Devuelve null si todavía no existe. */
 async function leerEstado(sala) {
@@ -54,48 +68,68 @@ async function leerEstado(sala) {
   return data;
 }
 
-/** Crea la fila de la sala. La clave queda guardada para validar escrituras. */
-async function crearEstado(sala, clave, patch = {}) {
-  const fila = {
-    sala,
-    clave,
-    seccion_actual: 's1',
-    mensaje: '',
-    ...patch,
-  };
-  const { data, error } = await sb.from(TABLA).insert(fila).select().single();
-  if (error) throw error;
+/** Crea la sala con su PIN (hash en el servidor). Falla si ya existe. */
+async function crearEstado(sala, clave) {
+  const { data, error } = await sb.rpc('crear_sala', { p_sala: sala, p_clave: clave });
+  if (error) throw new Error(mensajeError(error));
+  return data;
+}
+
+/** Comprueba el PIN en el servidor: 'ok' | 'mal' | 'no_sala'. */
+async function verificarClave(sala, clave) {
+  const { data, error } = await sb.rpc('verificar_clave', { p_sala: sala, p_clave: clave });
+  if (error) throw new Error(mensajeError(error));
+  return data;
+}
+
+/** Piso/palabra: transición atómica en el servidor (clave solo si es facilitador). */
+async function pisoActualizar(sala, nombre, estado, clave) {
+  const { data, error } = await sb.rpc('piso_actualizar', {
+    p_sala: sala,
+    p_nombre: nombre,
+    p_estado: estado,
+    p_clave: clave || null,
+  });
+  if (error) throw new Error(mensajeError(error));
   return data;
 }
 
 /**
- * Guarda cambios.
+ * Guarda cambios (solo facilitador).
  *
  * La clave viaja en la cabecera x-taller-clave. La política RLS de la tabla
- * compara esa cabecera con la columna clave DENTRO de Postgres: si no
- * coinciden, la escritura se rechaza aunque el cliente use la clave pública.
- * El `.eq('clave', clave)` es solo una ayuda; la seguridad real es la política.
+ * la compara contra el hash DENTRO de Postgres: si no coincide, la escritura
+ * se rechaza aunque el cliente use la clave pública.
  */
 async function guardarEstado(sala, clave, patch) {
-  const res = await fetch(CFG.url + '/rest/v1/' + TABLA + '?sala=eq.' + encodeURIComponent(sala), {
-    method: 'PATCH',
-    headers: {
-      apikey: CFG.anonKey,
-      Authorization: 'Bearer ' + CFG.anonKey,
-      'Content-Type': 'application/json',
-      Prefer: 'return=representation',
-      [HDR_CLAVE]: clave, // <- la política RLS compara esta cabecera
-    },
-    body: JSON.stringify(patch),
-  });
+  const ctl = new AbortController();
+  const t = setTimeout(() => ctl.abort(), 15000);
+  let res;
+  try {
+    res = await fetch(CFG.url + '/rest/v1/' + TABLA + '?sala=eq.' + encodeURIComponent(sala), {
+      method: 'PATCH',
+      headers: {
+        apikey: CFG.anonKey,
+        Authorization: 'Bearer ' + CFG.anonKey,
+        'Content-Type': 'application/json',
+        Prefer: 'return=representation',
+        [HDR_CLAVE]: clave, // <- la política RLS compara esta cabecera
+      },
+      body: JSON.stringify({ ...patch, actualizado: new Date().toISOString() }),
+      signal: ctl.signal,
+    });
+  } catch (e) {
+    throw new Error(e.name === 'AbortError' ? 'El servidor tardó demasiado en responder.' : mensajeError(e));
+  } finally {
+    clearTimeout(t);
+  }
 
   if (!res.ok) {
-    const txt = await res.text();
-    throw new Error('Rechazado: ' + res.status + ' ' + txt);
+    throw new Error('El servidor rechazó el cambio (' + res.status + ').');
   }
   const data = await res.json();
   if (!data || !data.length) {
-    throw new Error('No se pudo guardar: la clave de facilitador no coincide.');
+    throw new Error('No se pudo guardar: el PIN de facilitador no coincide o la sala no existe.');
   }
   return data[0];
 }
@@ -103,13 +137,12 @@ async function guardarEstado(sala, clave, patch) {
 /**
  * Canal en vivo de una sala. Usa Broadcast + Presence.
  *
- * - `alEstado` recibe la fila cuando el facilitador avanza (llega por
- *   broadcast en <1s, sin configurar nada en el dashboard).
+ * - `alAviso` se llama cuando alguien avisa que el estado cambió. El payload
+ *   NO se usa (cualquiera puede enviar broadcasts falsos): quien recibe el
+ *   aviso relee el estado real desde la base de datos.
  * - `alPresencia` recibe el arreglo de nombres conectados, en vivo.
- * - La base de datos queda como respaldo: quien entra tarde lee el estado
- *   con leerEstado(). No hay que activar Replication en Supabase.
  */
-function suscribir(sala, nombreDocente, alEstado, alPresencia, alCambiarConexion) {
+function suscribir(sala, nombreDocente, alAviso, alPresencia, alCambiarConexion) {
   const canal = sb
     .channel('sala:' + sala, {
       config: {
@@ -117,9 +150,7 @@ function suscribir(sala, nombreDocente, alEstado, alPresencia, alCambiarConexion
         presence: { key: String(Date.now()) + Math.random().toString(36).slice(2, 8) },
       },
     })
-    .on('broadcast', { event: 'estado' }, ({ payload }) => {
-      if (payload && payload.seccion_actual) alEstado(payload);
-    })
+    .on('broadcast', { event: 'estado' }, () => alAviso())
     .on('presence', { event: 'sync' }, () => {
       const estado = canal.presenceState();
       const nombres = [];
@@ -127,7 +158,7 @@ function suscribir(sala, nombreDocente, alEstado, alPresencia, alCambiarConexion
         const regs = estado[k];
         if (regs && regs.length) {
           for (const r of regs) {
-            if (r && r.nombre) nombres.push(r.nombre);
+            if (r && typeof r.nombre === 'string' && r.nombre) nombres.push(r.nombre.slice(0, 30));
           }
         }
       }
@@ -136,7 +167,7 @@ function suscribir(sala, nombreDocente, alEstado, alPresencia, alCambiarConexion
     .subscribe(async (estatus) => {
       if (estatus === 'SUBSCRIBED') {
         try {
-          await canal.track({ nombre: nombreDocente || 'Docente', desde: Date.now() });
+          await canal.track({ nombre: (nombreDocente || 'Docente').slice(0, 30), desde: Date.now() });
         } catch {}
         if (alCambiarConexion) alCambiarConexion(true);
       }
@@ -145,22 +176,13 @@ function suscribir(sala, nombreDocente, alEstado, alPresencia, alCambiarConexion
       }
     });
 
-  // Timeout interno: si en 8s no llega a SUBSCRIBED, avisamos
-  setTimeout(() => {
-    const st = canal.state;
-    if (st !== 'joined' && st !== 'joining') {
-      console.warn('[taller] Canal no suscrito tras 8s, estado:', st);
-      if (alCambiarConexion) alCambiarConexion(false);
-    }
-  }, 8000);
-
   return canal;
 }
 
-/** El facilitador avisa a todos al instante después de guardar en la base. */
-async function emitirEstado(canal, estado) {
-  if (!canal || !estado) return;
+/** Avisa a todos al instante que el estado cambió (ellos releen la base). */
+async function emitirEstado(canal) {
+  if (!canal) return;
   try {
-    await canal.send({ type: 'broadcast', event: 'estado', payload: estado });
+    await canal.send({ type: 'broadcast', event: 'estado', payload: { t: Date.now() } });
   } catch {}
 }

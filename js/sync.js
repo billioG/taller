@@ -5,19 +5,57 @@
 // ------------------------------------------------------------------
 // SINCRONIZACIÓN
 // ------------------------------------------------------------------
+const SONDEO_MS = 20000; // red de seguridad por si se pierde un aviso en vivo
+
+/** Estado inicial en modo local (sin Supabase o sin conexión). */
+function estadoLocalDocente() {
+  app.seccionesVistas = [TALLER.secciones[0].id];
+  app.estado = {
+    seccion_actual: TALLER.secciones[0].id,
+    bloque_actual: TALLER.secciones[0].bloques[0].id,
+    secciones_vistas: app.seccionesVistas,
+    mensaje: leerLS(LS.mensaje, ''),
+  };
+  aplicarEstado();
+}
+
+/** Aplica un estado leído de la base a la pantalla según el rol. */
+function aplicarEstadoRemoto(estado) {
+  if (!estado) return;
+  app.estado = estado;
+  if (app.rol === 'docente') aplicarEstado();
+  if (app.rol === 'facilitador') {
+    marcarSeccionActual(estado.seccion_actual, estado.bloque_actual);
+    renderVistaPrevia();
+    if (typeof aplicarEstadoFacilitadorExtra === 'function') aplicarEstadoFacilitadorExtra();
+  }
+}
+
+let __refrescando = false;
+let __refrescarPendiente = false;
+
+/** Relee el estado real desde la base (un solo vuelo a la vez). */
+async function refrescarEstado() {
+  if (!SB_LISTO || !sb) return;
+  if (__refrescando) { __refrescarPendiente = true; return; }
+  __refrescando = true;
+  try {
+    aplicarEstadoRemoto(await leerEstado(app.sala));
+  } catch (e) {
+    console.warn('[taller] No se pudo refrescar el estado:', e && e.message);
+  } finally {
+    __refrescando = false;
+    if (__refrescarPendiente) {
+      __refrescarPendiente = false;
+      refrescarEstado();
+    }
+  }
+}
+
 async function conectar() {
   if (!SB_LISTO) {
     setConexion('mal', 'Sin sincronizar');
-    if (app.rol === 'docente') {
-      app.seccionesVistas = [TALLER.secciones[0].id];
-      app.estado = {
-        seccion_actual: TALLER.secciones[0].id,
-        bloque_actual: TALLER.secciones[0].bloques[0].id,
-        secciones_vistas: app.seccionesVistas,
-        mensaje: leerLS(LS.mensaje, ''),
-      };
-      aplicarEstado();
-    }
+    if (app.rol === 'docente') estadoLocalDocente();
     return;
   }
 
@@ -25,19 +63,10 @@ async function conectar() {
 
   // Timeout de seguridad: si en 10s no conecta, cae a modo local
   const timeoutId = setTimeout(() => {
-    if (!app.canal) {
+    if (!app.estado) {
       setConexion('mal', 'Tiempo agotado — modo local');
       console.warn('[taller] Supabase timeout, modo local');
-      if (app.rol === 'docente') {
-        app.seccionesVistas = [TALLER.secciones[0].id];
-        app.estado = {
-          seccion_actual: TALLER.secciones[0].id,
-          bloque_actual: TALLER.secciones[0].bloques[0].id,
-          secciones_vistas: app.seccionesVistas,
-          mensaje: leerLS(LS.mensaje, ''),
-        };
-        aplicarEstado();
-      }
+      if (app.rol === 'docente') estadoLocalDocente();
     }
   }, 10000);
 
@@ -52,20 +81,13 @@ async function conectar() {
   app.canal = suscribir(
     app.sala,
     app.nombre,
-    (estado) => {
-      clearTimeout(timeoutId);
-      app.estado = estado;
-      if (app.rol === 'docente') aplicarEstado();
-      if (app.rol === 'facilitador') {
-        marcarSeccionActual(estado.seccion_actual, estado.bloque_actual);
-        renderVistaPrevia();
-      }
-    },
+    () => refrescarEstado(),
     (nombres) => {
       app.conectados = nombres;
-      if (app.rol === 'facilitador') renderConectados();
-      const p = $('#pillConectados');
       if (app.rol === 'facilitador') {
+        renderConectados();
+        if (typeof renderPisoFacilitador === 'function') renderPisoFacilitador();
+        const p = $('#pillConectados');
         p.hidden = false;
         $('#txtConectados').textContent = nombres.length;
       }
@@ -73,22 +95,19 @@ async function conectar() {
     (vivo) => {
       if (vivo) clearTimeout(timeoutId);
       setConexion(vivo ? 'ok' : 'mal', vivo ? 'En vivo' : 'Reconectando…');
+      if (vivo) refrescarEstado(); // al reconectar, ponerse al día
     }
   );
 
   // Cargar estado inicial
   try {
     const previo = await leerEstado(app.sala);
+    clearTimeout(timeoutId);
     if (previo) {
-      app.estado = previo;
-      if (app.rol === 'docente') aplicarEstado();
-      if (app.rol === 'facilitador') {
-        marcarSeccionActual(previo.seccion_actual, previo.bloque_actual);
-        renderVistaPrevia();
-      }
+      aplicarEstadoRemoto(previo);
     } else if (app.rol === 'facilitador') {
       if (app.clave) {
-        await crearEstado(app.sala, app.clave, {});
+        aplicarEstadoRemoto(await crearEstado(app.sala, app.clave));
         setConexion('ok', 'Sala creada');
       } else {
         setConexion('espera', 'Sin clave');
@@ -97,8 +116,26 @@ async function conectar() {
   } catch (err) {
     clearTimeout(timeoutId);
     setConexion('mal', 'Error de conexión');
-    mostrarConfigError(err.message);
+    mostrarConfigError(mensajeError(err));
   }
+
+  // Facilitador: si el PIN guardado en la sesión ya no es válido (rotado), volver a pedirlo.
+  if (app.rol === 'facilitador' && app.clave && app.estado) {
+    try {
+      if ((await verificarClave(app.sala, app.clave)) === 'mal') {
+        guardarClaveSesion('');
+        guardarLS(LS.pinHash, '');
+        location.reload();
+        return;
+      }
+    } catch {}
+  }
+
+  // Red de seguridad: sondeo periódico (solo con la pestaña visible)
+  clearInterval(app.sondeo);
+  app.sondeo = setInterval(() => {
+    if (document.visibilityState === 'visible') refrescarEstado();
+  }, SONDEO_MS);
 }
 
 function setConexion(estado, texto) {
@@ -109,6 +146,7 @@ function setConexion(estado, texto) {
   $('#txtConexion').textContent = texto;
 }
 
+/** Facilitador: guarda cambios en la base y avisa a todos. */
 async function escribirEstado(clave, patch) {
   if (!SB_LISTO) {
     // Modo local: actualiza estado en memoria y refresca UI del facilitador
@@ -120,6 +158,5 @@ async function escribirEstado(clave, patch) {
     return;
   }
   app.estado = await guardarEstado(app.sala, clave, patch);
-  // Aviso instantáneo por broadcast (no depende de Replication)
-  await emitirEstado(app.canal, app.estado);
+  await emitirEstado(app.canal);
 }

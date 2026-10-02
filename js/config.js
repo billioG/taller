@@ -33,24 +33,12 @@ const TALLER = {
   // ------------------------------------------------------------------
   // PIN DE FACILITADOR
   //
-  // Es el código que pides en la puerta para entrar al panel de control.
-  // Aquí solo se guarda su hash SHA-256, nunca el PIN en texto plano.
+  // El PIN ya NO vive en este archivo: se guarda como hash bcrypt en la base
+  // de datos (tabla sala_claves) y se verifica en el servidor.
+  // Para cambiarlo, en el SQL Editor de Supabase:
   //
-  // CÓMO CAMBIAR EL PIN:
-  // 1. Elige el PIN nuevo.
-  // 2. En la consola del navegador (F12) pega esto y copia el resultado:
-  //
-  //    await crypto.subtle.digest('SHA-256',
-  //      new TextEncoder().encode('taller-scratch:MIPIN'))
-  //      .then(b => [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''))
-  //
-  // 3. Pega el resultado abajo y sube el cambio a GitHub.
-  // 4. Actualiza también la columna `clave` de la tabla estado_sala en Supabase
-  //    (debe ser el mismo PIN en texto plano).
-  //
-  // PIN actual: YoAprendo26
+  //    select public.fijar_clave('taller-1', 'TU-PIN-NUEVO');   -- mín. 8 caracteres
   // ------------------------------------------------------------------
-  pinHash: 'b4557abdf3bfc970ce1fbf0b8a8a657e7d84c685d3b72e703407a30ea23c9aa3',
 
   // Código de la sala. Todos los que entren por el link entran a la misma.
   salaPorDefecto: 'taller-1',
@@ -159,11 +147,10 @@ const TALLER = {
   // ------------------------------------------------------------------
   scratch: {
     habilitado: true,
-    // URL base del editor de Scratch para embeber
+    // URL base de Scratch para embeber (se usa /embed: el editor no admite iframes)
     // El facilitador pone su project ID durante la sesión
     editorBaseUrl: 'https://scratch.mit.edu/projects/',
-    // Parámetros del iframe
-    iframeParams: '?fullscreen=false&showInstructions=false',
+    sufijo: '/embed',
   },
 
   // ------------------------------------------------------------------

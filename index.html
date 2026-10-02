@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://pjnvhdxytjxbaiwvlylj.supabase.co wss://pjnvhdxytjxbaiwvlylj.supabase.co; frame-src https://scratch.mit.edu; object-src 'none'; base-uri 'none'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#2B4C8C">
 <meta name="description" content="Taller de programación visual con Scratch para docentes. Material del curso, descarga de guías y seguimiento en vivo de la sesión.">
@@ -50,7 +52,7 @@
       <form class="form-pin" id="formPin" hidden>
         <label for="inpPin">Código de facilitador</label>
         <div class="fila-form">
-          <input id="inpPin" type="text" inputmode="text" placeholder="Código del taller" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="40">
+          <input id="inpPin" type="password" inputmode="text" placeholder="Código del taller" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="40">
           <button class="btn primary" type="submit">Entrar</button>
           <button class="btn ghost" id="btnCancelarPin" type="button">Cancelar</button>
         </div>
@@ -292,6 +294,7 @@
   </div>
 </div>
 
+<script src="vendor/supabase.js"></script>
 <script src="js/config.js"></script>
 <script src="js/supabase.js"></script>
 <script src="js/core.js"></script>

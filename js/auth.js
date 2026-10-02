@@ -10,28 +10,15 @@
 // así que un docente no puede abrir el panel de control ni por curiosidad.
 // ------------------------------------------------------------------
 
-/** El PIN se guarda como hash SHA-256, nunca en texto plano. */
-async function hashPin(pin) {
-  const datos = new TextEncoder().encode('taller-scratch:' + pin);
-  const buf = await crypto.subtle.digest('SHA-256', datos);
-  return Array.from(new Uint8Array(buf))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
-}
-
+/** Marca local (no secreta) de que este navegador ya entró como facilitador. */
 function pinGuardado() {
   return leerLS(LS.pinHash, '');
 }
 
-/**
- * Comprueba el PIN. El hash esperado vive en config.js (campo `pinHash`).
- * Para calcular el hash de un PIN nuevo, en la consola del navegador:
- *   await crypto.subtle.digest('SHA-256', new TextEncoder().encode('taller-scratch:MIPIN'))
- */
-async function pinValido(hash) {
-  if (TALLER.pinHash) return hash === TALLER.pinHash;
-  // Sin hash configurado, cualquier PIN pasa en modo local.
-  return !SB_LISTO;
+/** Nombre de docente: sin espacios raros, máx. 30 y sin hacerse pasar por el facilitador. */
+function limpiarNombre(n) {
+  const v = String(n || '').replace(/s+/g, ' ').trim().slice(0, 30);
+  return v.toLowerCase() === 'facilitador' ? '' : v;
 }
 
 function init() {
@@ -44,7 +31,7 @@ function init() {
 
   // --- Auto-entrada si ya hay sesión guardada ---
   const rolGuardado = leerLS(LS.rol, '');
-  const nombreGuardado = leerLS(LS.nombre, '');
+  const nombreGuardado = limpiarNombre(leerLS(LS.nombre, ''));
   const claveSesion = leerClaveSesion();
 
   // Facilitador: solo auto-entra si tenemos hash Y la clave de esta sesión.
@@ -61,7 +48,7 @@ function init() {
     // Docente: rol + nombre guardados
     app.rol = 'docente';
     app.nombre = nombreGuardado;
-    app.seccionesVistas = JSON.parse(leerLS(LS.seccionesVistas, '[]'));
+    app.seccionesVistas = leerVistas();
     entrar();
     return;
   }
@@ -87,10 +74,10 @@ function init() {
   $('#formDocente').addEventListener('submit', (e) => {
     e.preventDefault();
     app.rol = 'docente';
-    app.nombre = $('#inpNombreDocente').value.trim() || 'Docente';
+    app.nombre = limpiarNombre($('#inpNombreDocente').value) || 'Docente';
     guardarLS(LS.rol, 'docente');
     guardarLS(LS.nombre, app.nombre);
-    app.seccionesVistas = JSON.parse(leerLS(LS.seccionesVistas, '[]'));
+    app.seccionesVistas = leerVistas();
     entrar();
   });
 
@@ -112,15 +99,34 @@ function init() {
     const pin = $('#inpPin').value.trim();
     if (!pin) return;
 
-    const hash = await hashPin(pin);
-    if (!(await pinValido(hash))) {
-      $('#pinError').hidden = false;
+    const err = $('#pinError');
+    const btn = $('#formPin button[type="submit"]');
+    const fallo = (msg) => {
+      err.textContent = msg;
+      err.hidden = false;
       $('#inpPin').value = '';
       $('#inpPin').focus();
-      return;
+    };
+
+    // La verificación ocurre en el servidor (el PIN no está en el código).
+    // Sin Supabase (modo local) no hay nada que proteger: se acepta.
+    if (SB_LISTO) {
+      btn.disabled = true;
+      try {
+        await initSupabase();
+        const r = await verificarClave(app.sala, pin);
+        // 'no_sala': sala nueva; el PIN que escribas será su PIN (mín. 8 caracteres).
+        if (r === 'mal') return fallo('Ese código no es correcto.');
+        if (r === 'no_sala' && pin.length < 8) return fallo('Sala nueva: el PIN debe tener al menos 8 caracteres.');
+      } catch (e2) {
+        return fallo('No se pudo verificar el código: ' + mensajeError(e2));
+      } finally {
+        btn.disabled = false;
+      }
     }
 
-    guardarLS(LS.pinHash, hash);
+    err.hidden = true;
+    guardarLS(LS.pinHash, '1');
     guardarLS(LS.rol, 'facilitador');
     app.rol = 'facilitador';
     app.nombre = 'Facilitador';

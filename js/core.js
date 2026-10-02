@@ -29,6 +29,7 @@ const app = {
   ultimoPasoId: '',
   feedbackPaso: true, // animación al cambiar de paso
   certificadoNotificado: false,
+  sondeo: null,
 };
 
 function leerLS(k, def) {
@@ -69,7 +70,16 @@ const el = (tag, cls, txt) => {
 
 function salaDeUrl() {
   const p = new URLSearchParams(location.search);
-  return p.get('sala') || TALLER.salaPorDefecto;
+  const s = (p.get('sala') || '').trim().toLowerCase();
+  // Mismo formato que valida la base de datos (crear_sala)
+  return /^[a-z0-9][a-z0-9_-]{0,59}$/.test(s) ? s : TALLER.salaPorDefecto;
+}
+
+/** Escapa texto para meterlo en HTML generado con plantillas. */
+function esc(v) {
+  return String(v == null ? '' : v).replace(/[&<>"']/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
 }
 
 /** Qué materiales se habilitan en cada paso. */
@@ -79,3 +89,13 @@ const MATERIALES_POR_BLOQUE = {
   s1b5: ['plan-de-clase', 'rubrica'],
   s1b6: ['encuesta-salida', 'certificado'],
 };
+
+/** Secciones vistas guardadas en el navegador (tolera datos corruptos). */
+function leerVistas() {
+  try {
+    const v = JSON.parse(leerLS(LS.seccionesVistas, '[]'));
+    return Array.isArray(v) ? v.filter((x) => typeof x === 'string') : [];
+  } catch {
+    return [];
+  }
+}
