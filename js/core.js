@@ -75,6 +75,7 @@ function salaDeUrl() {
 /** Qué materiales se habilitan en cada paso. */
 const MATERIALES_POR_BLOQUE = {
   s1b2: ['tarjetas-de-bloques'],
+  s1b4: ['pintura-con-la-cara'],
   s1b5: ['plan-de-clase', 'rubrica'],
   s1b6: ['encuesta-salida', 'certificado'],
 };

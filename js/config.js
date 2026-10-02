@@ -122,6 +122,13 @@ const TALLER = {
       libre: false,
       momento: 'Cierre',
     },
+    'pintura-con-la-cara': {
+      titulo: '🎨 Pintura con la cara',
+      desc: 'Desafío interactivo: ordena bloques para pintar con el movimiento de la cara (extensión de vídeo / detección facial). Ideal para expresión artística.',
+      archivo: 'material/participantes/pintura-con-la-cara.html',
+      libre: true,
+      momento: 'Línea artística · práctica',
+    },
   },
 
   // ------------------------------------------------------------------
@@ -226,6 +233,13 @@ const TALLER = {
       libre: false,
       momento: 'Cierre',
     },
+    'pintura-con-la-cara': {
+      titulo: '🎨 Pintura con la cara',
+      desc: 'Desafío interactivo de bloques con detección facial. Úsalo como ejemplo avanzado de expresión artística o estación para quien termine antes.',
+      archivo: 'material/participantes/pintura-con-la-cara.html',
+      libre: true,
+      momento: 'Línea artística · práctica',
+    },
   },
 
   // Proyectos base de Scratch. Pega aquí los links de tus proyectos reales.
@@ -315,7 +329,7 @@ const TALLER = {
             'INGLÉS: diálogo o vocabulario; el personaje corrige y modela la respuesta.',
             'MATEMÁTICAS: adivina el número (más alto / más bajo) o quiz con puntaje.',
             'EMPRENDIMIENTO: “Mi negocio” — precio, ganancia o pérdida a la vista.',
-            'ARTÍSTICA: cuento o pieza que el estudiante dirige (escenas, color, sonido).',
+            'ARTÍSTICA: cuento o pieza que el estudiante dirige, o prueba «Pintura con la cara» (en Materiales).',
           ],
           guioFacilitador:
             'MOMENTO WOW 4 — El tema del programa en pantalla. Anuncia las tres rutas SIN jerarquía. Básica = “lista para el aula”, nunca “la fácil”. Quien termine antes → tutor de mesa 10 min. Minuto 85: si más de la mitad sigue en básica, repite en voz alta el patrón si/entonces con un ejemplo de ciudadana o mates. Pide a 2 voluntarios (si hay confianza) que muestren 20 segundos: no para evaluar, para contagiar.',

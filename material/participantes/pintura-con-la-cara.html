@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎨 Pintura con la cara — Desafío interactivo para docentes</title>
+<style>
+  :root{
+    --events:#FFBF00; --control:#FFAB19; --looks:#9966FF;
+    --sensing:#5CB1D6; --operators:#59C059; --motion:#4C97FF;
+    --pen:#1CB39A; --video:#0FA98C; --face:#20C997;
+    --ink:#2b2b3a; --good:#14c087; --bad:#e5534b;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;padding:0 16px 60px;font-family:"Segoe UI",-apple-system,Helvetica,Arial,sans-serif;
+    background:linear-gradient(180deg,#eef7ff 0%,#f7f4ff 40%,#eefaf3 100%);color:var(--ink);
+    line-height:1.55;}
+  .wrap{max-width:980px;margin:0 auto;}
+
+  header.hero{background:linear-gradient(135deg,#14c087 0%,#0FA98C 55%,#5CB1D6 100%);
+    border-radius:0 0 28px 28px;color:#fff;text-align:center;padding:36px 20px 30px;
+    margin:0 -16px 26px;box-shadow:0 10px 30px rgba(15,169,140,.35);}
+  header.hero h1{margin:0 0 8px;font-size:2.1rem;}
+  header.hero p{margin:4px auto;max-width:720px;font-size:1rem;opacity:.95;}
+
+  /* ---------- HUD ---------- */
+  .hud{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+    background:#fff;border-radius:16px;padding:14px 20px;box-shadow:0 6px 18px rgba(30,50,80,.08);
+    margin-bottom:16px;position:sticky;top:8px;z-index:5;border:1px solid #e8edf5;}
+  .dots{display:flex;gap:8px;}
+  .dot{width:30px;height:30px;border-radius:50%;background:#e5eaf2;color:#8894a6;font-weight:800;
+    display:flex;align-items:center;justify-content:center;font-size:.85rem;transition:.25s;}
+  .dot.active{background:var(--face);color:#fff;transform:scale(1.15);box-shadow:0 0 0 4px rgba(32,201,151,.25);}
+  .dot.done{background:var(--good);color:#fff;}
+  .hud .stat{font-weight:800;font-size:.95rem;display:flex;gap:14px;align-items:center;flex-wrap:wrap;}
+
+  .goal{background:linear-gradient(135deg,#fff8e1,#fff3cd);border-left:6px solid var(--events);
+    border-radius:0 14px 14px 0;padding:16px 20px;margin:0 0 16px;}
+  .goal h2{margin:0 0 6px;font-size:1.2rem;}
+  .goal p{margin:4px 0 0;font-size:.97rem;}
+  .goal .task{font-weight:700;color:#8a6d00;}
+
+  /* ---------- SCRIPT / POOL ---------- */
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start;}
+  @media(max-width:820px){.cols{grid-template-columns:1fr;}}
+
+  .script,.pool\boxed{background:#F9FBFD;border:2px dashed #cfd8e3;border-radius:16px;padding:26px 20px 16px;
+    position:relative;min-height:180px;}
+  .script .caption,.poolbox .caption{position:absolute;top:-13px;left:16px;background:#F9FBFD;padding:0 8px;
+    font-size:.75rem;font-weight:800;color:#7b8794;letter-spacing:.08em;text-transform:uppercase;}
+  .poolbox{background:#fff;border-style:solid;border-color:#e3e9f2;}
+  #slots{min-height:20px;}
+  .empty-msg{color:#9aa6b5;font-size:.9rem;font-style:italic;margin-top:8px;}
+
+  /* ---------- BLOCKS ---------- */
+  .blk{display:flex;width:fit-content;max-width:100%;align-items:center;gap:8px;
+    background:var(--c,#999);color:#fff;font-weight:600;font-size:.93rem;
+    padding:9px 15px;border-radius:8px;position:relative;margin:7px 0 9px;
+    box-shadow:0 2px 3px rgba(0,0,0,.16);flex-wrap:wrap;}
+  .blk::after{content:"";position:absolute;left:16px;bottom:-5px;width:36px;height:6px;
+    background:var(--c,#999);border-radius:0 0 7px 7px;}
+  .hat{border-radius:20px 20px 8px 8px;padding-top:15px;padding-bottom:11px;}
+  .hat::after{display:none;}
+  .hat.events{border-top-left-radius:40px 34px;border-top-right-radius:40px 34px;}
+
+  .rep,.inp,.sel{display:inline-flex;align-items:center;gap:6px;color:#374151;background:#fff;
+    border-radius:999px;padding:3px 13px;font-weight:600;font-size:.88rem;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);white-space:nowrap;}
+  .op{background:var(--operators);color:#fff;box-shadow:none;}
+  .sn{background:var(--sensing);color:#fff;box-shadow:none;}
+  .mo{background:var(--motion);color:#fff;box-shadow:none;}
+  .vd{background:var(--video);color:#fff;box-shadow:none;}
+  .fc{background:var(--face);color:#fff;box-shadow:none;}
+  .bool{border-radius:0;clip-path:polygon(13px 0,calc(100% - 13px) 0,100% 50%,calc(100% - 13px) 100%,13px 100%,0 50%);
+    padding:6px 18px;box-shadow:none;}
+  .ico{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;
+    border-radius:6px;background:rgba(255,255,255,.28);font-size:14px;flex:none;}
+
+  .cblk{display:block;margin:7px 0 9px;font-weight:600;font-size:.93rem;color:#fff;width:fit-content;max-width:100%;}
+  .cbar{background:var(--c);padding:9px 15px;border-radius:8px;display:flex;align-items:center;gap:8px;
+    flex-wrap:wrap;box-shadow:0 2px 3px rgba(0,0,0,.16);width:fit-content;max-width:100%;}
+  .cbar.top{border-bottom-left-radius:0;}
+  .cbar.bottom{border-top-left-radius:0;min-height:16px;padding-top:6px;padding-bottom:6px;}
+  .cbody{margin-left:22px;padding:2px 0 2px 12px;border-left:14px solid var(--c);
+    background:rgba(255,255,255,.75);border-radius:0 8px 8px 0;min-height:14px;}
+  .cbody .blk{margin:6px 0 8px;}
+  .cbody .cblk{margin:6px 0 8px;}
+
+  /* pool buttons */
+  button.pool-blk{display:block;width:fit-content;max-width:100%;background:none;border:none;
+    padding:0;margin:9px 0;cursor:pointer;font:inherit;text-align:left;
+    animation:fadeIn .3s ease both;}
+  button.pool-blk:hover .blk,button.pool-blk:hover .cblk{transform:translateY(-3px) scale(1.03);
+    filter:brightness(1.07);transition:.15s;}
+  button.pool-blk:active .blk{transform:scale(.97);}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  @keyframes pop{0%{transform:scale(.6);opacity:0;}70%{transform:scale(1.06);}100%{transform:scale(1);opacity:1;}}
+  .placed{animation:pop .3s ease both;}
+  @keyframes shake{0%,100%{transform:translateX(0);}20%{transform:translateX(-8px);}
+    40%{transform:translateX(8px);}60%{transform:translateX(-6px);}80%{transform:translateX(6px);}}
+  .shake{animation:shake .4s ease;}
+
+  /* ---------- FEEDBACK ---------- */
+  .fb{border-radius:14px;padding:14px 18px;margin-top:16px;font-weight:600;display:none;
+    animation:fadeIn .25s ease both;}
+  .fb.show{display:block;}
+  .fb.ok{background:#e6f9f1;border-left:6px solid var(--good);color:#0b7a58;}
+  .fb.err{background:#fdecea;border-left:6px solid var(--bad);color:#a33227;}
+  .fb .tag{font-weight:800;text-transform:uppercase;font-size:.75rem;letter-spacing:.08em;display:block;margin-bottom:3px;}
+
+  .controls{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+  .btn{border:none;border-radius:999px;padding:11px 22px;font-weight:800;font-size:.95rem;
+    cursor:pointer;transition:.15s;box-shadow:0 4px 10px rgba(30,50,80,.15);}
+  .btn:hover{transform:translateY(-2px);}
+  .btn.primary{background:var(--face);color:#fff;}
+  .btn.ghost{background:#fff;color:#5b6472;border:2px solid #dfe5ee;box-shadow:none;}
+  .btn.warn{background:#fff3cd;color:#8a6d00;border:2px solid #ffe08a;box-shadow:none;}
+
+  /* ---------- MODO / EQUIPOS ---------- */
+  .modes{display:flex;gap:10px;justify-content:center;align-items:center;margin-top:18px;flex-wrap:wrap;}
+  .mode-label{font-weight:800;font-size:.9rem;opacity:.95;}
+  .mode-btn{border:2px solid rgba(255,255,255,.7);background:rgba(255,255,255,.18);color:#fff;
+    border-radius:999px;padding:9px 18px;font-weight:800;font-size:.9rem;cursor:pointer;transition:.15s;
+    font-family:inherit;}
+  .mode-btn:hover{background:rgba(255,255,255,.32);transform:translateY(-2px);}
+  .mode-btn.active{background:#fff;color:#0FA98C;box-shadow:0 4px 12px rgba(0,0,0,.2);}
+  .team-info{display:flex;gap:10px;flex-wrap:wrap;}
+  .team-badge{border-radius:999px;padding:6px 14px;font-weight:800;font-size:.85rem;color:#fff;
+    transition:.2s;opacity:.75;}
+  .team-badge.a{background:#e5534b;}
+  .team-badge.b{background:#3d8bfd;}
+  .team-badge.turn{opacity:1;transform:scale(1.08);box-shadow:0 0 0 3px rgba(30,40,60,.25);}
+
+  /* ---------- TEMPORIZADOR ---------- */
+  .clock{font-weight:900;font-size:1.05rem;background:#eef1f6;color:#5b6472;border-radius:999px;
+    padding:6px 16px;transition:.2s;display:inline-block;letter-spacing:.5px;}
+  .clock.on{background:#e6f9f1;color:#0b7a58;}
+  .clock.warn{background:#fff3cd;color:#8a6d00;transform:scale(1.06);}
+  .clock.danger{background:#fdecea;color:#c0392b;transform:scale(1.12);animation:pulse .55s ease infinite;}
+  @keyframes pulse{50%{transform:scale(.94);}}
+
+  /* ---------- REGISTRO DE EQUIPOS (KAHOOT) ---------- */
+  #setup{display:none;}
+  .setup-card{background:#fff;border-radius:22px;padding:28px 30px;
+    box-shadow:0 8px 26px rgba(30,50,80,.1);border:1px solid #e8edf5;}
+  .setup-card h2{margin:0 0 6px;}
+  .setup-lead{color:#4b5563;margin:0 0 18px;}
+  .team-form{border:2px solid #e8edf5;border-left:8px solid var(--tc,#e5534b);border-radius:16px;
+    padding:16px 18px;margin:14px 0;background:#fbfcfe;animation:fadeIn .3s ease both;}
+  .tf-head{display:flex;gap:10px;align-items:center;}
+  .tf-dot{width:20px;height:20px;border-radius:50%;background:var(--tc);flex:none;
+    box-shadow:0 0 0 3px rgba(0,0,0,.07);}
+  .tf-name{flex:1;min-width:0;border:2px solid #dde3ec;border-radius:12px;padding:10px 14px;
+    font-size:1.05rem;font-weight:800;font-family:inherit;color:var(--ink);background:#fff;}
+  .tf-name:focus,.tf-mem-in:focus{outline:none;border-color:var(--tc);box-shadow:0 0 0 3px rgba(0,0,0,.07);}
+  .tf-del{border:none;background:#fdecea;color:#c0392b;width:34px;height:34px;border-radius:50%;
+    font-weight:800;cursor:pointer;font-size:1rem;flex:none;}
+  .tf-del:hover{background:#f5b7b1;}
+  .tf-members{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 6px;}
+  .tf-mrow{display:flex;gap:6px;align-items:center;animation:fadeIn .25s ease both;}
+  .tf-mem-in{border:2px solid #dde3ec;border-radius:999px;padding:8px 14px;font-family:inherit;
+    font-size:.92rem;font-weight:600;color:var(--ink);background:#fff;width:175px;}
+  .tf-mrm{border:none;background:#eef1f6;color:#7b8794;width:26px;height:26px;border-radius:50%;
+    cursor:pointer;font-weight:800;font-size:.8rem;flex:none;}
+  .tf-mrm:hover{background:#fdecea;color:#c0392b;}
+  .tf-actions{display:flex;gap:12px;align-items:center;}
+  .btn.tiny{background:#fff;color:#5b6472;border:2px solid #dfe5ee;padding:7px 14px;font-size:.83rem;
+    border-radius:999px;font-weight:800;cursor:pointer;box-shadow:none;}
+  .btn.tiny:hover{transform:translateY(-2px);}
+  .tf-count{font-weight:800;color:#8894a6;font-size:.85rem;}
+  .setup-err{display:none;background:#fdecea;border-left:6px solid #e5534b;border-radius:0 12px 12px 0;
+    padding:13px 18px;margin:14px 0;color:#a33227;font-weight:600;font-size:.93rem;}
+  .setup-err.show{display:block;}
+  .setup-err div{margin:2px 0;}
+
+  /* ---------- PODIO ---------- */
+  #podium{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin:22px 0;}
+  .podium-card{background:#fff;border-radius:18px;padding:20px 16px;text-align:center;
+    border-top:8px solid var(--tc,#ccc);box-shadow:0 6px 18px rgba(30,50,80,.1);}
+  .podium-card.first{transform:scale(1.06);box-shadow:0 14px 34px rgba(30,50,80,.2);}
+  .p-medal{font-size:2.4rem;line-height:1;}
+  .p-name{font-weight:900;font-size:1.1rem;margin:8px 0 2px;color:var(--tc);overflow-wrap:break-word;}
+  .p-members{font-size:.82rem;color:#6b7280;overflow-wrap:break-word;}
+  .p-stars{font-size:1.5rem;font-weight:900;margin-top:8px;}
+  .p-played{font-size:.75rem;color:#9aa6b5;}
+
+  .hint{display:none;background:#eef6ff;border-left:6px solid var(--sensing);border-radius:0 12px 12px 0;
+    padding:13px 18px;margin-top:14px;font-size:.95rem;}
+  .hint.show{display:block;animation:fadeIn .25s ease both;}
+
+  /* ---------- EN LÍNEA / MULTIPLAYER ---------- */
+  #online,#lobby,#joinForm,#waiting{display:none;}
+  body.is-player #setup,
+  body.is-player #online,
+  body.is-player #lobby,
+  body.is-player #joinForm,
+  body.is-player header.hero .modes,
+  body.is-player #final .controls{display:none !important;}
+  body.is-player #btnSolution,
+  body.is-player #btnReset,
+  body.is-player #mBtn{display:none;}
+  body.is-player #btnLeave{display:inline-block;}
+  #btnLeave{display:none;}
+  .btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none;}
+  #turnBanner{display:none;}
+  .online-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  @media(max-width:720px){.online-grid{grid-template-columns:1fr;}}
+  .online-card{background:#fff;border-radius:20px;padding:28px 24px;text-align:center;
+    box-shadow:0 8px 26px rgba(30,50,80,.1);border:1px solid #e8edf5;cursor:pointer;transition:.15s;}
+  .online-card:hover{transform:translateY(-4px);box-shadow:0 14px 34px rgba(30,50,80,.16);}
+  .online-card .big{font-size:2.8rem;line-height:1;}
+  .online-card h3{margin:12px 0 6px;}
+  .online-card p{color:#6b7280;font-size:.92rem;margin:0;}
+  .pin-\boxed{background:linear-gradient(135deg,#0FA98C,#14c087);color:#fff;border-radius:20px;
+    text-align:center;padding:26px 22px;margin:18px 0;}
+  .pin-box .pin-label{font-weight:800;letter-spacing:.14em;font-size:.8rem;opacity:.9;}
+  .pin-box .pin{font-size:3.6rem;font-weight:900;letter-spacing:14px;line-height:1.15;}
+  .pin-box .url{font-size:.9rem;font-weight:700;background:rgba(255,255,255,.16);
+    border-radius:10px;padding:9px 12px;margin-top:10px;overflow-wrap:anywhere;}
+  .pin-box small{display:block;opacity:.95;font-size:.83rem;margin-top:10px;}
+  .lobby-teams{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;min-height:44px;}
+  .lobby-team{border-radius:14px;color:#fff;padding:10px 16px;font-weight:800;font-size:.92rem;
+    display:flex;flex-direction:column;align-items:flex-start;animation:fadeIn .3s ease both;}
+  .lobby-team small{font-weight:600;opacity:.9;font-size:.75rem;}
+  .lobby-team.off{filter:grayscale(.7);opacity:.7;}
+  .field{margin:14px 0;}
+  .field label{display:block;font-weight:800;font-size:.8rem;color:#6b7280;margin-bottom:6px;
+    text-transform:uppercase;letter-spacing:.06em;}
+  .field input{width:100%;border:2px solid #dde3ec;border-radius:12px;padding:12px 14px;
+    font:inherit;font-size:1rem;background:#fff;color:var(--ink);}
+  .field input:focus{outline:none;border-color:var(--face);box-shadow:0 0 0 3px rgba(32,201,151,.18);}
+  #jMems{display:flex;flex-direction:column;gap:8px;}
+  .net-status{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:800;
+    background:#eef1f6;border-radius:999px;padding:5px 13px;color:#5b6472;vertical-align:middle;margin-left:8px;}
+  .net-status.on{background:#e6f9f1;color:#0b7a58;}
+  .net-status.bad{background:#fdecea;color:#a33227;}
+  .turn-banner{border-radius:16px;padding:16px 20px;font-weight:900;text-align:center;
+    font-size:1.1rem;color:#fff;margin:14px 0;}
+  .turn-banner.mine{background:linear-gradient(135deg,#14c087,#0FA98C);animation:glow 1.4s ease infinite;}
+  .turn-banner.wait{background:#eef1f6;color:#5b6472;}
+  @keyframes glow{50%{filter:brightness(1.13);}}
+  .p-score{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:12px 0;}
+  .p-score span{border-radius:999px;color:#fff;padding:6px 13px;font-weight:800;font-size:.83rem;}
+  #pPool button.pool-blk{display:block;width:100%;}
+  #pPool .blk,#pPool .cblk,#pPool .cbar{width:100%;}
+  #pPool .blk{justify-content:flex-start;}
+  #pPool.disabled{opacity:.5;pointer-events:none;}
+  .p-hint{background:#eef6ff;border-left:6px solid var(--sensing);border-radius:0 12px 12px 0;
+    padding:12px 16px;margin:12px 0;font-size:.9rem;}
+
+  /* ---------- MODAL ---------- */
+  .overlay{position:fixed;inset:0;background:rgba(20,30,50,.55);display:none;align-items:center;
+    justify-content:center;z-index:50;padding:20px;backdrop-filter:blur(3px);}
+  .overlay.show{display:flex;}
+  .modal{background:#fff;border-radius:22px;max-width:520px;width:100%;padding:32px 30px;text-align:center;
+    box-shadow:0 24px 60px rgba(0,0,0,.35);animation:pop .35s ease both;}
+  .modal h2{margin:0 0 8px;font-size:1.6rem;}
+  .modal .stars{font-size:2.6rem;letter-spacing:8px;margin:10px 0;}
+  .modal .stars span{display:inline-block;animation:starPop .4s ease both;}
+  .modal .stars span:nth-child(2){animation-delay:.15s;}
+  .modal .stars span:nth-child(3){animation-delay:.3s;}
+  @keyframes starPop{0%{transform:scale(0) rotate(-40deg);}70%{transform:scale(1.3);}100%{transform:scale(1);}}
+  .modal p{color:#4b5563;font-size:.98rem;}
+  .modal .good-msg{font-weight:700;color:var(--good);}
+
+  /* ---------- FINAL ---------- */
+  #final{display:none;}
+  .final-card{background:linear-gradient(135deg,#14c087,#0FA98C);color:#fff;border-radius:22px;
+    padding:34px 30px;text-align:center;box-shadow:0 12px 34px rgba(20,192,135,.4);}
+  .final-card h2{margin:0 0 6px;font-size:2rem;}
+  .final-card .score{font-size:3rem;font-weight:900;margin:8px 0;}
+  table{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden;
+    box-shadow:0 6px 18px rgba(30,50,80,.08);font-size:.92rem;margin:20px 0;}
+  th,td{padding:11px 14px;text-align:left;border-bottom:1px solid #edf1f6;vertical-align:top;}
+  th{background:var(--face);color:#fff;font-size:.83rem;letter-spacing:.04em;text-transform:uppercase;}
+  tr:nth-child(even) td{background:#f8fbfd;}
+  tr:last-child td{border-bottom:none;}
+
+  .confetti{position:fixed;top:-20px;width:10px;height:16px;z-index:60;pointer-events:none;
+    animation:fall linear forwards;}
+  @keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:.9;}}
+
+  footer{text-align:center;color:#7b8794;font-size:.85rem;margin-top:46px;}
+  @media print{
+    body{background:#fff;} header.hero{box-shadow:none;} .hud{display:none;}
+    .overlay{display:none!important;} .btn,.controls{display:none!important;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>🎨 Desafío: programá "Pintura con la cara"</h1>
+  <p>Sos el/la docente programador/a. Armá cada script eligiendo los bloques <b>en el orden correcto</b>.
+  Si te equivocás, te explico por qué. 🎯</p>
+  <div class="modes">
+    <span class="mode-label">Modo de juego:</span>
+    <button class="mode-btn active" data-mode="single">👨‍🏫 Individual</button>
+    <button class="mode-btn" data-mode="teams">🏆 Multi-equipos (turnos)</button>
+    <button class="mode-btn" data-mode="online">🌐 En línea (cada uno en su celular)</button>
+  </div>
+  <div class="modes">
+    <span class="mode-label">⏱️ Tiempo por turno:</span>
+    <button class="mode-btn time-btn" data-time="30">30 s</button>
+    <button class="mode-btn time-btn active" data-time="60">60 s</button>
+    <button class="mode-btn time-btn" data-time="90">90 s</button>
+    <button class="mode-btn time-btn" data-time="0">Sin límite</button>
+  </div>
+</header>
+
+<!-- SETUP DE EQUIPOS -->
+<div id="setup">
+  <div class="setup-card">
+    <h2>🏆 Registro de equipos</h2>
+    <p class="setup-lead">Creá de <b>2 a 6 equipos</b>. Cada equipo necesita un <b>nombre</b> y de <b>3 a 4 integrantes</b>.
+    Se juega por turnos: en cada turno un equipo arma un script y suma estrellas. ¡Al final, podio! 🥇</p>
+    <div id="teamForms"></div>
+    <div class="setup-err" id="setupErr"></div>
+    <div class="controls">
+      <button class="btn ghost" id="btnAddTeam">➕ Agregar equipo</button>
+      <button class="btn primary" id="btnStartTeams">▶ ¡Comenzar el juego!</button>
+      <button class="btn ghost" id="btnSetupBack">← Volver</button>
+    </div>
+  </div>
+</div>
+
+<!-- ONLINE: crear sala / unirse -->
+<div id="online">
+  <div class="setup-card">
+    <h2>🌐 Juego en línea</h2>
+    <p class="setup-lead">Jugá con equipos <b>desde sus propios celulares o computadoras</b>, como en Kahoot.
+    El docente crea una sala y proyecta su pantalla; cada equipo entra con el código.</p>
+    <div class="online-grid">
+      <div class="online-card" id="cardHost">
+        <div class="big">📡</div>
+        <h3>Crear sala</h3>
+        <p>Soy el/la docente: genero el código, proyecto la pantalla y dirijo los turnos.</p>
+      </div>
+      <div class="online-card" id="cardJoin">
+        <div class="big">📱</div>
+        <h3>Unirme con código</h3>
+        <p>Soy un equipo: entro con el PIN de la sala y juego desde mi dispositivo.</p>
+      </div>
+    </div>
+    <div class="setup-err" id="onlineErr"></div>
+    <div class="controls"><button class="btn ghost" id="btnOnlineBack">← Volver</button></div>
+  </div>
+</div>
+
+<!-- HOST: LOBBY / SALA -->
+<div id="lobby">
+  <div class="setup-card">
+    <h2>📡 Sala creada <span class="net-status" id="lobbyNet">conectando…</span></h2>
+    <div class="pin-box">
+      <div class="pin-label">CÓDIGO DE LA SALA</div>
+      <div class="pin" id="roomCode">------</div>
+      <div class="url" id="roomUrl"></div>
+      <small>Los equipos abren ese link (o la misma página) y tocan <b>"Unirme con código"</b></small>
+    </div>
+    <div class="lobby-teams" id="lobbyTeams"></div>
+    <div class="setup-err" id="lobbyErr"></div>
+    <div class="controls">
+      <button class="btn primary" id="btnStartOnline" disabled>▶ Comenzar el juego</button>
+      <button class="btn warn" id="btnCloseRoom">✕ Cerrar sala</button>
+    </div>
+    <p style="color:#7b8794;font-size:.86rem;text-align:center;margin:14px 0 0">
+      💡 Podés proyectar esta pantalla: se ve el script armándose en vivo, el reloj y las estrellas de cada equipo.</p>
+  </div>
+</div>
+
+<!-- PLAYER: UNIRSE -->
+<div id="joinForm">
+  <div class="setup-card">
+    <h2>📱 Unirse a la partida</h2>
+    <div class="field">
+      <label>Código de la sala</label>
+      <input id="jCode" maxlength="6" placeholder="Ej: K7P2QD" autocomplete="off" style="text-transform:uppercase;font-weight:800;letter-spacing:.15em">
+    </div>
+    <div class="field">
+      <label>Nombre del equipo</label>
+      <input id="jTeam" maxlength="18" placeholder="Ej: Los Pinceles" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Integrantes (3 o 4)</label>
+      <div id="jMems">
+        <input class="j-mem" placeholder="Integrante 1" maxlength="20" autocomplete="off">
+        <input class="j-mem" placeholder="Integrante 2" maxlength="20" autocomplete="off">
+        <input class="j-mem" placeholder="Integrante 3" maxlength="20" autocomplete="off">
+      </div>
+      <button class="btn tiny" id="jAdd" style="margin-top:8px">➕ Agregar integrante (3 o 4)</button>
+    </div>
+    <div class="setup-err" id="joinErr"></div>
+    <div class="controls">
+      <button class="btn primary" id="btnDoJoin">🚀 Entrar a la sala</button>
+      <button class="btn ghost" id="btnJoinBack">← Volver</button>
+    </div>
+  </div>
+</div>
+
+<!-- PLAYER: ESPERANDO -->
+<div id="waiting">
+  <div class="setup-card">
+    <h2 id="waitTitle">⏳ Esperando…</h2>
+    <p class="setup-lead" id="waitMsg"></p>
+    <div class="lobby-teams" id="waitTeams"></div>
+    <div class="controls">
+      <button class="btn warn" id="btnLeave">Salir de la sala</button>
+    </div>
+  </div>
+</div>
+
+<!-- HUD -->
+<div class="hud" id="hud">
+  <div class="dots" id="dots"></div>
+  <div class="team-info" id="teamInfo" style="display:none"></div>
+  <div class="stat">
+    <span class="clock" id="clock" style="display:none">⏱️ 60</span>
+    <span>⭐ <span id="totalStars">0</span>/21</span>
+    <span>⚡ <span id="totalSpeed">0</span></span>
+    <span>❌ <span id="totalMiss">0</span></span>
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="game">
+  <div class="turn-banner" id="turnBanner"></div>
+  <div class="goal">
+    <h2 id="gTitle">Nivel 1</h2>
+    <p id="gMission"></p>
+    <p class="task" id="gTask"></p>
+  </div>
+
+  <div class="cols">
+    <div class="script">
+      <span class="caption">Tu script · Sprite 🖌️ Pincel</span>
+      <div class="blk hat events" style="--c:var(--events)"><span class="ico">🚩</span>al presionar la bandera</div>
+      <div id="slots"></div>
+      <div class="empty-msg" id="emptyMsg">Elegí bloques de la columna de la derecha →</div>
+    </div>
+
+    <div class="poolbox">
+      <span class="caption">Bloques disponibles (ordenálos)</span>
+      <div id="pool"></div>
+    </div>
+  </div>
+
+  <div class="fb" id="fb"><span class="tag" id="fbTag"></span><span id="fbMsg"></span></div>
+  <div class="hint" id="hint">💡 <span id="hintMsg"></span></div>
+
+  <div class="controls">
+    <button class="btn primary" id="btnHint">💡 Pista</button>
+    <button class="btn warn" id="btnSolution">👀 Ver solución</button>
+    <button class="btn ghost" id="btnReset">🔄 Reiniciar nivel</button>
+  </div>
+</div>
+
+<!-- FINAL -->
+<div id="final">
+  <div class="final-card">
+    <h2 id="finalTitle">🎉 ¡Misión cumplida!</h2>
+    <p id="finalSub" style="opacity:.95;margin:6px 0 0">Completaste los 7 scripts del proyecto</p>
+    <div class="score" id="finalScoreWrap">⭐ <span id="finalScore">0</span>/21</div>
+    <p id="finalMsg" style="font-weight:700"></p>
+  </div>
+
+  <div id="podium"></div>
+
+  <table>
+    <tr><th>Nivel</th><th>Script</th><th>Qué logra</th></tr>
+    <tr><td>1</td><td>Encendido y calibración</td><td>Prende la cámara, deja ver el video y prepara el lápiz.</td></tr>
+    <tr><td>2</td><td>Saludo al artista</td><td>Espera a detectar una cara antes de invitar a pintar.</td></tr>
+    <tr><td>3</td><td>Pincel sigue la nariz</td><td>El sprite se pega a tu cara en un bucle infinito.</td></tr>
+    <tr><td>4</td><td>Color por inclinación</td><td>Tu cabeza inclinada cambia el color del trazo.</td></tr>
+    <tr><td>5</td><td>Grosor por distancia</td><td>Acercarte engorda la línea; alejarte la adelgaza.</td></tr>
+    <tr><td>6</td><td>Borrador mágico</td><td>Un movimiento de mano en la esquina limpia el lienzo.</td></tr>
+    <tr><td>7</td><td>Reto: grosor por movimiento</td><td>Tu movimiento del video (sin cara) controla el grosor del trazo.</td></tr>
+  </table>
+
+  <div class="controls" style="justify-content:center">
+    <button class="btn primary" id="btnRestart">🔁 Jugar de nuevo</button>
+    <button class="btn ghost" id="btnNewTeams">🆕 Otros equipos</button>
+    <button class="btn ghost" id="btnPrint">🖨️ Imprimir resumen</button>
+    <button class="btn ghost" id="btnGuide">📖 Ver guía completa</button>
+  </div>
+</div>
+
+<footer>🎨 Pintura con la cara · Desafío interactivo para talleres docentes · Scratch 4</footer>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2 id="mTitle">¡Nivel completado!</h2>
+    <div class="stars" id="mStars"></div>
+    <p id="mMsg"></p>
+    <button class="btn primary" id="mBtn">Siguiente nivel →</button>
+  </div>
+</div>
+
+<script>
+/* ============ DATOS DE LOS NIVELES ============ */
+const F = 'style="--c:var(--face)"', V = 'style="--c:var(--video)"',
+      P = 'style="--c:var(--pen)"', C = 'style="--c:var(--control)"',
+      L = 'style="--c:var(--looks)"', M = 'style="--c:var(--motion)"';
+
+const levels = [
+{
+  title:"Nivel 1 · Preparar la cámara y el lienzo",
+  mission:"La computadora necesita ver por la webcam y dejar el pincel listo para dibujar.",
+  task:"Ordená 5 bloques: primero la cámara, después la transparencia, y recién ahí el lápiz.",
+  hint:"Pensalo como preparar un pincel real: 1) abrir la ventana (cámara), 2) regular la luz (transparencia), 3) papel en blanco (borrar), 4) mojar el pincel (bajar lápiz), 5) elegir el grosor.",
+  solution:["v-enc","v-trans","p-borrar","p-bajar","p-g5"],
+  pool:[
+    {id:"v-enc", name:"encender video",
+     html:`<div class="blk" ${V}><span class="ico">🎥</span>encender video</div>`,
+     note:"¡Bien! Sin encender video los sensores no ven nada: la cámara es el punto de partida."},
+    {id:"v-trans", name:"fijar transparencia de video a 40",
+     html:`<div class="blk" ${V}><span class="ico">🎥</span>fijar transparencia de video a <span class="inp">40</span></div>`,
+     note:"¡Exacto! Con transparencia 40 se ve tu figura de fondo sin tapar la obra (100 la oculta, 0 la tapa toda)."},
+    {id:"p-borrar", name:"borrar todo",
+     html:`<div class="blk" ${P}><span class="ico">🖊️</span>borrar todo</div>`,
+     note:"¡Muy bien! Un lienzo limpio para empezar de cero cada vez que se inicia."},
+    {id:"p-bajar", name:"bajar lápiz",
+     html:`<div class="blk" ${P}><span class="ico">🖊️</span>bajar lápiz</div>`,
+     note:"¡Correcto! Solo con el lápiz abajo el sprite deja marca al moverse."},
+    {id:"p-g5", name:"fijar tamaño del lápiz a 5",
+     html:`<div class="blk" ${P}><span class="ico">🖊️</span>fijar tamaño del lápiz a <span class="inp">5</span></div>`,
+     note:"¡Listo! Un grosor inicial para que el primer trazo se note bien."},
+    {id:"v-apagar", wrong:"¡Ojo! Si apagás el video, la cámara deja de ver y ningún sensor detecta tu cara. Hay que encenderlo.",
+     html:`<div class="blk" ${V}><span class="ico">🎥</span><span class="sel">apagar ▾</span> video</div>`},
+    {id:"p-subir", wrong:"Si subís el lápiz, el pincel viaja por el lienzo pero no deja ninguna marca. Necesitamos bajarlo.",
+     html:`<div class="blk" ${P}><span class="ico">🖊️</span>subir lápiz</div>`},
+    {id:"v-t100", wrong:"Con transparencia 100 el video desaparece por completo y no se ve tu figura de fondo. El valor correcto es 40.",
+     html:`<div class="blk" ${V}><span class="ico">🎥</span>fijar transparencia de video a <span class="inp">100</span></div>`}
+  ]
+},
+{
+  title:"Nivel 2 · Saludar al artista",
+  mission:"El programa debe esperar a que haya una persona frente a la cámara antes de invitarla a pintar.",
+  task:"Ordená 2 bloques. Ojo: hay bloques que parecen parecidos pero hacen otra cosa.",
+  hint:"Acá NO se verifica: se ESPERA. Primero el bloque 'esperar hasta que…' y recién después el mensaje.",
+  solution:["c-wait","l-hello"],
+  pool:[
+    {id:"c-wait", name:"esperar hasta que se detecta una cara",
+     html:`<div class="cblk" ${C}><div class="cbar top">esperar hasta que <span class="rep fc bool">🙂 ¿se detecta una cara?</span></div></div>`,
+     note:"¡Perfecto! 'Esperar hasta que' pausa el script hasta que pase la condición: nadie pinta antes de tiempo."},
+    {id:"l-hello", name:"decir el saludo",
+     html:`<div class="blk" ${L}>decir <span class="inp" style="min-width:250px">Ponete frente a la cámara y pintá con la nariz 👃</span> por <span class="inp">2</span> segundos</div>`,
+     note:"¡Genial! El mensaje recién aparece cuando hay alguien listo frente a la cámara."},
+    {id:"l-bye", wrong:"Ese mensaje es para cuando se PIERDE la cara dentro del bucle, no para el saludo inicial. Y duraría apenas 0.1 seg.",
+     html:`<div class="blk" ${L}>decir <span class="inp">no veo ninguna cara 🙈</span> por <span class="inp">0.1</span> segundos</div>`},
+    {id:"h-detect", wrong:"Ese bloque INICIA un script nuevo cuando aparece una cara. Acá necesitamos ESPERAR dentro del mismo script, con la bandera.",
+     html:`<div class="blk hat" ${F} style="border-radius:20px 20px 8px 8px;padding-top:13px"><span class="ico">🙂</span>cuando se detecta una cara</div>`},
+    {id:"p-borrar2", wrong:"El lienzo ya se borró al preparar el proyecto (nivel 1). Acá queremos interactuar con la persona.",
+     html:`<div class="blk" ${P}><span class="ico">🖊️</span>borrar todo</div>`}
+  ]
+},
+{
+  title:"Nivel 3 · El pincel sigue tu nariz",
+  mission:"El sprite debe pegarse a tu nariz y girar con la inclinación de tu cara, sin parar nunca.",
+  task:"Ordená 4 bloques. Fijate que uno de ellos es un contenedor donde van a entrar los otros.",
+  hint:"1) El tamaño, 2) el bucle 'por siempre', y 3) y 4) DENTRO del bucle: ir a nariz y apuntar según la inclinación.",
+  solution:["f-tam","forever","f-nose","f-incl"],
+  pool:[
+    {id:"f-tam", name:"fijar tamaño al tamaño de la cara",
+     html:`<div class="blk" ${F}><span class="ico">🙂</span>fijar tamaño al tamaño de la cara</div>`,
+     note:"¡Correcto! El sprite 'respira' con la distancia: te acercás y crece, como si fuera real."},
+    {id:"forever", name:"por siempre",
+     cOpen:true,
+     html:`<div class="cblk" ${C}><div class="cbar top"><span class="ico">🔁</span>por siempre</div></div>`,
+     note:"¡Ese es! Es un bucle infinito: lo que va adentro se repite cuadro por cuadro (unos 30 veces por segundo)."},
+    {id:"f-nose", name:"ir a nariz",
+     html:`<div class="blk" ${F}><span class="ico">🙂</span>ir a nariz</div>`,
+     note:"¡Bien! Como se repite en el bucle, el pincel queda 'pegado' a tu cara todo el tiempo."},
+    {id:"f-incl", name:"apuntar según la inclinación",
+     html:`<div class="blk" ${F}><span class="ico">🙂</span>apuntar en dirección de la inclinación de la cara</div>`,
+     note:"¡Excelente! El pincel ahora gira con tu cabeza: giro completo, trazo cambiante."},
+    {id:"m-xy", wrong:"Eso lo mandaría a una posición fija de la pantalla. Queremos que siga tu nariz, que se mueve con vos.",
+     html:`<div class="blk" ${M}><span class="ico">🧭</span>ir a x: <span class="inp">0</span> y: <span class="inp">0</span></div>`},
+    {id:"f-dir90", wrong:"Dirección fija = el pincel siempre mira al mismo lado. Usá el bloque que usa la inclinación de la cara.",
+     html:`<div class="blk" ${F}><span class="ico">🙂</span>apuntar en dirección de <span class="inp">90</span></div>`},
+    {id:"s-wait", wrong:"Una espera larga haría que el pincel se quede trabado y 'salte' por la pantalla en vez de seguirte suavemente.",
+     html:`<div class="blk" ${C}><span class="ico">⏳</span>esperar <span class="inp">1</span> segundos</div>`}
+  ]
+},
+{
+  title:"Nivel 4 · Color por inclinación de la cabeza",
+  mission:"Queremos que el color del trazo cambie según cómo inclinás la cabeza.",
+  task:"Ordená 2 bloques: el bucle y adentro el cambio de color con el dato de la cara.",
+  hint:"El dato 'inclinación de la cara' da valores grandes, por eso lo dividimos: (inclinación de la cara / 10).",
+  solution:["forever2","l-color"],
+  pool:[
+    {id:"forever2", name:"por siempre", cOpen:true,
+     html:`<div class="cblk" ${C}><div class="cbar top"><span class="ico">🔁</span>por siempre</div></div>`,
+     note:"¡Ahí está! Sin el bucle, el color se calcularía una sola vez y nunca cambiaría mientras te movés."},
+    {id:"l-color", name:"cambiar color según la inclinación",
+     html:`<div class="blk" ${L}>cambiar <span class="sel" style="background:#fff;color:#5b21b6">color ▾</span> en <span class="rep op">(<span class="rep fc" style="padding:0 8px">🙂 inclinación de la cara</span> / <span class="inp">10</span>)</span></div>`,
+     note:"¡Brillante! Convertiste un dato de tu cuerpo (grados de inclinación) en color. Eso se llama MAPEAR DATOS."},
+    {id:"l-color10", wrong:"Eso cambiaría siempre la misma cantidad, sin importar cómo muevas la cabeza. Necesitás el dato real de la inclinación.",
+     html:`<div class="blk" ${L}>cambiar <span class="sel" style="background:#fff;color:#5b21b6">color ▾</span> en <span class="inp">10</span></div>`},
+    {id:"l-size", wrong:"El tamaño de la cara lo usamos para el GROSOR del trazo (nivel 5), no para el color.",
+     html:`<div class="blk" ${L}>cambiar <span class="sel" style="background:#fff;color:#5b21b6">tamaño ▾</span> en <span class="rep op">(<span class="rep fc" style="padding:0 8px">🙂 tamaño de la cara</span> / <span class="inp">10</span>)</span></div>`},
+    {id:"h-tilt", wrong:"Ese es el atajo para Primaria (solo 2 colores). Acá queremos variación continua mientras inclinás la cabeza en el bucle.",
+     html:`<div class="blk hat" ${F} style="border-radius:20px 20px 8px 8px;padding-top:13px"><span class="ico">🙂</span>cuando la cara se inclina <span class="sel">la izquierda ▾</span></div>`}
+  ]
+},
+{
+  title:"Nivel 5 · Grosor por distancia a la cámara",
+  mission:"Que la línea se engorde cuando te acercás a la cámara y se adelgaze cuando te alejás.",
+  task:"Ordená 2 bloques: el bucle y adentro el tamaño del lápiz calculado con la cara.",
+  hint:"¿Qué dato crece cuando te acercás? El 'tamaño de la cara'. Dividilo entre 4 para que no se dispare.",
+  solution:["forever3","p-gsize"],
+  pool:[
+    {id:"forever3", name:"por siempre", cOpen:true,
+     html:`<div class="cblk" ${C}><div class="cbar top"><span class="ico">🔁</span>por siempre</div></div>`,
+     note:"¡Muy bien! La distancia cambia todo el tiempo, así que hay que estar mirándola sin parar."},
+    {id:"p-gsize", name:"fijar tamaño del lápiz a tamaño de cara / 4",
+     html:`<div class="blk" ${P}><span class="ico">🖊️</span>fijar tamaño del lápiz a <span class="rep op">(<span class="rep fc" style="padding:0 8px">🙂 tamaño de la cara</span> / <span class="inp">4</span>)</span></div>`,
+     note:"¡Exacto! Cerca = cara grande = trazo grueso. Lejos = trazo fino. Otra fórmula mapeada con tu cuerpo."},
+    {id:"p-g5f", wrong:"Grosor fijo: el trazo tendría siempre el mismo tamaño, sin reaccionar a tu distancia.",
+     html:`<div class="blk" ${P}><span class="ico">🖊️</span>fijar tamaño del lápiz a <span class="inp">5</span></div>`},
+    {id:"p-gvid", wrong:"Ese es un efecto alternativo genial con el Sensor de video (¡crealo después como desafío!), pero en esta misión el grosor lo controla la distancia de tu cara.",
+     html:`<div class="blk" ${P}><span class="ico">🖊️</span>fijar tamaño del lápiz a <span class="rep vd" style="padding:0 8px">🎥 <span class="sel" style="background:rgba(255,255,255,.25);color:#fff">movimiento ▾</span> del video en <span class="sel" style="background:rgba(255,255,255,.25);color:#fff">pincel ▾</span></span></div>`}
+  ]
+},
+{
+  title:"Nivel 6 · El borrador mágico con la mano",
+  mission:"Si agitás la mano en la esquina donde está el Borrador, se limpia el lienzo… pero SOLO en esa zona.",
+  task:"Ordená 4 bloques. Notá que uno abre una condición: sin ella se borraría todo el tiempo.",
+  hint:"Primero el bucle. Después el 'si' con el movimiento > 25. Y DENTRO del 'si': el aviso y el borrado.",
+  solution:["forever4","c-si-motion","l-care","p-clean"],
+  pool:[
+    {id:"forever4", name:"por siempre", cOpen:true,
+     html:`<div class="cblk" ${C}><div class="cbar top"><span class="ico">🔁</span>por siempre</div></div>`,
+     note:"¡Sí! Hay que estar mirando la zona del borrador todo el tiempo, cuadro por cuadro."},
+    {id:"c-si-motion", name:"si movimiento > 25", cOpen:true,
+     html:`<div class="cblk" ${C}><div class="cbar top">si <span class="rep op">( <span class="rep vd" style="padding:0 8px">🎥 <span class="sel" style="background:rgba(255,255,255,.25);color:#fff">movimiento ▾</span> del video en <span class="sel" style="background:rgba(255,255,255,.25);color:#fff">Borrador ▾</span></span> &gt; <span class="inp">25</span> )</span> entonces</div></div>`,
+     note:"¡Perfecto! El umbral 25 filtra ruido: solo borra cuando hay movimiento real, no por el parpadeo de la luz."},
+    {id:"l-care", name:"aviso antes de borrar",
+     html:`<div class="blk" ${L}>decir <span class="inp" style="min-width:210px">¡Cuidado! vas a borrar la obra 😱</span> por <span class="inp">1</span> segundos</div>`,
+     note:"¡Buena idea de diseño! Un aviso evita que pierdan la obra sin querer: eso se llama interfaz amigable."},
+    {id:"p-clean", name:"borrar todo",
+     html:`<div class="blk" ${P}><span class="ico">🖊️</span>borrar todo</div>`,
+     note:"¡Nivel completado! El borrado solo ocurre dentro del 'si': sin la condición, desaparecería tu pintura."},
+    {id:"c-si-3", wrong:"Umbral demasiado bajo: con solo un movimiento leve ya borraría toda tu obra. Usá 25 o más.",
+     html:`<div class="cblk" ${C}><div class="cbar top">si <span class="rep op">( <span class="rep vd" style="padding:0 8px">🎥 <span class="sel" style="background:rgba(255,255,255,.25);color:#fff">movimiento ▾</span> del video en <span class="sel" style="background:rgba(255,255,255,.25);color:#fff">Borrador ▾</span></span> &gt; <span class="inp">3</span> )</span> entonces</div></div>`},
+    {id:"h-motion40", wrong:"Ese bloque INICIA otro script distinto (el de las chispas). El borrador necesita mirar SOLO la zona de la esquina, en bucle.",
+     html:`<div class="blk hat" ${V} style="border-radius:20px 20px 8px 8px;padding-top:13px"><span class="ico">🎥</span>cuando el movimiento del video &gt; <span class="inp">40</span></div>`}
+  ]
+},
+{
+  title:"Nivel 7 · El trazo que reacciona a tu movimiento",
+  mission:"Reto extra: esta vez el grosor lo controla tu MOVIMIENTO del video, no la distancia de la cara. ¡Puro Sensor de video!",
+  task:"Ordená 2 bloques: el bucle y el tamaño del lápiz calculado con el movimiento.",
+  hint:"¿Qué dato crece cuando agitás la mano o el cuerpo? El 'movimiento del video en el pincel'. ¡No hace falta dividirlo!",
+  solution:["forever5","p-gmove"],
+  pool:[
+    {id:"forever5", name:"por siempre", cOpen:true,
+     html:`<div class="cblk" ${C}><div class="cbar top"><span class="ico">🔁</span>por siempre</div></div>`,
+     note:"¡Ahí está! El movimiento cambia cada cuadro, así que hay que mirarlo sin parar."},
+    {id:"p-gmove", name:"fijar tamaño del lápiz a movimiento del video",
+     html:`<div class="blk" ${P}><span class="ico">🖊️</span>fijar tamaño del lápiz a <span class="rep vd" style="padding:0 8px">🎥 <span class="sel" style="background:rgba(255,255,255,.25);color:#fff">movimiento ▾</span> del video en <span class="sel" style="background:rgba(255,255,255,.25);color:#fff">pincel ▾</span></span></div>`,
+     note:"¡Genial! Ahora te movés = línea gorda, te quietás = línea fina. Pura variable del Sensor de video mapeada a grosor."},
+    {id:"p-gsize", wrong:"Ese es el grosor por DISTANCIA (tamaño de la cara) del nivel 5. Acá el dato debe venir del movimiento del video.",
+     html:`<div class="blk" ${P}><span class="ico">🖊️</span>fijar tamaño del lápiz a <span class="rep op">(<span class="rep fc" style="padding:0 8px">🙂 tamaño de la cara</span> / <span class="inp">4</span>)</span></div>`},
+    {id:"p-g5x", wrong:"Grosor fijo: el trazo nunca cambiaría aunque te muevas mucho. Necesitás que el valor salga del sensor.",
+     html:`<div class="blk" ${P}><span class="ico">🖊️</span>fijar tamaño del lápiz a <span class="inp">5</span></div>`},
+    {id:"v-t40", wrong:"Ese valor es TRANSPARENCIA (del nivel 1), no tiene nada que ver con el grosor del trazo.",
+     html:`<div class="blk" ${V}><span class="ico">🎥</span>fijar transparencia de video a <span class="inp">40</span></div>`}
+  ]
+}
+];
+
+/* ============ ESTADO ============ */
+let cur = 0, expected = 0, missTotal = 0, starsTotal = 0, speedTotal = 0;
+let levelMiss = 0, hintUsed = false, openStack = [], currentContainer;
+let mode = "single";                 /* "single" | "teams" */
+const TEAM_COLORS = ["#e5534b","#3d8bfd","#14c087","#9966FF","#FF8C1A","#0FA98C"];
+let teams = [];    /* [{name, color, members:[], stars, bonus}] — registrados en el setup */
+let turnIdx = 0;   /* índice del equipo que juega el nivel actual */
+/* Temporizador tipo Kahoot */
+let timeLimit = 60;    /* segundos por turno (0 = sin límite) */
+let timeLeft = 60, timeUp = false, timerId = null;
+const byId = id => document.getElementById(id);
+
+function curTeam(){ return teams[turnIdx]; }
+function teamTag(t){ return `<span style="color:${t.color}">●</span> ${t.name}`; }
+
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+/* ============ SONIDO ============ */
+let ac=null;
+function tone(freq, dur, type, vol, delay){
+  try{
+    ac = ac || new (window.AudioContext||window.webkitAudioContext)();
+    const t0 = ac.currentTime + (delay||0);
+    const o=ac.createOscillator(), g=ac.createGain();
+    o.connect(g); g.connect(ac.destination);
+    o.type=type||"sine"; o.frequency.setValueAtTime(freq, t0);
+    g.gain.setValueAtTime(vol||.05, t0);
+    g.gain.exponentialRampToValueAtTime(.0008, t0+dur);
+    o.start(t0); o.stop(t0+dur);
+  }catch(e){}
+}
+function beep(ok){
+  if(ok){ tone(700,.12,"sine",.06); tone(950,.16,"sine",.06,.09); }   /* doble tono alegre */
+  else tone(170,.25,"square",.05);                                     /* zumbido grave */
+}
+function timeUpSound(){ tone(430,.28,"square",.06); tone(290,.45,"square",.06,.25); }
+
+/* ============ TEMPORIZADOR ============ */
+function renderClock(){
+  const c = byId("clock");
+  const inGame = byId("game").style.display !== "none";
+  if(timeLimit <= 0 || !inGame){ c.style.display = "none"; return; }
+  c.style.display = "inline-block";
+  c.textContent = "⏱️ " + Math.max(0, timeLeft);
+  c.className = "clock " + (timeLeft > 10 ? "on" : timeLeft > 5 ? "warn" : "danger");
+}
+function stopTimer(){ if(timerId){ clearInterval(timerId); timerId = null; } }
+function startTurnTimer(){
+  stopTimer();
+  timeUp = false; timeLeft = timeLimit;
+  renderClock();
+  if(timeLimit <= 0) return;
+  tone(520,.1,"sine",.05); tone(660,.12,"sine",.05,.11);               /* "¡listo, empezá!" */
+  timerId = setInterval(()=>{
+    timeLeft--;
+    renderClock();
+    if(timeLeft > 0 && timeLeft <= 5) tone(880,.07,"square",.05);       /* tick-tick final */
+    if(timeLeft <= 0){
+      stopTimer(); timeUp = true;
+      timeUpSound();
+      feedback(false, "⏰ ¡Se acabó el tiempo! Pueden terminar el script igual, pero se pierde el bonus ⚡ de velocidad.");
+    }
+    netTick();                                     /* online: reloj a los equipos */
+  }, 1000);
+}
+
+/* ============ HUD ============ */
+function renderDots(){
+  byId("dots").innerHTML = levels.map((_,i)=>
+    `<div class="dot ${i<cur?"done":i===cur?"active":""}">${i<cur?"✓":i+1}</div>`).join("");
+  byId("totalStars").textContent = starsTotal;
+  byId("totalSpeed").textContent = speedTotal;
+  byId("totalMiss").textContent = missTotal;
+  renderClock();
+  renderTeams();
+}
+function renderTeams(){
+  const ti = byId("teamInfo");
+  if(mode !== "teams"){ ti.style.display = "none"; return; }
+  ti.style.display = "flex";
+  ti.innerHTML = teams.map((t,i)=>
+    `<span class="team-badge ${i===turnIdx?"turn":""}" style="background:${t.color}" title="${t.members.join(", ")}">
+       ${t.name} ⭐ ${t.stars}${t.bonus?` +${t.bonus}⚡`:""}
+     </span>`).join("");
+}
+
+/* ============ FEEDBACK ============ */
+let fbTimer=null;
+function feedback(ok, msg, tag){
+  const fb = byId("fb");
+  fb.className = "fb show " + (ok?"ok":"err");
+  byId("fbTag").textContent = tag || (ok ? "✓ ¡Correcto!" : "✗ Casi…");
+  byId("fbMsg").textContent = msg;
+  clearTimeout(fbTimer);
+  if(ok) fbTimer = setTimeout(()=>{ fb.classList.remove("show"); netSync(); }, 3000);
+  netSync();
+}
+
+/* ============ NIVEL ============ */
+function loadLevel(){
+  const lv = levels[cur];
+  expected = 0; levelMiss = 0; hintUsed = false; openStack = [];
+  currentContainer = byId("slots");
+  currentContainer.innerHTML = "";
+  byId("slots").innerHTML = "";
+  currentContainer = byId("slots");
+  byId("emptyMsg").style.display = "block";
+  byId("hint").classList.remove("show");
+  byId("fb").className = "fb";
+  byId("gTitle").textContent = lv.title;
+  byId("gMission").textContent = lv.mission;
+  let taskTxt = "👉 " + lv.task;
+  if(mode === "teams"){
+    const t = curTeam();
+    taskTxt = `👋 ¡Turno del equipo ${t.name}! Integran: ${t.members.join(", ")}. ` + taskTxt;
+  }
+  byId("gTask").textContent = taskTxt;
+
+  const pool = byId("pool");
+  pool.innerHTML = "";
+  shuffle(lv.pool).forEach(entry=>{
+    const b = document.createElement("button");
+    b.className = "pool-blk";
+    b.dataset.id = entry.id;
+    b.innerHTML = entry.html;
+    b.onclick = ()=>pick(entry, b);
+    pool.appendChild(b);
+  });
+  renderDots();
+  startTurnTimer();
+  netSync();
+}
+
+/* ---- helpers de estado para sincronizar ---- */
+function placedIds(){ return [...byId("slots").querySelectorAll(".placed")].map(n=>n.dataset.pid); }
+function poolIds(){ return [...byId("pool").children].map(b=>b.dataset.id); }
+
+function pick(entry, btn){
+  const lv = levels[cur];
+  const nextId = lv.solution[expected];
+
+  if(entry.id === nextId){                         /* ✅ bien */
+    place(entry);
+    expected++;
+    beep(true);
+    feedback(true, entry.note || "¡Bloque correcto!");
+    if(btn) btn.remove();
+    byId("emptyMsg").style.display = "none";
+    if(expected === lv.solution.length) setTimeout(levelComplete, 700);
+
+  } else if(lv.solution.includes(entry.id)){      /* ⏰ bien pero fuera de orden */
+    levelMiss++; missTotal++;
+    const next = lv.pool.find(p=>p.id===nextId);
+    beep(false);
+    if(btn){ btn.classList.remove("shake"); void btn.offsetWidth; btn.classList.add("shake"); }
+    feedback(false, `¡Ese bloque SÍ va en el script, pero todavía no! Primero colocá: "${next.name}". El orden importa en la programación.`);
+    renderDots();
+
+  } else {                                          /* ❌ bloque equivocado */
+    levelMiss++; missTotal++;
+    beep(false);
+    if(btn){ btn.classList.remove("shake"); void btn.offsetWidth; btn.classList.add("shake"); }
+    feedback(false, entry.wrong || "Ese bloque no forma parte de este script.");
+    renderDots();
+  }
+  netSync();                                         /* online: estado al host/todos */
+}
+
+function place(entry){
+  const tmp = document.createElement("div");
+  tmp.innerHTML = entry.html.trim();
+  const node = tmp.firstElementChild;
+  node.classList.add("placed");
+  node.dataset.pid = entry.id;
+  currentContainer.appendChild(node);
+  if(entry.cOpen){
+    const body = document.createElement("div");
+    body.className = "cbody";
+    node.appendChild(body);
+    openStack.push({cblk:node});
+    currentContainer = body;
+  }
+}
+
+function closeOpens(){
+  openStack.forEach(s=>{
+    const b = document.createElement("div");
+    b.className = "cbar bottom";
+    s.cblk.appendChild(b);
+  });
+  openStack = [];
+}
+
+function starsFor(){
+  if(levelMiss===0 && !hintUsed) return 3;
+  if(levelMiss<=2 && !hintUsed) return 2;
+  if(levelMiss<=4) return 2;
+  return 1;
+}
+
+function levelComplete(){
+  stopTimer();
+  closeOpens();
+  const st = starsFor();
+  starsTotal += st;
+  /* ⚡ Bonus de velocidad: quedó tiempo? (proporcional, +1 a +3) */
+  let bonus = 0;
+  if(timeLimit > 0 && !timeUp && timeLeft > 0){
+    bonus = Math.max(1, Math.min(3, Math.round(timeLeft / timeLimit * 3)));
+  }
+  speedTotal += bonus;
+  const team = mode === "teams" ? curTeam() : null;
+  if(team){ team.stars += st; team.played = (team.played||0) + 1; team.bonus = (team.bonus||0) + bonus; }
+  renderDots();
+  beep(true);
+  if(bonus > 0) setTimeout(()=>{ tone(880,.1,"sine",.06); tone(1170,.16,"sine",.06,.1); }, 350);
+
+  const lastLevel = cur >= levels.length - 1;
+  byId("mTitle").textContent = !lastLevel ? "¡Nivel completado!" : "¡Todos los scripts listos!";
+  byId("mStars").innerHTML = [1,2,3].map(i=>`<span style="${i<=st?'':'opacity:.2'}">⭐</span>`).join("");
+  let msg = st===3
+    ? `<span class="good-msg">¡Perfecto! Sin errores ni pistas.</span><br>Ganaste 3 estrellas.`
+    : st===2 ? `¡Muy bien! Con algo de ayuda ganaste <b>2 estrellas</b>. Mirá la explicación de cada bloque para la próxima.`
+    : `¡Lo lograste! 🎉 Con varios tropiezos ganaste <b>1 estrella</b>. Probá de nuevo para sacar 3: ahora ya sabés el orden.`;
+  if(bonus > 0) msg += `<br><span style="color:#b8860b;font-weight:800">⚡ +${bonus} bonus de velocidad (te sobraron ${timeLeft} s)</span>`;
+  else if(timeLimit > 0) msg += `<br><span style="color:#9aa6b5">⚡ Sin bonus de velocidad: el tiempo llegó a cero.</span>`;
+  if(team){
+    const next = teams[(turnIdx + 1) % teams.length];
+    msg = `<b style="color:${team.color};font-size:1.05rem">★ Equipo ${team.name}: +${st} ⭐${bonus>0?` +${bonus} ⚡`:""}</b><br>` + msg;
+    msg += `<hr style="border:none;border-top:1px solid #edf1f6;margin:12px 0">` +
+      teams.map(t=>`<span style="color:${t.color}">●</span> ${t.name}: <b>${t.stars}</b> ⭐ ${t.bonus?`+${t.bonus} ⚡`:""}`).join(" &nbsp;·&nbsp; ");
+    if(!lastLevel) msg += `<br><br>Al tocar el botón, empieza el turno del equipo <b>${next.name}</b>.`;
+  }
+  byId("mMsg").innerHTML = msg;
+  if(team) byId("mBtn").textContent = !lastLevel ? "Dar el pase a " + nextName() + " →" : "Ver el podio 🏆";
+  else     byId("mBtn").textContent = !lastLevel ? "Siguiente nivel →" : "Ver mi resultado 🏆";
+  byId("overlay").classList.add("show");
+  netSync();
+}
+function nextName(){
+  const lvNext = cur < levels.length - 1;
+  if(!lvNext) return "";
+  return teams[(turnIdx + 1) % teams.length].name;
+}
+
+/* ============ CONTROLES ============ */
+byId("mBtn").onclick = ()=>{
+  byId("overlay").classList.remove("show");
+  if(mode === "teams") turnIdx = (turnIdx + 1) % teams.length;   /* pasa el turno */
+  if(cur < levels.length-1){ cur++; loadLevel(); }
+  else showFinal();
+  netSync();
+};
+byId("btnHint").onclick = ()=>{
+  hintUsed = true;
+  byId("hintMsg").textContent = levels[cur].hint;
+  byId("hint").classList.add("show");
+  netSync();
+};
+byId("btnReset").onclick = ()=>{ missTotal += 0; loadLevel(); };
+byId("btnSolution").onclick = ()=>{
+  const lv = levels[cur];
+  if(!confirm("Ver la solución te deja el nivel con 1 estrella. ¿Continuar?")) return;
+  levelMiss = 99;
+  byId("pool").innerHTML = "";
+  byId("emptyMsg").style.display = "none";
+  byId("slots").innerHTML = "";
+  currentContainer = byId("slots");
+  openStack = []; expected = 0;
+  lv.solution.forEach(id=>{
+    const e = lv.pool.find(p=>p.id===id);
+    place(e); expected++;
+  });
+  setTimeout(levelComplete, 400);
+};
+
+/* ============ FINAL ============ */
+function showFinal(){
+  byId("game").style.display = "none";
+  byId("final").style.display = "block";
+  byId("finalScore").textContent = starsTotal;
+  byId("podium").innerHTML = "";
+  byId("finalTitle").textContent = "🎉 ¡Misión cumplida!";
+  byId("finalSub").textContent = "Completaste los 7 scripts del proyecto";
+  if(mode === "teams"){
+    const ranked = [...teams].sort((a,b)=> (b.stars*10 + (b.bonus||0)) - (a.stars*10 + (a.bonus||0)));
+    const medals = ["🥇","🥈","🥉","4️⃣","5️⃣","6️⃣"];
+    const best = ranked[0], second = ranked[1];
+    const pts = t => t.stars*10 + (t.bonus||0);
+    byId("finalTitle").textContent = "🏆 ¡Podio final!";
+    byId("finalSub").textContent = `${teams.length} equipos · 7 scripts programados juntos`;
+    const tie = second && pts(best) === pts(second);
+    byId("finalMsg").textContent = tie
+      ? `🤝 ¡Empate! ${best.name} y ${second.name} terminaron empatados: ${best.stars} ⭐ + ${best.bonus||0} ⚡ cada uno.`
+      : `🏆 ¡Gana el equipo ${best.name}: ${best.stars} ⭐ + ${best.bonus||0} ⚡ de bonus! Integrantes: ${best.members.join(", ")}.`;
+    byId("podium").innerHTML = ranked.map((t,i)=>`
+      <div class="podium-card ${i===0?"first":""}" style="--tc:${t.color}">
+        <div class="p-medal">${medals[i]||"🎯"}</div>
+        <div class="p-name">${t.name}</div>
+        <div class="p-members">${t.members.join(" · ")}</div>
+        <div class="p-stars">⭐ ${t.stars}${t.bonus?` <small style="font-size:.7em">+${t.bonus}⚡</small>`:""}</div>
+        <div class="p-played">${t.played||0} script${(t.played||0)===1?"":"s"} a cargo</div>
+      </div>`).join("");
+    byId("finalScoreWrap").innerHTML = `⭐ ${starsTotal} + ⚡ <span id="finalScore">${speedTotal}</span> bonus`;
+  } else {
+    byId("finalScoreWrap").innerHTML = `⭐ <span id="finalScore">${starsTotal}</span>/21 + ⚡ <span id="finalSpeed">${speedTotal}</span> bonus`;
+    byId("finalMsg").textContent =
+      starsTotal >= 19 ? "🏆 Excelente: dominás los scripts del Sensor de video y de caras. ¡Listo/a para dictar el taller!" :
+      starsTotal >= 13 ? "👏 Muy bien: tenés las bases claramente. Repasá los niveles 4, 5 y 7 (mapeo de datos) y quedará perfecto." :
+                         "💪 Buen primer intento. Repetí los niveles leyendo cada retroalimentación: enseguida los tenés dominados.";
+  }
+  stopTimer();
+  renderDots();
+  confetti();
+  netSync();
+}
+function confetti(){
+  const colors=["#FFBF00","#14c087","#9966FF","#4C97FF","#e5534b","#0FA98C"];
+  for(let i=0;i<90;i++){
+    const c=document.createElement("div");
+    c.className="confetti";
+    c.style.left = Math.random()*100+"vw";
+    c.style.background = colors[i%colors.length];
+    c.style.animationDuration = (2.2+Math.random()*2)+"s";
+    c.style.animationDelay = (Math.random()*1.2)+"s";
+    c.style.transform = `rotate(${Math.random()*360}deg)`;
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(), 6000);
+  }
+}
+byId("btnRestart").onclick = ()=>restart();
+byId("btnPrint").onclick = ()=>window.print();
+byId("btnGuide").onclick = ()=>window.open("Pintura-con-la-cara.html","_blank");
+
+function resetFinalHeader(){
+  byId("finalScoreWrap").innerHTML = '⭐ <span id="finalScore">0</span>/21 + ⚡ <span id="finalSpeed">0</span>';
+}
+
+function restart(){
+  cur=0; starsTotal=0; missTotal=0; speedTotal=0;
+  turnIdx=0;
+  teams.forEach(t=>{ t.stars=0; t.played=0; t.bonus=0; });
+  stopTimer();
+  byId("final").style.display="none";
+  byId("game").style.display="block";
+  resetFinalHeader();
+  loadLevel();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* ============ SETUP DE EQUIPOS (KAHOOT) ============ */
+function teamFormHTML(i){
+  const color = TEAM_COLORS[i % TEAM_COLORS.length];
+  return `
+  <div class="team-form" data-i="${i}" style="--tc:${color}">
+    <div class="tf-head">
+      <span class="tf-dot"></span>
+      <input class="tf-name" type="text" maxlength="18" placeholder="Nombre del equipo (ej: Los Pinceles)" autocomplete="off">
+      <button class="tf-del" title="Quitar equipo">✕</button>
+    </div>
+    <div class="tf-members">
+      <div class="tf-mrow"><input class="tf-mem" type="text" maxlength="20" placeholder="Integrante 1" autocomplete="off"></div>
+      <div class="tf-mrow"><input class="tf-mem" type="text" maxlength="20" placeholder="Integrante 2" autocomplete="off"></div>
+      <div class="tf-mrow"><input class="tf-mem" type="text" maxlength="20" placeholder="Integrante 3" autocomplete="off"></div>
+    </div>
+    <div class="tf-actions">
+      <button class="btn tiny tf-add">➕ Agregar integrante (3 o 4)</button>
+      <span class="tf-count">3/4 integrantes</span>
+    </div>
+  </div>`;
+}
+
+function bindTeamForm(card){
+  card.querySelector(".tf-add").onclick = ()=>{
+    const rows = card.querySelectorAll(".tf-mrow");
+    if(rows.length >= 4){ setupErr(["Cada equipo puede tener como máximo 4 integrantes."]); return; }
+    const n = rows.length + 1;
+    card.querySelector(".tf-members").insertAdjacentHTML("beforeend",
+      `<div class="tf-mrow"><input class="tf-mem" type="text" maxlength="20" placeholder="Integrante ${n}" autocomplete="off"></div>`);
+    refreshCount(card);
+  };
+  card.querySelector(".tf-del").onclick = ()=>{
+    if(document.querySelectorAll(".team-form").length <= 2){
+      setupErr(["Necesitás al menos 2 equipos para jugar."]); return;
+    }
+    card.remove();
+  };
+  card.querySelectorAll(".tf-mem").forEach(inp=>inp.addEventListener("input", ()=>refreshCount(card)));
+}
+function refreshCount(card){
+  const filled = [...card.querySelectorAll(".tf-mem")].filter(i=>i.value.trim()).length;
+  card.querySelector(".tf-count").textContent = `${filled}/4 integrantes`;
+}
+
+function setupErr(list){
+  const el = byId("setupErr");
+  if(!list || !list.length){ el.classList.remove("show"); el.innerHTML=""; return; }
+  el.innerHTML = list.map(x=>`<div>⚠️ ${x}</div>`).join("");
+  el.classList.add("show");
+}
+
+function renderSetup(){
+  const host = byId("teamForms");
+  host.innerHTML = teamFormHTML(0) + teamFormHTML(1);
+  host.querySelectorAll(".team-form").forEach(bindTeamForm);
+  setupErr(null);
+}
+
+function startTeams(){
+  const cards = [...document.querySelectorAll(".team-form")];
+  const errors = [];
+  const built = [];
+  const names = [];
+  cards.forEach((c,idx)=>{
+    const name = c.querySelector(".tf-name").value.trim();
+    const members = [...c.querySelectorAll(".tf-mem")].map(i=>i.value.trim()).filter(Boolean);
+    if(!name) errors.push(`Al equipo ${idx+1} le falta el nombre.`);
+    else if(names.includes(name.toLowerCase())) errors.push(`El nombre "${name}" está repetido.`);
+    else names.push(name.toLowerCase());
+    if(members.length < 3) errors.push(`El equipo ${name||idx+1} necesita 3 integrantes (tenés ${members.length}).`);
+    else built.push({ name, color: TEAM_COLORS[built.length % TEAM_COLORS.length],
+                      members: members.slice(0,4), stars: 0, played: 0, bonus: 0 });
+  });
+  if(cards.length < 2) errors.push("Creá al menos 2 equipos.");
+  if(errors.length){ setupErr(errors); return; }
+
+  setupErr(null);
+  teams = built; turnIdx = 0;
+  mode = "teams";
+  cur = 0; starsTotal = 0; missTotal = 0; speedTotal = 0;
+  byId("setup").style.display = "none";
+  byId("final").style.display = "none";
+  byId("game").style.display = "block";
+  resetFinalHeader();
+  loadLevel();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+byId("btnAddTeam").onclick = ()=>{
+  const n = document.querySelectorAll(".team-form").length;
+  if(n >= 6){ setupErr(["Máximo 6 equipos por partida."]); return; }
+  const div = document.createElement("div");
+  div.innerHTML = teamFormHTML(n);
+  const card = div.firstElementChild;
+  byId("teamForms").appendChild(card);
+  bindTeamForm(card);
+  setupErr(null);
+  card.querySelector(".tf-name").focus();
+};
+byId("btnStartTeams").onclick = startTeams;
+byId("btnSetupBack").onclick = ()=>{
+  stopTimer();
+  byId("setup").style.display = "none";
+  setMode("single");
+};
+byId("btnNewTeams").onclick = ()=>{
+  stopTimer();
+  byId("final").style.display = "none";
+  byId("setup").style.display = "block";
+  renderSetup();
+  window.scrollTo({top:0,behavior:"smooth"});
+};
+
+/* ============ MODO DE JUEGO ============ */
+function setMode(m){
+  mode = m;
+  document.querySelectorAll(".mode-btn:not(.time-btn)").forEach(x=>
+    x.classList.toggle("active", x.dataset.mode === m));
+}
+document.querySelectorAll(".mode-btn").forEach(b=>{
+  if(b.classList.contains("time-btn")) return;      /* los botones de tiempo tienen su handler abajo */
+  b.onclick = ()=>{
+    netLeave();                                     /* si estaba en línea, corta la conexión */
+    setMode(b.dataset.mode);
+    stopTimer();
+    byId("final").style.display = "none";
+    byId("game").style.display = "none";
+    ["online","lobby","joinForm","waiting","setup"].forEach(id=>byId(id).style.display = "none");
+    if(b.dataset.mode === "teams"){
+      byId("setup").style.display = "block";
+      renderSetup();
+    } else if(b.dataset.mode === "online"){
+      byId("online").style.display = "block";
+    } else {
+      teams = []; turnIdx = 0;
+      resetFinalHeader();
+      byId("game").style.display = "block";
+      restart();
+    }
+    window.scrollTo({top:0,behavior:"smooth"});
+  };
+});
+
+/* ============ TIEMPO POR TURNO ============ */
+document.querySelectorAll(".time-btn").forEach(b=>{
+  b.onclick = ()=>{
+    document.querySelectorAll(".time-btn").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    timeLimit = +b.dataset.time;
+    /* si hay un nivel en juego, reinicia el reloj del turno actual */
+    if(byId("game").style.display !== "none") startTurnTimer();
+    else renderClock();
+  };
+});
+
+/* ============ INICIO ============ */
+loadLevel();
+</script>
+</body>
+</html>
