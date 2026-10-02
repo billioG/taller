@@ -6,39 +6,45 @@
 <title>Certificado · Yo Aprendo</title>
 <link rel="stylesheet" href="../material.css">
 <style>
+  @page { size: letter landscape; margin: 12mm 14mm; }
   .cert{
     border:3px solid var(--indigo);
-    border-radius:14px; padding:34px 38px;
-    text-align:center; margin:16px 0 20px;
-    background:linear-gradient(180deg, #FBF7EF, #fff);
+    border-radius:12px; padding:22px 40px 18px;
+    text-align:center; margin:8px auto;
+    background:#FBF7EF;
+    max-width:980px;
+    min-height:170mm;
+    display:flex; flex-direction:column; justify-content:center;
   }
-  .cert-logo{ margin:0 auto 10px; }
-  .cert-logo img{ width:56px; height:56px; }
+  .cert-logo{ margin:0 auto 6px; }
+  .cert-logo img{ width:48px; height:48px; }
   .cert-sello{
-    font-size:10pt; text-transform:uppercase; letter-spacing:.18em;
-    color:var(--indigo); font-weight:800; margin-bottom:10px;
+    font-size:9.5pt; text-transform:uppercase; letter-spacing:.18em;
+    color:var(--indigo); font-weight:800; margin-bottom:4px;
   }
-  .cert-tit{ font-size:24pt; margin:0 0 4px; color:var(--indigo); letter-spacing:.02em; }
-  .cert-sub{ font-size:13pt; margin:0 0 6px; }
+  .cert-tit{ font-size:22pt; margin:0 0 2px; color:var(--indigo); letter-spacing:.02em; }
+  .cert-sub{ font-size:12pt; margin:0 0 10px; }
   .cert-linea{
-    width:78%; margin:18px auto 6px; border-bottom:1px solid var(--gris);
-    height:36pt; font-size:18pt; font-weight:700;
-    display:flex; align-items:flex-end; justify-content:center;
+    width:70%; margin:10px auto 4px; border-bottom:1.5px solid var(--gris);
+    min-height:28pt; font-size:18pt; font-weight:700;
+    display:flex; align-items:flex-end; justify-content:center; padding-bottom:2px;
+  }
+  .cert-body{
+    margin:12px auto 0; text-align:center; max-width:720px;
+    font-size:11pt; line-height:1.5;
   }
   .cert-modulos{
-    display:grid; grid-template-columns:1fr 1fr; gap:5px 26px;
-    text-align:left; max-width:560px; margin:20px auto 22px; font-size:10pt;
+    display:grid; grid-template-columns:1fr 1fr; gap:4px 28px;
+    text-align:left; max-width:640px; margin:14px auto 8px; font-size:10pt;
     list-style:none; padding:0;
   }
-  .cert-modulos li{ list-style:none; padding:4px 0 4px 22px; position:relative; border-bottom:1px solid var(--linea); }
+  .cert-modulos li{ list-style:none; padding:3px 0 3px 18px; position:relative; border-bottom:1px solid var(--linea); }
   .cert-modulos li::before{ content:"▸"; position:absolute; left:0; color:var(--indigo); }
-  .cert-dur{ font-size:11pt; margin:0 0 14px; color:var(--gris); }
-  .saberes{ font-size:9pt; color:var(--gris); letter-spacing:.08em; margin:6px 0 0; }
-  .firmas{ display:grid; grid-template-columns:1fr 1fr; gap:34px; margin-top:34px; }
-  .firma{ border-top:1px solid var(--tinta); padding-top:6px; font-size:9.5pt; color:var(--gris); }
-  @media (max-width:620px){ .cert-modulos, .firmas{ grid-template-columns:1fr; } }
+  .firma-bloque{ margin-top:16px; display:flex; flex-direction:column; align-items:center; gap:2px; }
+  .firma-bloque img{ height:64px; width:auto; object-fit:contain; }
+  .firma-linea{ width:200px; border-top:1px solid var(--tinta); margin-top:2px; padding-top:4px; font-size:9pt; color:var(--gris); }
   @media print{
-    .barra{ display:none !important; }
+    .barra, .aviso, .pie-pagina{ display:none !important; }
     body{ background:#fff; }
     .cert{ background:#FBF7EF !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   }
@@ -47,12 +53,12 @@
 <body>
 
 <div class="barra">
-  <span class="barra-txt"><strong>Certificado</strong>Imprime en tamaño carta y firma.</span>
+  <span class="barra-txt"><strong>Certificado</strong>Orientación horizontal · tamaño carta</span>
   <a href="#" onclick="window.print();return false;">⬇ Guardar como PDF</a>
   <a class="secundario" href="../../index.html">← Volver al taller</a>
 </div>
 
-<div class="pagina">
+<div class="pagina" style="max-width:100%;">
 
   <div class="cert">
     <div class="cert-logo">
@@ -61,17 +67,15 @@
     <div class="cert-sello">Yo Aprendo · Certifica</div>
     <h1 class="cert-tit">Certificado de finalización</h1>
     <p class="cert-sub">Taller de Programación Visual con Scratch</p>
-    <p class="cert-dur">1 sesión · 2 horas</p>
-    <p class="saberes">Saber · Saber hacer · Saber ser</p>
 
-    <p style="margin:18px 0 0;">Se otorga a</p>
+    <p style="margin:0;">Se otorga a</p>
     <div class="cert-linea"></div>
-    <p style="margin:0; font-size:11pt; color:var(--gris);">Nombre del participante</p>
+    <p style="margin:0; font-size:10pt; color:var(--gris);">Nombre del participante</p>
 
-    <p style="margin:22px 0 0; text-align:left; max-width:520px; margin-left:auto; margin-right:auto;">
+    <p class="cert-body">
       Por haber construido un proyecto interactivo funcional sobre un contenido
       de su propia asignatura, junto con un plan de clase para aplicarlo
-      con sus estudiantes.
+      con sus estudiantes, <strong>dado en el mes de noviembre de 2026</strong>.
     </p>
 
     <ul class="cert-modulos">
@@ -81,16 +85,10 @@
       <li>Esquema de una clase de 45 minutos</li>
     </ul>
 
-    <div class="firmas">
-      <div class="firma">Firma del facilitador</div>
-      <div class="firma">Fecha</div>
+    <div class="firma-bloque">
+      <img src="../../assets/firma-facilitador.png" alt="Firma del facilitador">
+      <div class="firma-linea">Firma del facilitador</div>
     </div>
-  </div>
-
-  <div class="aviso">
-    <p class="aviso-tit">Cómo usarlo</p>
-    <p>Al finalizar el taller, el facilitador genera el certificado con tu nombre.
-    También puedes imprimir esta plantilla en blanco (Ctrl+P, tamaño carta) y completar a mano.</p>
   </div>
 
   <div class="pie-pagina">
