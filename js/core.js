@@ -28,6 +28,7 @@ const app = {
   ultimoMensajeVisto: '',
   ultimoPasoId: '',
   feedbackPaso: true, // animación al cambiar de paso
+  certificadoNotificado: false,
 };
 
 function leerLS(k, def) {

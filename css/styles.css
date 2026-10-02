@@ -879,3 +879,24 @@ body.proyiendo .aviso-facilitador{ visibility:hidden; }
 .cert-banner strong{ color:var(--indigo); font-size:1.1rem; }
 .cert-banner p{ margin:0; color:var(--tinta); }
 .cert-banner .btn{ justify-self:start; margin-top:var(--s2); }
+
+
+/* Panel: certificado listo (docente, al finalizar) */
+.cert-listo-panel{
+  position:sticky; bottom:12px; z-index:30;
+  margin:var(--s4) 0;
+  padding:var(--s4) var(--s5);
+  background:linear-gradient(135deg,#E8EDF7 0%,#FBF7EF 100%);
+  border:2px solid var(--indigo);
+  border-radius:var(--r-l);
+  box-shadow:var(--shadow-2);
+  display:grid; gap:var(--s2);
+  animation:slideInPaso .4s ease-out;
+}
+.cert-listo-panel[hidden]{ display:none !important; }
+.cert-listo-ico{ font-size:1.8rem; line-height:1; }
+.cert-listo-tit{ color:var(--indigo); font-size:1.15rem; }
+.cert-listo-txt{ margin:0; color:var(--tinta); font-size:.98rem; }
+.cert-listo-acciones{
+  display:flex; flex-wrap:wrap; gap:var(--s2); margin-top:var(--s2);
+}

@@ -453,6 +453,91 @@ function aplicarEstado() {
   renderMaterialDelPaso();
   renderMaterialesDocente();
   renderSesionActual();
+
+  // Docente: avisar y ofrecer su certificado en cuanto se finaliza el taller
+  if (app.rol === 'docente') {
+    notificarCertificadoDocente();
+  }
+}
+
+/** Muestra un panel al docente cuando su certificado ya está listo. */
+function notificarCertificadoDocente() {
+  if (app.rol !== 'docente') return;
+  const certs = app.estado?.certificados_generados || [];
+  if (!certs.length && !app.estado?.taller_finalizado) {
+    const panel = $('#certListoPanel');
+    if (panel) panel.hidden = true;
+    return;
+  }
+
+  const mio = certs.find((c) => c.nombre && app.nombre
+    && c.nombre.trim().toLowerCase() === String(app.nombre).trim().toLowerCase());
+
+  // Crear panel si no existe
+  let panel = $('#certListoPanel');
+  if (!panel) {
+    panel = document.createElement('div');
+    panel.id = 'certListoPanel';
+    panel.className = 'cert-listo-panel';
+    panel.hidden = true;
+    const host = $('#vistaEnVivo') || $('#panelDocente') || document.body;
+    host.appendChild(panel);
+  }
+
+  if (!mio && !app.estado?.taller_finalizado) {
+    panel.hidden = true;
+    return;
+  }
+
+  panel.hidden = false;
+  panel.innerHTML = '';
+
+  if (mio) {
+    panel.appendChild(el('div', 'cert-listo-ico', '🎓'));
+    panel.appendChild(el('strong', 'cert-listo-tit', '¡Tu certificado está listo!'));
+    panel.appendChild(el('p', 'cert-listo-txt',
+      'Se generó con tu nombre: «' + mio.nombre + '». Puedes verlo e imprimirlo ahora.'));
+    const acciones = el('div', 'cert-listo-acciones');
+    const btnVer = el('button', 'btn primary', 'Ver / imprimir certificado');
+    btnVer.type = 'button';
+    btnVer.addEventListener('click', () => {
+      if (typeof descargarCertificado === 'function') descargarCertificado(mio);
+    });
+    const btnMat = el('button', 'btn ghost', 'Ir a Materiales');
+    btnMat.type = 'button';
+    btnMat.addEventListener('click', () => {
+      if (typeof window.__irAMateriales === 'function') window.__irAMateriales();
+    });
+    const btnCerrar = el('button', 'btn ghost', 'Cerrar');
+    btnCerrar.type = 'button';
+    btnCerrar.addEventListener('click', () => { panel.hidden = true; });
+    acciones.appendChild(btnVer);
+    acciones.appendChild(btnMat);
+    acciones.appendChild(btnCerrar);
+    panel.appendChild(acciones);
+
+    // Solo la primera vez: toast + punto en pestaña Materiales + opcional ir a materiales
+    if (!app.certificadoNotificado) {
+      app.certificadoNotificado = true;
+      mostrarToast('🎓 Tu certificado está listo', 'ok', 7000);
+      const punto = $('#tabPuntoMat');
+      if (punto) punto.hidden = false;
+      // Llevar a Materiales para que lo vean sin buscar
+      if (typeof window.__irAMateriales === 'function') {
+        setTimeout(() => window.__irAMateriales(), 400);
+      }
+    }
+  } else {
+    // Taller finalizado pero sin match de nombre
+    panel.appendChild(el('div', 'cert-listo-ico', '🎓'));
+    panel.appendChild(el('strong', 'cert-listo-tit', 'Taller finalizado'));
+    panel.appendChild(el('p', 'cert-listo-txt',
+      'El facilitador cerró la sesión. Si no ves tu certificado, confirma que entraste con tu nombre o pide la plantilla.'));
+    const btnCerrar = el('button', 'btn ghost', 'Cerrar');
+    btnCerrar.type = 'button';
+    btnCerrar.addEventListener('click', () => { panel.hidden = true; });
+    panel.appendChild(btnCerrar);
+  }
 }
 
 // ---------------------------------------------------------------------------
