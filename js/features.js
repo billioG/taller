@@ -479,7 +479,6 @@ function renderScratchDocente() {
     f.src = urlScratch(pid);
     f.title = 'Scratch: proyecto ' + pid;
     f.setAttribute('allow', 'clipboard-write; fullscreen');
-    f.setAttribute('allowfullscreen', '');
     f.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-forms');
     f.setAttribute('referrerpolicy', 'no-referrer');
     cont.appendChild(f);
