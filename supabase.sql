@@ -276,6 +276,188 @@ grant execute on function public.piso_actualizar(text, text, text, text) to anon
 grant execute on function public.clave_valida(text, text)                to anon, authenticated;
 grant execute on function public.clave_de_cabecera()                     to anon, authenticated;
 
+-- --------------------------------------------------------------------------
+-- 8. Encuestas en vivo y frase final (nube de palabras)
+-- --------------------------------------------------------------------------
+alter table public.estado_sala add column if not exists encuesta      jsonb;
+alter table public.estado_sala add column if not exists frases_estado jsonb not null default '{}';
+
+alter table public.estado_sala drop constraint if exists encuesta_tamano;
+alter table public.estado_sala add  constraint encuesta_tamano
+  check (encuesta is null or pg_column_size(encuesta) <= 8000) not valid;
+alter table public.estado_sala drop constraint if exists frases_estado_tamano;
+alter table public.estado_sala add  constraint frases_estado_tamano
+  check (pg_column_size(frases_estado) <= 500) not valid;
+
+-- Un voto por participante y encuesta (puede cambiarlo mientras esté abierta).
+create table if not exists public.encuesta_votos (
+  sala    text not null,
+  poll_id text not null,
+  voter   text not null,
+  opcion  int  not null check (opcion between 0 and 9),
+  primary key (sala, poll_id, voter)
+);
+alter table public.encuesta_votos enable row level security;
+revoke all on public.encuesta_votos from anon, authenticated;
+
+-- Una frase por participante.
+create table if not exists public.frases (
+  id      bigint generated always as identity primary key,
+  sala    text not null,
+  voter   text not null,
+  texto   text not null check (char_length(texto) between 1 and 140),
+  creada  timestamptz not null default now(),
+  unique (sala, voter)
+);
+alter table public.frases enable row level security;
+revoke all on public.frases from anon, authenticated;
+
+-- Votar: valida que la encuesta esté abierta y recalcula los conteos.
+create or replace function public.encuesta_votar(
+  p_sala text, p_poll text, p_voter text, p_opcion int
+) returns public.estado_sala
+language plpgsql security definer
+set search_path = public, extensions
+as $$
+declare
+  enc jsonb;
+  n   int;
+  fila public.estado_sala;
+begin
+  if p_voter is null or char_length(p_voter) not between 6 and 64 then
+    raise exception 'votante_invalido' using errcode = 'P0001';
+  end if;
+  select encuesta into enc from public.estado_sala where sala = p_sala for update;
+  if not found or enc is null or enc ->> 'id' is distinct from p_poll then
+    raise exception 'encuesta_inexistente' using errcode = 'P0001';
+  end if;
+  if coalesce((enc ->> 'abierta')::boolean, false) is not true then
+    raise exception 'encuesta_cerrada' using errcode = 'P0001';
+  end if;
+  n := jsonb_array_length(enc -> 'opciones');
+  if p_opcion is null or p_opcion < 0 or p_opcion >= n then
+    raise exception 'opcion_invalida' using errcode = 'P0001';
+  end if;
+
+  insert into public.encuesta_votos (sala, poll_id, voter, opcion)
+    values (p_sala, p_poll, p_voter, p_opcion)
+  on conflict (sala, poll_id, voter) do update set opcion = excluded.opcion;
+
+  update public.estado_sala set
+    encuesta = jsonb_set(encuesta, '{conteos}', (
+      select coalesce(jsonb_agg(coalesce(c.n, 0) order by g.i), '[]'::jsonb)
+      from generate_series(0, n - 1) as g(i)
+      left join (
+        select opcion, count(*)::int as n
+        from public.encuesta_votos
+        where sala = p_sala and poll_id = p_poll
+        group by opcion
+      ) c on c.opcion = g.i
+    )),
+    actualizado = now()
+  where sala = p_sala
+  returning * into fila;
+  return fila;
+end $$;
+
+-- Enviar (o reemplazar) mi frase; solo mientras el facilitador la tenga abierta.
+create or replace function public.frase_enviar(p_sala text, p_voter text, p_texto text)
+returns void
+language plpgsql security definer
+set search_path = public, extensions
+as $$
+declare
+  est jsonb;
+  t   text := btrim(regexp_replace(coalesce(p_texto, ''), '\s+', ' ', 'g'));
+begin
+  if p_voter is null or char_length(p_voter) not between 6 and 64 then
+    raise exception 'votante_invalido' using errcode = 'P0001';
+  end if;
+  if char_length(t) not between 1 and 140 then
+    raise exception 'frase_invalida' using errcode = 'P0001';
+  end if;
+  select frases_estado into est from public.estado_sala where sala = p_sala;
+  if not found then raise exception 'sala_inexistente' using errcode = 'P0001'; end if;
+  if coalesce((est ->> 'abierta')::boolean, false) is not true then
+    raise exception 'frases_cerradas' using errcode = 'P0001';
+  end if;
+  if (select count(*) from public.frases where sala = p_sala) >= 500
+     and not exists (select 1 from public.frases where sala = p_sala and voter = p_voter) then
+    raise exception 'frases_llenas' using errcode = 'P0001';
+  end if;
+  insert into public.frases (sala, voter, texto) values (p_sala, p_voter, t)
+  on conflict (sala, voter) do update set texto = excluded.texto, creada = now();
+end $$;
+
+-- Leer las frases de la sala (para la imagen). No expone el id del votante.
+create or replace function public.frases_leer(p_sala text)
+returns table (id bigint, texto text)
+language sql stable security definer
+set search_path = public, extensions
+as $$
+  select f.id, f.texto from public.frases f
+  where f.sala = p_sala order by f.id limit 500
+$$;
+
+-- Moderación (solo con la clave del facilitador)
+create or replace function public.frase_borrar(p_sala text, p_id bigint, p_clave text)
+returns void
+language plpgsql security definer
+set search_path = public, extensions
+as $$
+begin
+  if not public.clave_valida(p_sala, p_clave) then
+    raise exception 'no_permitido' using errcode = 'P0001';
+  end if;
+  delete from public.frases where sala = p_sala and id = p_id;
+end $$;
+
+create or replace function public.frases_limpiar(p_sala text, p_clave text)
+returns void
+language plpgsql security definer
+set search_path = public, extensions
+as $$
+begin
+  if not public.clave_valida(p_sala, p_clave) then
+    raise exception 'no_permitido' using errcode = 'P0001';
+  end if;
+  delete from public.frases where sala = p_sala;
+end $$;
+
+-- Abrir/cerrar la encuesta sin pisar los conteos (los votos llegan en paralelo).
+create or replace function public.encuesta_estado(p_sala text, p_clave text, p_abierta boolean)
+returns public.estado_sala
+language plpgsql security definer
+set search_path = public, extensions
+as $$
+declare
+  fila public.estado_sala;
+begin
+  if not public.clave_valida(p_sala, p_clave) then
+    raise exception 'no_permitido' using errcode = 'P0001';
+  end if;
+  update public.estado_sala
+    set encuesta = jsonb_set(encuesta, '{abierta}', to_jsonb(p_abierta)), actualizado = now()
+  where sala = p_sala and encuesta is not null
+  returning * into fila;
+  if not found then raise exception 'encuesta_inexistente' using errcode = 'P0001'; end if;
+  return fila;
+end $$;
+
+revoke all on function public.encuesta_estado(text, text, boolean) from public;
+grant execute on function public.encuesta_estado(text, text, boolean) to anon, authenticated;
+
+revoke all on function public.encuesta_votar(text, text, text, int) from public;
+revoke all on function public.frase_enviar(text, text, text)         from public;
+revoke all on function public.frases_leer(text)                       from public;
+revoke all on function public.frase_borrar(text, bigint, text)        from public;
+revoke all on function public.frases_limpiar(text, text)              from public;
+grant execute on function public.encuesta_votar(text, text, text, int) to anon, authenticated;
+grant execute on function public.frase_enviar(text, text, text)         to anon, authenticated;
+grant execute on function public.frases_leer(text)                       to anon, authenticated;
+grant execute on function public.frase_borrar(text, bigint, text)        to anon, authenticated;
+grant execute on function public.frases_limpiar(text, text)              to anon, authenticated;
+
 -- ==========================================================================
 -- ÚLTIMO PASO (obligatorio si migraste): cambia el PIN.
 -- El PIN anterior ("YoAprendo26") estuvo en el repositorio público y debe

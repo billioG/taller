@@ -915,7 +915,7 @@ function conectarControles() {
   });
 
   $('#btnCopiarLink').addEventListener('click', () => {
-    const url = location.origin + location.pathname + '?sala=' + encodeURIComponent(app.sala);
+    const url = enlaceCorto();
     const ok = () => {
       const b = $('#btnCopiarLink');
       const t = b.textContent;

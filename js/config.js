@@ -40,6 +40,9 @@ const TALLER = {
   //    select public.fijar_clave('taller-1', 'TU-PIN-NUEVO');   -- mín. 8 caracteres
   // ------------------------------------------------------------------
 
+  // Nube de frases del cierre: las palabras de las frases llenan esta forma.
+  nube: { texto: 'NDG.' },
+
   // Código de la sala. Todos los que entren por el link entran a la misma.
   salaPorDefecto: 'taller-1',
 

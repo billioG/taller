@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unirse · Pintura con la cara</title>
+<script>
+  // Enlace corto: /p?ABC123  →  página del juego con la sala ya escrita
+  var m = location.search.match(/[A-Za-z0-9]{6}/);
+  var code = m ? m[0].toUpperCase() : '';
+  location.replace('material/participantes/pintura-con-la-cara.html' + (code ? '?sala=' + code : ''));
+</script>
+</head>
+<body>
+<p>Abriendo el juego… Si no cambia solo, <a href="material/participantes/pintura-con-la-cara.html">toca aquí</a>.</p>
+</body>
+</html>

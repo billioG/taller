@@ -636,6 +636,7 @@ function aplicarEstado() {
   renderMaterialDelPaso();
   renderMaterialesDocente();
   renderSesionActual();
+  if (typeof renderInteractivoDocente === 'function') renderInteractivoDocente();
 
   // Docente: avisar y ofrecer su certificado en cuanto se finaliza el taller
   if (app.rol === 'docente') {
@@ -757,6 +758,7 @@ function conectarControlesExtra() {
 // ---------------------------------------------------------------------------
 function initExtra() {
   conectarControlesExtra();
+  if (typeof initInteractivo === 'function') initInteractivo();
   // Render inicial de piso/scratch si ya hay estado
   if (app.estado) {
     if (app.estado.scratch_project_id) renderScratchDocente();
@@ -773,6 +775,7 @@ function initExtra() {
 function aplicarEstadoFacilitadorExtra() {
   if (typeof renderPisoFacilitador === 'function') renderPisoFacilitador();
   renderCertificadosGenerados(app.estado?.certificados_generados || []);
+  if (typeof renderInteractivoFacilitador === 'function') renderInteractivoFacilitador();
 
   // Quién pide la palabra: píldora fija arriba + toast + sonido solo con solicitudes nuevas
   const piso = app.estado?.piso || {};

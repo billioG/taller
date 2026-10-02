@@ -52,6 +52,13 @@ async function refrescarEstado() {
   }
 }
 
+let __suaveT = null;
+/** Avisos en vivo: se agrupan varios en uno (30 votos seguidos = una sola lectura). */
+function refrescarSuave() {
+  clearTimeout(__suaveT);
+  __suaveT = setTimeout(refrescarEstado, 350);
+}
+
 async function conectar() {
   if (!SB_LISTO) {
     setConexion('mal', 'Sin sincronizar');
@@ -81,7 +88,7 @@ async function conectar() {
   app.canal = suscribir(
     app.sala,
     app.nombre,
-    () => refrescarEstado(),
+    () => refrescarSuave(),
     (nombres) => {
       app.conectados = nombres;
       if (app.rol === 'facilitador') {

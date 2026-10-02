@@ -40,6 +40,13 @@ function mensajeError(e) {
   if (m.includes('sala_existente')) return 'La sala ya existe.';
   if (m.includes('sala_inexistente')) return 'La sala todavía no existe.';
   if (m.includes('no_permitido')) return 'Acción no permitida en este momento.';
+  if (m.includes('encuesta_cerrada')) return 'La votación ya está cerrada.';
+  if (m.includes('encuesta_inexistente')) return 'Esa encuesta ya no está activa.';
+  if (m.includes('opcion_invalida')) return 'Opción no válida.';
+  if (m.includes('frases_cerradas')) return 'El facilitador aún no abre las frases.';
+  if (m.includes('frase_invalida')) return 'Escribe entre 1 y 140 caracteres.';
+  if (m.includes('frases_llenas')) return 'Ya se recibieron todas las frases posibles.';
+  if (m.includes('votante_invalido')) return 'No se pudo identificar tu navegador. Recarga la página.';
   if (m.includes('Failed to fetch') || m.includes('NetworkError')) return 'Sin conexión con el servidor.';
   return m || 'Error desconocido';
 }
@@ -185,4 +192,39 @@ async function emitirEstado(canal) {
   try {
     await canal.send({ type: 'broadcast', event: 'estado', payload: { t: Date.now() } });
   } catch {}
+}
+
+/** Votar en la encuesta activa. Devuelve el estado con conteos nuevos. */
+async function votarEncuesta(sala, poll, voter, opcion) {
+  const { data, error } = await sb.rpc('encuesta_votar', { p_sala: sala, p_poll: poll, p_voter: voter, p_opcion: opcion });
+  if (error) throw new Error(mensajeError(error));
+  return data;
+}
+
+/** Facilitador: abrir/cerrar la encuesta sin pisar los votos. */
+async function encuestaEstado(sala, clave, abierta) {
+  const { data, error } = await sb.rpc('encuesta_estado', { p_sala: sala, p_clave: clave, p_abierta: abierta });
+  if (error) throw new Error(mensajeError(error));
+  return data;
+}
+
+async function enviarFrase(sala, voter, texto) {
+  const { error } = await sb.rpc('frase_enviar', { p_sala: sala, p_voter: voter, p_texto: texto });
+  if (error) throw new Error(mensajeError(error));
+}
+
+async function leerFrases(sala) {
+  const { data, error } = await sb.rpc('frases_leer', { p_sala: sala });
+  if (error) throw new Error(mensajeError(error));
+  return Array.isArray(data) ? data : [];
+}
+
+async function borrarFrase(sala, id, clave) {
+  const { error } = await sb.rpc('frase_borrar', { p_sala: sala, p_id: id, p_clave: clave });
+  if (error) throw new Error(mensajeError(error));
+}
+
+async function limpiarFrases(sala, clave) {
+  const { error } = await sb.rpc('frases_limpiar', { p_sala: sala, p_clave: clave });
+  if (error) throw new Error(mensajeError(error));
 }

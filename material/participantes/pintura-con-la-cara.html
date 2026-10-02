@@ -218,6 +218,8 @@
   .pin-box .pin{font-size:3.4rem;font-weight:900;letter-spacing:12px;line-height:1.15;}
   .pin-box .url{font-size:.9rem;font-weight:700;background:rgba(255,255,255,.16);border-radius:10px;
     padding:9px 12px;margin-top:10px;overflow-wrap:anywhere;}
+  .pin-box .qr-room{width:180px;height:180px;margin:12px auto 4px;background:#fff;border-radius:12px;padding:6px;}
+  .pin-box .qr-room svg{width:100%;height:100%;display:block;}
   .pin-box small{display:block;opacity:.95;font-size:.83rem;margin-top:10px;}
   .lobby-teams{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;min-height:44px;}
   .lobby-team{border-radius:14px;color:#fff;padding:10px 16px;font-weight:800;font-size:.92rem;
@@ -372,6 +374,7 @@
     <div class="pin-box">
       <div class="pin-label">CÓDIGO DE LA SALA</div>
       <div class="pin" id="roomCode">------</div>
+      <div class="qr-room" id="roomQR" aria-label="Código QR para unirse"></div>
       <div class="url" id="roomUrl"></div>
       <small>Los equipos abren ese enlace, o esta misma página, y tocan <b>«Unirme con código»</b>.</small>
     </div>
@@ -514,6 +517,7 @@
 </div>
 
 <script src="../../vendor/supabase.js"></script>
+<script src="../../vendor/qrcode.js"></script>
 <script src="../../js/supabase.js"></script>
 <script>
 /* ============ DATOS DE LOS NIVELES ============ */
@@ -1225,7 +1229,9 @@ function hostCreate(){
   net.role="host"; net.code=genCode(); net.started=false; net.lobby=[];
   document.body.classList.add("is-host");
   byId("roomCode").textContent = net.code;
-  byId("roomUrl").textContent = location.origin + location.pathname + "?sala=" + net.code;
+  const corto = new URL("../../p", location.href).href + "?" + net.code;
+  byId("roomUrl").textContent = corto.replace("https://","").replace("http://","");
+  try{ const q=qrcode(0,"M"); q.addData(corto); q.make(); byId("roomQR").innerHTML=q.createSvgTag({cellSize:6,margin:2,scalable:true}); }catch(e){ byId("roomQR").textContent=""; }
   byId("lobbyNet").className="net-status"; byId("lobbyNet").textContent="conectando…";
   byId("btnStartOnline").disabled = true;
   drawTeamChips(byId("lobbyTeams"), []);

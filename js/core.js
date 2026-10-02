@@ -99,3 +99,15 @@ function leerVistas() {
     return [];
   }
 }
+
+/** Identificador anónimo de este navegador (un voto y una frase por navegador). */
+function miVotanteId() {
+  let v = leerLS('taller.votante', '');
+  if (!/^[a-z0-9]{10,40}$/.test(v)) {
+    const a = new Uint32Array(3);
+    crypto.getRandomValues(a);
+    v = Array.from(a, (n) => n.toString(36)).join('').slice(0, 24);
+    guardarLS('taller.votante', v);
+  }
+  return v;
+}

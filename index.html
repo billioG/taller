@@ -122,6 +122,9 @@
         <div id="vistaEnVivo">
           <div class="progreso progreso-sticky" id="progresoSesion" aria-label="Avance de la sesión"></div>
 
+          <!-- Encuesta en vivo / frase final / imagen -->
+          <div id="interactivoDocente"></div>
+
           <div class="sesion-actual" id="sesionActual">
             <!-- se llena con JS -->
           </div>
@@ -232,6 +235,14 @@
         <section class="bloque bloque-panel">
           <h2 class="bloque-tit">Conexión y enlace</h2>
           <p class="bloque-nota" id="configEstado"></p>
+          <div class="enlace-qr">
+            <div class="qr-box" id="qrBox" aria-hidden="true"></div>
+            <div>
+              <p class="bloque-nota">Enlace corto para los docentes:</p>
+              <p class="enlace-texto" id="enlaceTexto"></p>
+              <button class="btn" id="btnProyectarQR" type="button">📺 Proyectar QR</button>
+            </div>
+          </div>
           <div class="fila-form">
             <button class="btn primary" id="btnCopiarLink" type="button">Copiar link para docentes</button>
             <button class="btn ghost" id="btnDebug" type="button">Probar conexión</button>
@@ -247,6 +258,42 @@
             <button class="btn ghost" id="btnReiniciarFinal" type="button" title="Quita el aviso de «taller finalizado» a los docentes">↺ Reabrir taller</button>
           </div>
           <div id="certificadosGenerados" class="certificados-lista"></div>
+        </section>
+
+        <!-- Encuestas en vivo -->
+        <section class="bloque bloque-panel" id="seccionEncuesta" hidden>
+          <h2 class="bloque-tit">📊 Encuestas en vivo</h2>
+          <p class="bloque-nota">Lanza una pregunta rápida: los docentes votan desde su pantalla y ves los resultados al instante.</p>
+          <div id="encPresets" class="enc-presets"></div>
+          <details class="enc-custom">
+            <summary>Crear mi propia pregunta</summary>
+            <div class="enc-form">
+              <input id="encPregunta" type="text" maxlength="120" placeholder="Pregunta">
+              <textarea id="encOpciones" rows="4" maxlength="500" placeholder="Una opción por línea (de 2 a 6)"></textarea>
+              <button class="btn primary" id="btnLanzarEnc" type="button">Lanzar encuesta</button>
+            </div>
+          </details>
+          <div id="encActiva"></div>
+        </section>
+
+        <!-- Frase final y nube -->
+        <section class="bloque bloque-panel" id="seccionFrases" hidden>
+          <h2 class="bloque-tit">💬 Frase final · nube «NDG.»</h2>
+          <p class="bloque-nota">Abre las frases al final del taller: cada docente escribe una frase que resuma lo vivido. Con las palabras se forma una imagen con la silueta de «NDG.».</p>
+          <div class="fila-form">
+            <button class="btn primary" id="btnAbrirFrases" type="button">1 · Abrir frases</button>
+            <button class="btn primary" id="btnMostrarNube" type="button">2 · Cerrar y mostrar imagen</button>
+            <button class="btn ghost" id="btnOcultarNube" type="button">Cerrar frases</button>
+          </div>
+          <p class="bloque-nota" id="frasesEstado"></p>
+          <p class="bloque-nota"><strong id="frasesConteo">0 frases recibidas</strong></p>
+          <canvas id="nubeFac" class="nube-canvas" aria-label="Vista previa de la nube"></canvas>
+          <div class="fila-form">
+            <button class="btn" id="btnProyectarNube" type="button">📺 Proyectar</button>
+            <button class="btn" id="btnDescargarNube" type="button">⬇ Descargar PNG</button>
+            <button class="btn peligro" id="btnLimpiarFrases" type="button">Borrar todas</button>
+          </div>
+          <div id="frasesLista" class="frases-lista"></div>
         </section>
 
         <!-- Piso / Palabra (facilitador) -->
@@ -309,7 +356,26 @@
   </div>
 </div>
 
+<!-- QR a pantalla grande -->
+<div class="overlay-qr" id="overlayQR" hidden role="dialog" aria-label="Código QR para entrar al taller">
+  <div class="overlay-qr-caja">
+    <h2>Escanea para entrar al taller</h2>
+    <div class="qr-grande" id="qrGrande"></div>
+    <p class="qr-url" id="qrGrandeUrl"></p>
+    <button class="btn primary" id="qrCerrar" type="button">Cerrar (Esc)</button>
+  </div>
+</div>
+
+<!-- Nube a pantalla grande -->
+<div class="overlay-qr overlay-nube" id="overlayNube" hidden role="dialog" aria-label="Nube de frases">
+  <div class="overlay-nube-caja">
+    <canvas id="nubeGrande" class="nube-canvas"></canvas>
+    <button class="btn primary" id="nubeCerrar" type="button">Cerrar (Esc)</button>
+  </div>
+</div>
+
 <script src="vendor/supabase.js"></script>
+<script src="vendor/qrcode.js"></script>
 <script src="js/config.js"></script>
 <script src="js/supabase.js"></script>
 <script src="js/core.js"></script>
@@ -317,6 +383,7 @@
 <script src="js/sync.js"></script>
 <script src="js/views.js"></script>
 <script src="js/features.js"></script>
+<script src="js/interactivo.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

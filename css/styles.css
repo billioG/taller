@@ -942,3 +942,61 @@ body.proyiendo .aviso-facilitador{ visibility:hidden; }
 
 /* Deja espacio para la barra fija de «Pedir la palabra» */
 body:has(.piso-participante:not([hidden])) .wrap{ padding-bottom:120px; }
+
+/* --- Enlace corto + QR --- */
+.enlace-qr{ display:flex; gap:var(--s4); align-items:center; flex-wrap:wrap; margin-bottom:var(--s3); }
+.qr-box{ width:150px; height:150px; flex:none; background:#fff; border:1px solid var(--linea); border-radius:var(--r-m); padding:6px; }
+.qr-box svg{ width:100%; height:100%; display:block; }
+.enlace-texto{ font-size:1.25rem; font-weight:800; color:var(--indigo-d); word-break:break-all; margin-bottom:var(--s2); }
+.overlay-qr{
+  position:fixed; inset:0; z-index:310; display:flex; align-items:center; justify-content:center;
+  background:rgba(20,24,40,.85); padding:var(--s4);
+}
+.overlay-qr[hidden]{ display:none; }
+.overlay-qr-caja{ background:#fff; border-radius:var(--r-l); padding:var(--s5); text-align:center; max-width:560px; width:100%; }
+.qr-grande{ width:min(70vw, 62vh, 460px); aspect-ratio:1; margin:var(--s3) auto; }
+.qr-grande svg{ width:100%; height:100%; display:block; }
+.qr-url{ font-size:1.6rem; font-weight:800; color:var(--indigo-d); word-break:break-all; }
+.overlay-nube-caja{ background:#fff; border-radius:var(--r-l); padding:var(--s4); text-align:center; width:min(96vw, 1400px); }
+.overlay-nube-caja .nube-canvas{ width:100%; height:auto; }
+
+/* --- Encuestas / frases --- */
+.enc-presets{ display:flex; flex-direction:column; gap:var(--s2); align-items:flex-start; margin-bottom:var(--s3); }
+.enc-presets .btn{ text-align:left; }
+.enc-custom{ margin-bottom:var(--s3); }
+.enc-custom summary{ cursor:pointer; font-weight:700; color:var(--indigo); }
+.enc-form{ display:grid; gap:var(--s2); margin-top:var(--s2); }
+.enc-form input, .enc-form textarea, .frase-input{
+  width:100%; font:inherit; padding:12px 14px; border:2px solid var(--linea); border-radius:var(--r-m); background:#fff;
+}
+.enc-form input:focus, .enc-form textarea:focus, .frase-input:focus{ outline:none; border-color:var(--indigo); }
+.enc-activa{ border:2px solid var(--indigo); border-radius:var(--r-l); padding:var(--s4); margin-top:var(--s3); background:var(--indigo-l); }
+.interactivo-card{
+  background:#fff; border:3px solid var(--indigo); border-radius:var(--r-l); padding:var(--s4) var(--s5);
+  margin-bottom:var(--s4); box-shadow:var(--shadow-2); animation:toastEntrada .3s ease-out;
+}
+.interactivo-card.frase{ border-color:var(--kakaw); }
+.interactivo-card.nube{ border-color:var(--jade); }
+.interactivo-kicker{ display:block; font-size:.8rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:var(--gris); margin-bottom:var(--s1); }
+.interactivo-tit{ font-size:1.35rem; margin-bottom:var(--s3); }
+.enc-lista{ display:grid; gap:var(--s2); }
+.enc-opcion, .enc-fila{
+  position:relative; display:flex; align-items:center; justify-content:space-between; gap:var(--s3);
+  width:100%; font:inherit; font-weight:700; text-align:left; color:var(--tinta);
+  padding:14px 16px; border:2px solid var(--indigo); border-radius:var(--r-m); background:#fff; overflow:hidden;
+}
+button.enc-opcion, button.enc-fila{ cursor:pointer; }
+.enc-opcion{ font-size:1.1rem; }
+.enc-opcion:hover{ background:var(--indigo-l); }
+.enc-barra{ position:absolute; inset:0 auto 0 0; background:var(--indigo-l); z-index:0; transition:width .4s ease; }
+.enc-fila.mio{ border-color:var(--jade); border-width:3px; }
+.enc-fila.mio .enc-barra{ background:#D7EFE5; }
+.enc-op, .enc-n{ position:relative; z-index:1; }
+.enc-n{ font-variant-numeric:tabular-nums; color:var(--indigo-d); white-space:nowrap; }
+.enc-total{ margin:var(--s2) 0 0; color:var(--gris); font-size:.9rem; }
+.frase-fila{ display:flex; align-items:center; justify-content:space-between; gap:var(--s3); margin-top:var(--s2); flex-wrap:wrap; }
+.frase-cuenta{ color:var(--gris); font-size:.9rem; }
+.nube-canvas{ width:100%; height:auto; display:block; border:1px solid var(--linea); border-radius:var(--r-m); background:#fff; margin:var(--s3) 0; }
+.frases-lista{ display:grid; gap:var(--s2); margin-top:var(--s3); max-height:320px; overflow:auto; }
+.frase-item{ display:flex; align-items:center; gap:var(--s2); padding:8px 12px; background:var(--papel); border:1px solid var(--linea); border-radius:var(--r-m); }
+.frase-texto{ flex:1; overflow-wrap:anywhere; }
