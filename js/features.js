@@ -263,7 +263,7 @@ body{
   display:flex;flex-direction:column;justify-content:center;
   min-height:180mm;
 }
-.cert-logo{margin:0 auto 6px}
+.cert-logo{margin:0 auto -12px}
 .cert-sello{font-size:9.5pt;text-transform:uppercase;letter-spacing:.18em;color:#202124;font-weight:800;margin-bottom:4px}
 .cert-tit{font-size:22pt;margin:0 0 2px;color:#202124;letter-spacing:.02em}
 .cert-sub{font-size:12pt;margin:0 0 10px;color:#202124}
@@ -283,8 +283,8 @@ body{
 .cert-modulos li{list-style:none;padding:3px 0 3px 18px;position:relative;border-bottom:1px solid #cfcfcf}
 .cert-modulos li::before{content:"▸";position:absolute;left:0;color:#202124}
 .firma-bloque{margin-top:16px;display:flex;flex-direction:column;align-items:center;gap:2px}
-.firma-bloque img{height:96px;width:auto;object-fit:contain;margin-bottom:-18px;position:relative;z-index:1}
-.firma-nombre{font-size:11pt;color:#202124;margin-top:0}
+.firma-bloque img{height:96px;width:auto;object-fit:contain;margin-bottom:-18px;mix-blend-mode:multiply}
+.firma-nombre{font-size:11pt;color:#202124;margin-top:0;position:relative;z-index:2}
 .firma-linea{width:240px;border-top:1px solid #202124;margin-top:2px;padding-top:4px;font-size:10pt;color:#202124}
 .firma-cred{font-size:10pt;color:#202124}
 .cert{position:relative}
