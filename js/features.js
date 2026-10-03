@@ -135,10 +135,21 @@ async function generarCertificados() {
       subtitulo: TALLER.certificado.subtitulo,
     }));
 
+    // Cada certificado recibe un código único y verificable (tabla `certificados`).
+    let sinCodigo = false;
+    try {
+      const codigos = await emitirCertificados(app.sala, clave, certificados);
+      certificados.forEach((c, i) => { if (codigos[i]) c.codigo = codigos[i]; });
+    } catch (e) {
+      sinCodigo = true;
+      console.warn('No se pudieron emitir los códigos de verificación:', e);
+    }
+
     await escribirEstado(clave, {
       certificados_generados: certificados,
       taller_finalizado: true,
     });
+    if (sinCodigo) mostrarToast('Certificados generados SIN código QR: falta ejecutar supabase.sql completo en Supabase. Pulsa «Reabrir» y finaliza de nuevo después.', 'err', 12000);
 
     renderCertificadosGenerados(certificados);
     mostrarToast(`${certificados.length} certificados generados`, 'ok');
@@ -211,6 +222,24 @@ function generarHtmlCertificado(c) {
   const mesAnio = esc((fechaOk ? new Date(c.fecha + 'T12:00:00Z') : new Date())
     .toLocaleDateString('es', { month: 'long', year: 'numeric', timeZone: 'UTC' }));
 
+  // QR de verificación: apunta a la página pública que consulta el código en la base.
+  const codigo = /^YA-[0-9A-F]{5}-[0-9A-F]{5}$/.test(c.codigo || '') ? c.codigo : '';
+  let verif = '';
+  if (codigo) {
+    const url = location.origin + '/validar.html?c=' + encodeURIComponent(codigo);
+    let qr = '';
+    try {
+      const q = qrcode(0, 'M');
+      q.addData(url);
+      q.make();
+      qr = q.createSvgTag({ cellSize: 4, margin: 1, scalable: true }).replace(/ (width|height)="[^"]*"/g, '');
+    } catch { qr = ''; }
+    verif = `<div class="cert-verif">
+    <div class="cert-qr" role="img" aria-label="Código QR para verificar este certificado">${qr}</div>
+    <div class="cert-verif-txt">Verifica este certificado<br><b>${esc(codigo)}</b><br>${esc(location.host)}/validar</div>
+  </div>`;
+  }
+
   return `<!doctype html>
 <html lang="es">
 <head>
@@ -258,6 +287,12 @@ body{
 .firma-nombre{font-size:11pt;color:#202124;margin-top:2px}
 .firma-linea{width:240px;border-top:1px solid #202124;margin-top:2px;padding-top:4px;font-size:10pt;color:#202124}
 .firma-cred{font-size:10pt;color:#202124}
+.cert{position:relative}
+.cert-verif{position:absolute;right:22px;bottom:16px;display:flex;align-items:center;gap:8px;text-align:left}
+.cert-qr{width:74px;height:74px}
+.cert-qr svg{width:100%;height:100%;display:block}
+.cert-verif-txt{font-size:7.5pt;line-height:1.35;color:#202124}
+.cert-verif-txt b{font-size:9pt;letter-spacing:.04em}
 @media print{
   .no-print{display:none!important}
   body{background:#fff}
@@ -290,6 +325,7 @@ body{
     <div class="firma-linea">Facilitador</div>
     <div class="firma-cred">${esc(TALLER.certificado.credencial || '')}</div>
   </div>
+  ${verif}
 </div>
 <div class="no-print" style="position:fixed;bottom:12px;left:0;right:0;text-align:center;color:#202124;font-size:9pt">
   Para guardarlo: Imprimir → Guardar como PDF → orientación horizontal

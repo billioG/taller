@@ -627,6 +627,85 @@ grant execute on function public.frases_leer(text)                       to anon
 grant execute on function public.frase_borrar(text, bigint, text)        to anon, authenticated;
 grant execute on function public.frases_limpiar(text, text)              to anon, authenticated;
 
+-- --------------------------------------------------------------------------
+-- Certificados verificables: cada certificado lleva un código único (YA-XXXXX-XXXXX)
+-- y un QR que abre /validar.html. La tabla no tiene políticas: solo se accede
+-- por estas dos funciones. Emitir exige la clave del facilitador; verificar es
+-- público y solo devuelve nombre, título, entidad y fecha de ese código.
+-- --------------------------------------------------------------------------
+create table if not exists public.certificados (
+  codigo  text primary key,
+  sala    text not null,
+  nombre  text not null,
+  titulo  text,
+  entidad text,
+  fecha   date not null default current_date,
+  creado  timestamptz not null default now()
+);
+alter table public.certificados enable row level security;
+revoke all on public.certificados from anon, authenticated;
+create index if not exists certificados_sala_idx on public.certificados (sala);
+
+-- Emite (o vuelve a emitir) los certificados de la sala. Devuelve un arreglo de
+-- códigos en el mismo orden que p_lista.
+create or replace function public.certificado_emitir(p_sala text, p_clave text, p_lista jsonb)
+returns jsonb
+language plpgsql security definer
+set search_path = public, extensions
+as $$
+declare
+  it jsonb;
+  cod text;
+  res jsonb := '[]'::jsonb;
+  f date;
+begin
+  if not public.clave_valida(p_sala, p_clave) then
+    raise exception 'no_permitido' using errcode = 'P0001';
+  end if;
+  if jsonb_typeof(p_lista) <> 'array' or jsonb_array_length(p_lista) > 500 then
+    raise exception 'lista_invalida' using errcode = 'P0001';
+  end if;
+  delete from public.certificados where sala = p_sala;
+  for it in select * from jsonb_array_elements(p_lista) loop
+    begin
+      f := (it ->> 'fecha')::date;
+    exception when others then
+      f := current_date;
+    end;
+    loop
+      cod := 'YA-' || upper(substr(encode(extensions.gen_random_bytes(5), 'hex'), 1, 5))
+                   || '-' || upper(substr(encode(extensions.gen_random_bytes(5), 'hex'), 1, 5));
+      begin
+        insert into public.certificados (codigo, sala, nombre, titulo, entidad, fecha)
+        values (cod, p_sala, left(coalesce(it ->> 'nombre', ''), 80),
+                left(it ->> 'titulo', 120), left(it ->> 'entidad', 80), f);
+        exit;
+      exception when unique_violation then
+        null;
+      end;
+    end loop;
+    res := res || to_jsonb(cod);
+  end loop;
+  return res;
+end $$;
+
+-- Verificación pública: devuelve los datos del certificado o null si no existe.
+create or replace function public.certificado_verificar(p_codigo text)
+returns jsonb
+language sql stable security definer
+set search_path = public
+as $$
+  select jsonb_build_object(
+    'nombre', c.nombre, 'titulo', c.titulo, 'entidad', c.entidad, 'fecha', c.fecha)
+  from public.certificados c
+  where c.codigo = upper(btrim(coalesce(p_codigo, '')))
+$$;
+
+revoke all on function public.certificado_emitir(text, text, jsonb) from public;
+revoke all on function public.certificado_verificar(text)           from public;
+grant execute on function public.certificado_emitir(text, text, jsonb) to anon, authenticated;
+grant execute on function public.certificado_verificar(text)           to anon, authenticated;
+
 -- ==========================================================================
 -- ÚLTIMO PASO (obligatorio si migraste): cambia el PIN.
 -- El PIN anterior ("YoAprendo26") estuvo en el repositorio público y debe

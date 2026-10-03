@@ -239,6 +239,17 @@ async function limpiarFrases(sala, clave) {
   if (error) throw new Error(mensajeError(error));
 }
 
+/** Emite un código único por certificado (solo el facilitador). Devuelve los códigos en el mismo orden. */
+async function emitirCertificados(sala, clave, lista) {
+  const { data, error } = await sb.rpc('certificado_emitir', {
+    p_sala: sala,
+    p_clave: clave,
+    p_lista: lista.map((c) => ({ nombre: c.nombre, fecha: c.fecha, titulo: c.titulo, entidad: c.entidad })),
+  });
+  if (error) throw new Error(mensajeError(error));
+  return Array.isArray(data) ? data : [];
+}
+
 
 /** PIN de participantes: 'abierto' (sin PIN) | 'ok' | 'mal'. */
 async function verificarPinPart(sala, pin) {
