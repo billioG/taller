@@ -253,6 +253,14 @@ async function reiniciarPaso() {
   } catch (e) { mostrarToast(mensajeError(e), 'err'); }
 }
 
+async function detenerPaso() {
+  try {
+    await escribirEstado(app.clave, { paso_inicio: null, paso_extra: 0 });
+    app.listos = {};
+    mostrarToast('⏹ Cronómetro detenido: ya no se ve para los docentes', 'ok', 3500);
+  } catch (e) { mostrarToast(mensajeError(e), 'err'); }
+}
+
 function construirCuentaFac(box) {
   box.innerHTML = '';
   const fila = el('div', 'cuenta-fila');
@@ -262,6 +270,7 @@ function construirCuentaFac(box) {
   const mk = (txt, fn, cls) => { const b = el('button', 'btn btn-mini ' + (cls || ''), txt); b.type = 'button'; b.addEventListener('click', fn); acc.appendChild(b); return b; };
   mk('+2 min', () => extenderPaso(120));
   mk('+5 min', () => extenderPaso(300));
+  mk('⏹ Detener', detenerPaso);
   const bReset = mk('↺ Reiniciar', reiniciarPaso, 'ghost');
   fila.appendChild(acc);
   box.appendChild(fila);
@@ -289,7 +298,7 @@ function pintarFac(b, dur, r) {
   const u = CUENTA.uiFac;
   if (r === null) {
     u.num.textContent = '--:--';
-    u.info.textContent = 'El cronómetro del paso arranca al abrir el paso (o pulsa ↺ Reiniciar).';
+    u.info.textContent = 'Cronómetro detenido. Se activa al abrir un paso, o pulsa ↺ Reiniciar para empezar de nuevo.';
     u.rel.style.width = '0%';
     u.box.className = 'cuenta cuenta-fac ok';
     return;
