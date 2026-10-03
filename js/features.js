@@ -283,8 +283,8 @@ body{
 .cert-modulos li{list-style:none;padding:3px 0 3px 18px;position:relative;border-bottom:1px solid #cfcfcf}
 .cert-modulos li::before{content:"▸";position:absolute;left:0;color:#202124}
 .firma-bloque{margin-top:16px;display:flex;flex-direction:column;align-items:center;gap:2px}
-.firma-bloque img{height:64px;width:auto;object-fit:contain}
-.firma-nombre{font-size:11pt;color:#202124;margin-top:2px}
+.firma-bloque img{height:96px;width:auto;object-fit:contain;margin-bottom:-18px;position:relative;z-index:1}
+.firma-nombre{font-size:11pt;color:#202124;margin-top:0}
 .firma-linea{width:240px;border-top:1px solid #202124;margin-top:2px;padding-top:4px;font-size:10pt;color:#202124}
 .firma-cred{font-size:10pt;color:#202124}
 .cert{position:relative}
