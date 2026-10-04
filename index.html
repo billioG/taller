@@ -33,17 +33,21 @@
 
     <!-- Los docentes entran directo. Sin preguntas, sinRoles que elegir. -->
     <form class="puerta-form" id="formDocente">
-      <label for="inpNombreDocente">¿Cómo te llamas?</label>
-      <div class="fila-form">
-        <input id="inpNombreDocente" type="text" placeholder="Escribe tu nombre" maxlength="30" autocomplete="off">
-        <button class="btn primary" type="submit">Entrar al taller</button>
+      <h2 class="puerta-form-tit">Entra al taller</h2>
+      <div class="campos">
+        <div class="campo">
+          <label for="inpNombreDocente">¿Cómo te llamas?</label>
+          <input id="inpNombreDocente" type="text" placeholder="Nombre y apellido" maxlength="30" autocomplete="off">
+          <p class="campo-ayuda" id="notaNombre">Es el nombre que verá el facilitador y el que saldrá en tu certificado.</p>
+        </div>
+        <div class="campo">
+          <label for="inpPinPart">PIN de la sala</label>
+          <input id="inpPinPart" type="text" inputmode="text" placeholder="PIN del facilitador" maxlength="12" autocomplete="off" autocapitalize="off" spellcheck="false">
+          <p class="campo-ayuda">Lo recibiste con la invitación al taller.</p>
+        </div>
       </div>
-      <label for="inpPinPart" style="margin-top:14px">PIN de la sala</label>
-      <input id="inpPinPart" type="text" inputmode="text" placeholder="El que ves en la pantalla del salón" maxlength="12" autocomplete="off" autocapitalize="off" spellcheck="false">
       <p class="pin-error" id="pinPartError" hidden>Ese PIN no es correcto. Pídelo al facilitador.</p>
-      <p class="puerta-nota" id="notaNombre">
-        Solo aparece en la pantalla del facilitador, para saber quién se conectó. Puedes dejarlo en blanco.
-      </p>
+      <button class="btn primary btn-entrar" type="submit">Entrar al taller →</button>
     </form>
 
     <!-- Acceso de facilitador: fuera de la vista, con PIN -->

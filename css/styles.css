@@ -1184,3 +1184,12 @@ body:has(.piso-participante:not([hidden])) .wrap{ padding-bottom:84px; }
 .sala-estado.abierta{ border-color:var(--jade); background:#E7F4EF; }
 .sala-txt{ font-weight:800; margin:0; }
 .sala-estado .btn{ justify-self:start; font-size:1.05rem; padding:12px 26px; }
+
+/* Puerta: campos lado a lado y botón de entrada a todo el ancho */
+.puerta-form-tit{ margin:0 0 var(--s4); font-size:1.15rem; }
+.campos{ display:grid; gap:var(--s4); grid-template-columns:1fr 1fr; align-items:start; }
+@media (max-width:640px){ .campos{ grid-template-columns:1fr; } }
+.campo input{ width:100%; }
+.campo-ayuda{ color:var(--gris); font-size:.85rem; margin:var(--s2) 0 0; line-height:1.4; }
+.btn-entrar{ width:100%; margin-top:var(--s5); padding:14px 20px; font-size:1.05rem; }
+.puerta-form .pin-error{ margin-top:var(--s3); }
