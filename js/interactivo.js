@@ -9,7 +9,10 @@
 /** Enlace para compartir con los docentes: el dominio solo (la sala por defecto no necesita parámetros). */
 function enlaceCorto() {
   const base = location.origin + location.pathname;
-  return app.sala === TALLER.salaPorDefecto ? base : base + '?sala=' + encodeURIComponent(app.sala);
+  const q = [];
+  if (TALLER_ID !== TALLER_PRINCIPAL) q.push('t=' + encodeURIComponent(TALLER_ID));
+  if (app.sala !== TALLER.salaPorDefecto) q.push('sala=' + encodeURIComponent(app.sala));
+  return q.length ? base + '?' + q.join('&') : base;
 }
 
 /** Dibuja un QR (SVG generado por la librería local) dentro de `host`. */
@@ -67,7 +70,7 @@ async function nuevoPinPart(auto) {
     const pin = generarPin();
     await fijarPinPart(app.sala, app.clave, pin);
     app.pinPart = pin;
-    guardarLS('taller.pinabierto', '');
+    guardarLS('taller.pinabierto' + SFX, '');
     pintarPinPart();
     mostrarToast((auto ? 'Se generó el PIN de los docentes: ' : 'Nuevo PIN: ') + pin, 'ok', 6000);
   } catch (e) {
@@ -80,7 +83,7 @@ async function quitarPinPart() {
   try {
     await fijarPinPart(app.sala, app.clave, null);
     app.pinPart = '';
-    guardarLS('taller.pinabierto', '1');
+    guardarLS('taller.pinabierto' + SFX, '1');
     pintarPinPart();
   } catch (e) {
     mostrarToast(mensajeError(e), 'err');
@@ -93,7 +96,7 @@ async function cargarPinPart() {
   try {
     app.pinPart = await leerPinPart(app.sala, app.clave);
     // Primera vez: se genera uno solo para no dejar la sala abierta por descuido
-    if (!app.pinPart && !leerLS('taller.pinabierto', '')) { await nuevoPinPart(true); return; }
+    if (!app.pinPart && !leerLS('taller.pinabierto' + SFX, '')) { await nuevoPinPart(true); return; }
     pintarPinPart();
   } catch (e) {
     console.warn('[taller] PIN de participantes:', e.message);
@@ -129,13 +132,7 @@ const ENCUESTAS_RAPIDAS = [
 ];
 
 /** Encuesta de salida del taller: se lanzan una por una desde el panel. */
-const ENCUESTA_SALIDA = [
-  { etiqueta: 'Salida 1/5 · Comodidad con Scratch', pregunta: '¿Qué tan cómodo/a te sientes creando con Scratch ahora?', opciones: ['1 · Igual o menos', '2', '3', '4', '5 · Muy cómodo/a'] },
-  { etiqueta: 'Salida 2/5 · Qué vas a implementar', pregunta: '¿Qué vas a implementar y en qué fecha?', tipo: 'abierta' },
-  { etiqueta: 'Salida 3/5 · Qué faltó o qué sobró', pregunta: '¿Qué le faltó al taller y qué habría que quitar?', tipo: 'abierta' },
-  { etiqueta: 'Salida 4/5 · ¿Lo recomendarías?', pregunta: '¿Recomendarías este taller a otro colega?', opciones: ['Sí', 'Tal vez', 'No'] },
-  { etiqueta: 'Salida 5/5 · Próximo tema', pregunta: '¿Qué contenido de tu asignatura te gustaría construir después?', tipo: 'abierta' },
-];
+const ENCUESTA_SALIDA = TALLER.encuestaSalida || [];
 
 /** Devuelve la encuesta del estado solo si tiene forma válida (nunca se pinta algo inesperado). */
 function encuestaValida(e) {

@@ -38,6 +38,9 @@ async function verificarPuerta(pin) {
 function init() {
   $('#puertaTitulo').textContent = TALLER.titulo;
   $('#puertaSub').textContent = TALLER.subtitulo;
+  document.title = (TALLER.tituloCorto || TALLER.titulo) + ' · ' + TALLER.entidad;
+  const md = document.querySelector('meta[name="description"]');
+  if (md && TALLER.descripcion) md.setAttribute('content', TALLER.descripcion);
   app.sala = salaDeUrl();
 
   // Salir: se conecta ANTES de la auto-entrada (si no, nunca funcionaba tras recargar).

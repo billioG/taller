@@ -1,17 +1,15 @@
 /* ==========================================================================
-   Taller de Scratch · Contenido del curso
+   Taller de Scratch · contenido del taller
    --------------------------------------------------------------------------
-   ESTE ES EL ÚNICO ARCHIVO QUE NECESITAS EDITAR PARA PERSONALIZAR EL TALLER.
-
-   Todo lo que ven los docentes vive aquí: las secciones, los textos que se
-   muestran en pantalla, los minutos de cada bloque y los materiales que se
-   pueden descargar.
+   TODO lo que cambia de un taller a otro vive en un archivo como este.
+   La app (js/, css/, index.html) es la misma para todos los talleres.
+   Para crear otro taller: copia talleres/ejemplo.js, añade su id en
+   js/taller.js y lee talleres/LEEME.md.
 
    REGLA DE ORO
    ------------
-   - `libre: true`  en un material  =  se puede descargar desde el minuto uno.
+   - `libre: true`  en un material  =  se puede abrir desde el minuto uno.
    - `alFinalizar: true` = se abre cuando el facilitador pulsa «Finalizar taller».
-   - Una sección sin `abierta: true` = el facilitador tiene que desbloquearla.
    - Los bloques marcados con `soloFacilitador: true` NO se muestran a los
      docentes. Ahí van tus notas de guiado, no lo que leen ellos.
 
@@ -23,7 +21,10 @@ const TALLER = {
   // ------------------------------------------------------------------
   // DATOS GENERALES
   // ------------------------------------------------------------------
+  id: 'scratch',
   titulo: 'Taller de Programación Visual con Scratch',
+  tituloCorto: 'Taller de Scratch',
+  descripcion: 'Taller de programación visual con Scratch para docentes: construye un recurso interactivo de tu propia asignatura en una sesión de dos horas.',
   subtitulo: 'Una sesión de dos horas para construir un recurso interactivo de tu propia asignatura',
   entidad: 'Yo Aprendo',
   version: '1.0',
@@ -47,6 +48,37 @@ const TALLER = {
 
   // Nube de frases del cierre: las palabras de las frases llenan esta forma.
   nube: { texto: 'NDG.' },
+
+  // Qué materiales se habilitan al abrir cada paso (ids de `materiales`).
+  materialesPorBloque: {
+    s1b2: ['tarjetas-de-bloques'],
+    s1b3: ['receta-scratch'],
+    s1b4: ['pintura-con-la-cara'],
+    s1b5: ['plan-de-clase', 'rubrica'],
+  },
+
+  // Sala sin conexión: piezas que flotan detrás de la cuenta regresiva (color, texto, posición %, retraso, velocidad).
+  espera: {
+    piezas: [
+      { c: '#4C97FF', t: 'mover 10 pasos', x: 6, d: 0, s: 11 },
+      { c: '#9966FF', t: 'decir ¡Hola!', x: 22, d: 2.2, s: 13 },
+      { c: '#FFBF00', t: 'al presionar 🏴', x: 40, d: 4.1, s: 10 },
+      { c: '#FFAB19', t: 'repetir (10)', x: 58, d: 1.1, s: 12 },
+      { c: '#59C059', t: '( ) + ( )', x: 74, d: 3.3, s: 14 },
+      { c: '#5CB1D6', t: 'preguntar y esperar', x: 88, d: 5.2, s: 12 },
+      { c: '#CF63CF', t: 'iniciar sonido', x: 14, d: 6.1, s: 15 },
+      { c: '#FF8C1A', t: 'fijar [puntos] a 0', x: 50, d: 7.4, s: 13 },
+    ],
+  },
+
+  // Encuesta de salida: se lanza una por una desde «Encuestas en vivo».
+  encuestaSalida: [
+    { etiqueta: 'Salida 1/5 · Comodidad con Scratch', pregunta: '¿Qué tan cómodo/a te sientes creando con Scratch ahora?', opciones: ['1 · Igual o menos', '2', '3', '4', '5 · Muy cómodo/a'] },
+    { etiqueta: 'Salida 2/5 · Qué vas a implementar', pregunta: '¿Qué vas a implementar y en qué fecha?', tipo: 'abierta' },
+    { etiqueta: 'Salida 3/5 · Qué faltó o qué sobró', pregunta: '¿Qué le faltó al taller y qué habría que quitar?', tipo: 'abierta' },
+    { etiqueta: 'Salida 4/5 · ¿Lo recomendarías?', pregunta: '¿Recomendarías este taller a otro colega?', opciones: ['Sí', 'Tal vez', 'No'] },
+    { etiqueta: 'Salida 5/5 · Próximo tema', pregunta: '¿Qué contenido de tu asignatura te gustaría construir después?', tipo: 'abierta' },
+  ],
 
   // Código de la sala. Todos los que entren por el link entran a la misma.
   salaPorDefecto: 'taller-1',
@@ -116,6 +148,7 @@ const TALLER = {
       titulo: '🎨 Pintura con la cara',
       desc: 'Desafío interactivo: ordena bloques para pintar con el movimiento de la cara (extensión de video / detección facial). Ideal para expresión artística.',
       archivo: 'material/participantes/pintura-con-la-cara.html',
+      conSala: true, // el enlace lleva la sala (?taller=) para entrar al juego en línea
       libre: false,
       momento: 'Línea artística · práctica',
     },
@@ -133,6 +166,14 @@ const TALLER = {
     subtitulo: 'Taller de Programación Visual con Scratch',
     duracion: '2 horas · 1 sesión',
     entidad: 'Yo Aprendo',
+    // Texto central y lista de logros que aparecen en el diploma.
+    cuerpo: 'Por haber construido un proyecto interactivo funcional sobre un contenido de su propia asignatura, junto con un plan de clase para aplicarlo con sus estudiantes,',
+    modulos: [
+      'Construcción de un recurso interactivo funcional',
+      'Secuencia, condición e interacción',
+      'Diseño de una actividad evaluable',
+      'Esquema de una clase de 45 minutos',
+    ],
     // Se genera cuando el facilitador pulsa "Finalizar taller"
     // Usa el nombre que el participante escribió al entrar
   },
@@ -250,6 +291,7 @@ const TALLER = {
       titulo: '🎨 Pintura con la cara',
       desc: 'Desafío interactivo de bloques con detección facial. Úsalo como ejemplo avanzado de expresión artística o estación para quien termine antes.',
       archivo: 'material/participantes/pintura-con-la-cara.html?modo=docente',
+      conSala: true,
       libre: true,
       momento: 'Línea artística · práctica',
     },

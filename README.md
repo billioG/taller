@@ -4,6 +4,8 @@ Webapp que acompaña el taller de programación visual con Scratch. Los docentes
 
 ---
 
+> **Varios talleres:** la plataforma sirve cualquier taller. Cada uno es un archivo en `talleres/` y se abre con `?t=<id>`. Mira `talleres/LEEME.md` para crear uno nuevo.
+
 ## Qué hace
 
 | Vista | Para quién | Qué ve |
@@ -29,7 +31,7 @@ taller/
 ├── assets/               logo e isotipo Yo Aprendo (SVG)
 ├── marca/                línea gráfica / brief de marca
 ├── js/
-│   ├── config.js         ← EDITA ESTE. Contenido, materiales y textos.
+│   ├── talleres/scratch.js ← EDITA ESTE (un archivo por taller).
 │   ├── supabase.js       cliente Supabase
 │   ├── core.js           estado y utilidades
 │   ├── auth.js           puerta y PIN
@@ -169,7 +171,7 @@ Espera un minuto a que GitHub Pages despliegue.
 
 Si ambos puntos funcionan, ya estás listo para el taller.
 
-> **Importante:** el PIN se fija en Supabase con `select public.fijar_clave('taller-1', 'TU-PIN');` (ver «PIN de facilitador»). No hay PIN en `config.js`.
+> **Importante:** el PIN se fija en Supabase con `select public.fijar_clave('taller-1', 'TU-PIN');` (ver «PIN de facilitador»). No hay PIN en `talleres/scratch.js`.
 
 ---
 
@@ -179,7 +181,7 @@ Si ambos puntos funcionan, ya estás listo para el taller.
 
 - [ ] Comparte el link por el chat de la videollamada o por WhatsApp: `https://taller.yoaprendo.online`
 - [ ] Verifica que la pestaña del proyecto base de Scratch esté abierta y con la cuenta iniciada
-- [ ] Cambia el enlace de los proyectos base por los tuyos, en `config.js`
+- [ ] Cambia el enlace de los proyectos base por los tuyos, en `talleres/scratch.js`
 - [ ] Repasa las cuatro reglas de las notas privadas
 
 ### Durante
@@ -201,18 +203,18 @@ https://taller.yoaprendo.online
 
 Los docentes escriben su nombre y entran. Tú usas **el mismo link** y le pones el PIN en «Acceso de facilitador». No hay links distintos, no hay que explicar nada.
 
-Si quieres dos grupos separados que no se interfieran, usa una sala distinta en la URL: `https://taller.yoaprendo.online?sala=grupo-b`. Cambia también `salaPorDefecto` en `config.js` para que ese sea el link que compartas.
+Si quieres dos grupos separados que no se interfieran, usa una sala distinta en la URL: `https://taller.yoaprendo.online?sala=grupo-b`. Cambia también `salaPorDefecto` en `talleres/scratch.js` para que ese sea el link que compartas.
 
 ### Después de cada sesión
 
 - [ ] Anota quién se quedó con tarea pendiente
-- [ ] Guarda el enlace del proyectobase de la siguiente sesión en `config.js`
+- [ ] Guarda el enlace del proyectobase de la siguiente sesión en `talleres/scratch.js`
 
 ---
 
 ## Personalizar el contenido
 
-Todo está en **`js/config.js`**. No hay que tocar nada más.
+Todo está en **`talleres/scratch.js`**. No hay que tocar nada más.
 
 ### Cambiar los textos que ven los docentes
 
@@ -235,7 +237,7 @@ Cada sesión tiene bloques. Para cambiar lo que aparece en pantalla cuando abres
 ### Agregar un material
 
 1. Copia la página en `material/`, por ejemplo `material/mi-material.html`.
-2. Agrégalo en `config.js`:
+2. Agrégalo en `talleres/scratch.js`:
 
 ```js
 materiales: {
@@ -266,7 +268,7 @@ Ponle `libre: true`. Los docentes lo pueden bajar desde el minuto uno, sin que t
 
 ### Cambiar los proyectos base de Scratch
 
-En `config.js`:
+En `talleres/scratch.js`:
 
 ```js
 proyectosBase: [
@@ -328,13 +330,13 @@ La seguridad no está en el código del navegador (que cualquiera puede ver), si
 | Veo el panel de facilitador queriendo ver el de docente | La sesión de facilitador sigue activa en esta pestaña | Usa ventana de incógnito para la vista de docente, o dale **Salir** primero |
 | El dominio no carga | Certificado HTTPS pendiente | Espera. Puede tardar hasta 24 horas. Verifica que el CNAME esté en el registro. |
 | La página se ve sin estilos | Archivo CSS no subido | Revisa que `css/styles.css` esté en el repositorio |
-| El link del proyecto base da 404 | El ID cambió en Scratch | Reemplaza la URL en `config.js` |
+| El link del proyecto base da 404 | El ID cambió en Scratch | Reemplaza la URL en `talleres/scratch.js` |
 
 ---
 
 ## Personalización rápida: cambiar textos de las objeciones
 
-Son las que más se ajustan al grupo. Están en `config.js`, dentro de `notasFacilitador.respuestasRapidas`:
+Son las que más se ajustan al grupo. Están en `talleres/scratch.js`, dentro de `notasFacilitador.respuestasRapidas`:
 
 ```js
 {

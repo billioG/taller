@@ -541,10 +541,11 @@ function abrirMaterial(idMat) {
 function renderProyectos() {
   const cont = $('#listaProyectos');
   cont.innerHTML = '';
-  if (!TALLER.proyectosBase || !TALLER.proyectosBase.length) {
-    cont.appendChild(el('p', 'bloque-nota', 'Todavía no hay proyectos base. El facilitador los agrega en config.js.'));
-    return;
-  }
+  const sec = $('#seccionProyectos');
+  if (sec) sec.hidden = !(TALLER.proyectosBase && TALLER.proyectosBase.length);
+  if (!TALLER.proyectosBase || !TALLER.proyectosBase.length) return;
+  const tp = $('#tituloProyectos');
+  if (tp && TALLER.tituloProyectos) tp.textContent = TALLER.tituloProyectos;
   TALLER.proyectosBase.forEach((p) => {
     const a = el('a', 'mat libre');
     a.href = p.url;
@@ -935,7 +936,7 @@ function conectarControles() {
 
 /** Enlace de un material; Pintura recibe la sala del taller para poder mostrar la sala abierta. */
 function enlaceMaterial(id, m) {
-  if (id !== 'pintura-con-la-cara') return m.archivo;
+  if (!m.conSala) return m.archivo;
   return m.archivo + (m.archivo.includes('?') ? '&' : '?') + 'taller=' + encodeURIComponent(app.sala);
 }
 

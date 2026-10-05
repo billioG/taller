@@ -305,19 +305,14 @@ body{
   <div class="cert-logo">${cubo}</div>
   <div class="cert-sello">Yo Aprendo · Certifica</div>
   <h1 class="cert-tit">${esc(c.titulo || 'Certificado de finalización')}</h1>
-  <p class="cert-sub">${esc(c.subtitulo || 'Taller de Programación Visual con Scratch')}</p>
+  <p class="cert-sub">${esc(c.subtitulo || TALLER.certificado.subtitulo || TALLER.titulo)}</p>
   <p style="margin:0;">Se otorga a</p>
   <div class="cert-linea">${nombre}</div>
   <p class="cert-body">
-    Por haber construido un proyecto interactivo funcional sobre un contenido
-    de su propia asignatura, junto con un plan de clase para aplicarlo
-    con sus estudiantes, dado en el mes de ${mesAnio}.
+    ${esc(TALLER.certificado.cuerpo || '')}${TALLER.certificado.cuerpo ? ' ' : ''}dado en el mes de ${mesAnio}.
   </p>
   <ul class="cert-modulos">
-    <li>Construcción de un recurso interactivo funcional</li>
-    <li>Secuencia, condición e interacción</li>
-    <li>Diseño de una actividad evaluable</li>
-    <li>Esquema de una clase de 45 minutos</li>
+    ${(TALLER.certificado.modulos || []).map((m) => '<li>' + esc(m) + '</li>').join('')}
   </ul>
   <div class="firma-bloque">
     <img src="${firmaSrc}" alt="Firma">

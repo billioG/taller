@@ -1,7 +1,7 @@
 /* Formularios que se llenan directamente en pantalla y luego se guardan como PDF. */
 document.addEventListener('DOMContentLoaded', function () {
   var raiz = document.querySelector('.pagina');
-  if (!raiz) return;
+  if (!raiz || window.__sinRelleno) return;
   raiz.querySelectorAll('table tbody td').forEach(function (td) {
     var txt = td.textContent.trim();
     if (txt === '' && !td.children.length) {

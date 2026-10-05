@@ -7,22 +7,18 @@
 
 const ESPERA = { listo: false, ultimo: {}, timer: null };
 
-/** Fecha y hora del taller (config.js → fecha.inicio). */
+/** Fecha y hora del taller (talleres/<id>.js → fecha.inicio). */
 function inicioTaller() {
   const t = Date.parse((TALLER.fecha && TALLER.fecha.inicio) || '');
   return isNaN(t) ? 0 : t;
 }
 
 /** Piezas flotantes con los colores de las categorías de Scratch. */
-const PIEZAS_ESPERA = [
-  { c: '#4C97FF', t: 'mover 10 pasos', x: 6, d: 0, s: 11 },
-  { c: '#9966FF', t: 'decir ¡Hola!', x: 22, d: 2.2, s: 13 },
-  { c: '#FFBF00', t: 'al presionar 🏴', x: 40, d: 4.1, s: 10 },
-  { c: '#FFAB19', t: 'repetir (10)', x: 58, d: 1.1, s: 12 },
-  { c: '#59C059', t: '( ) + ( )', x: 74, d: 3.3, s: 14 },
-  { c: '#5CB1D6', t: 'preguntar y esperar', x: 88, d: 5.2, s: 12 },
-  { c: '#CF63CF', t: 'iniciar sonido', x: 14, d: 6.1, s: 15 },
-  { c: '#FF8C1A', t: 'fijar [puntos] a 0', x: 50, d: 7.4, s: 13 },
+const PIEZAS_ESPERA = (TALLER.espera && TALLER.espera.piezas) || [
+  { c: '#4C97FF', t: 'Prepárate', x: 10, d: 0, s: 11 },
+  { c: '#9966FF', t: 'Aprende', x: 30, d: 2.2, s: 13 },
+  { c: '#59C059', t: 'Crea', x: 52, d: 4.1, s: 10 },
+  { c: '#FFAB19', t: 'Comparte', x: 74, d: 1.1, s: 12 },
 ];
 
 function construirEspera(box) {

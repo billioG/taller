@@ -3,17 +3,19 @@
    Estado de la app, almacenamiento y utilidades DOM.
    ========================================================================== */
 
+// Cada taller guarda sus datos con su propio sufijo (el primero de la lista no lleva).
+const SFX = (typeof TALLER_ID !== 'undefined' && TALLER_ID !== TALLER_PRINCIPAL) ? '.' + TALLER_ID : '';
 const LS = {
-  rol: 'taller.rol',
-  nombre: 'taller.nombre',
-  pinHash: 'taller.pinhash',
-  seccionesVistas: 'taller.vistas',
-  mensaje: 'taller.mensaje',
-  seccion: 'taller.seccion',
+  rol: 'taller.rol' + SFX,
+  nombre: 'taller.nombre' + SFX,
+  pinHash: 'taller.pinhash' + SFX,
+  seccionesVistas: 'taller.vistas' + SFX,
+  mensaje: 'taller.mensaje' + SFX,
+  seccion: 'taller.seccion' + SFX,
 };
 
 // PIN en texto plano: solo sessionStorage (se borra al cerrar pestaña).
-const SS_CLAVE = 'taller.clave';
+const SS_CLAVE = 'taller.clave' + SFX;
 
 const app = {
   rol: null,            // 'docente' | 'facilitador'
@@ -82,13 +84,8 @@ function esc(v) {
   ));
 }
 
-/** Qué materiales se habilitan en cada paso. */
-const MATERIALES_POR_BLOQUE = {
-  s1b2: ['tarjetas-de-bloques'],
-  s1b3: ['receta-scratch'],
-  s1b4: ['pintura-con-la-cara'],
-  s1b5: ['plan-de-clase', 'rubrica'],
-};
+/** Qué materiales se habilitan en cada paso (se define en talleres/<id>.js). */
+const MATERIALES_POR_BLOQUE = TALLER.materialesPorBloque || {};
 
 /** Secciones vistas guardadas en el navegador (tolera datos corruptos). */
 function leerVistas() {
@@ -114,12 +111,12 @@ function miVotanteId() {
 
 /** PIN de participantes de esta sesión (solo sessionStorage). */
 function pinParticipante() {
-  try { return sessionStorage.getItem('taller.pinpart') || ''; } catch { return ''; }
+  try { return sessionStorage.getItem('taller.pinpart' + SFX) || ''; } catch { return ''; }
 }
 function guardarPinParticipante(p) {
   try {
-    if (p) sessionStorage.setItem('taller.pinpart', p);
-    else sessionStorage.removeItem('taller.pinpart');
+    if (p) sessionStorage.setItem('taller.pinpart' + SFX, p);
+    else sessionStorage.removeItem('taller.pinpart' + SFX);
   } catch { }
 }
 
