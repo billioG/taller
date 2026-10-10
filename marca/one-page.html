@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yo Aprendo · Formación continua para docentes</title>
+<style>
+  :root{
+    --indigo:#2B4C8C; --indigo-d:#1E3663; --indigo-l:#E8EDF7;
+    --maiz:#E8B23A; --maiz-l:#FCF3DC;
+    --jade:#1F7A5C; --jade-l:#E7F4EF;
+    --kakaw:#C1275B;
+    --tinta:#1A1A1A; --gris:#6B6157; --linea:#E4DCCC; --papel:#FBF7EF; --blanco:#fff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  @page{size:A4;margin:0}
+  html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#ECE8E0;color:var(--tinta);line-height:1.45}
+
+  .hoja{width:210mm;height:297mm;margin:0 auto;background:var(--blanco);display:flex;flex-direction:column;overflow:hidden;position:relative}
+
+  /* Cabecera */
+  .hero{background:var(--indigo);color:#fff;padding:13mm 14mm 11mm;position:relative}
+  .hero::after{content:"";position:absolute;right:-18mm;top:-18mm;width:70mm;height:70mm;border-radius:50%;background:rgba(255,255,255,.07)}
+  .marca{display:flex;align-items:center;gap:10px;margin-bottom:9mm}
+  .marca svg{width:34px;height:34px}
+  .marca b{font-size:17pt;letter-spacing:-.01em}
+  .marca small{display:block;font-size:6.5pt;letter-spacing:.2em;font-weight:700;opacity:.75}
+  .hero h1{font-size:25pt;line-height:1.1;letter-spacing:-.02em;max-width:150mm}
+  .hero h1 em{font-style:normal;color:var(--maiz)}
+  .hero p{margin-top:5mm;font-size:10.5pt;max-width:140mm;opacity:.92}
+
+  .cuerpo{padding:9mm 14mm 9mm;display:flex;flex-direction:column;justify-content:space-between;gap:7mm;flex:1}
+  h2{font-size:7.5pt;letter-spacing:.16em;text-transform:uppercase;color:var(--indigo);font-weight:800;margin-bottom:3.5mm}
+
+  /* Cómo funciona */
+  .pasos{display:grid;grid-template-columns:repeat(3,1fr);gap:5mm}
+  .paso{background:var(--papel);border:1px solid var(--linea);border-radius:10px;padding:4.5mm}
+  .paso .n{width:7mm;height:7mm;border-radius:50%;background:var(--indigo);color:#fff;font-weight:800;font-size:9pt;display:flex;align-items:center;justify-content:center;margin-bottom:2.5mm}
+  .paso:nth-child(2) .n{background:var(--jade)}
+  .paso:nth-child(3) .n{background:var(--kakaw)}
+  .paso h3{font-size:10.5pt;margin-bottom:1.5mm}
+  .paso p{font-size:8.6pt;color:var(--gris)}
+
+  /* Experiencia */
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:3mm 6mm}
+  .item{display:flex;gap:3mm;align-items:flex-start}
+  .item i{flex:none;width:2.4mm;height:2.4mm;margin-top:1.6mm;border-radius:50%;background:var(--maiz)}
+  .item b{font-size:9.4pt}
+  .item span{display:block;font-size:8.5pt;color:var(--gris)}
+
+  /* Taller destacado */
+  .destacado{background:var(--indigo-l);border:1.5px solid var(--indigo);border-radius:12px;padding:6mm;display:grid;grid-template-columns:1fr 38mm;gap:6mm;align-items:center}
+  .tag{display:inline-block;background:var(--maiz);color:var(--tinta);font-size:6.8pt;font-weight:800;letter-spacing:.12em;padding:1mm 3mm;border-radius:999px;margin-bottom:2.5mm}
+  .destacado h3{font-size:13.5pt;line-height:1.2;margin-bottom:2mm;color:var(--indigo-d)}
+  .destacado p{font-size:9pt;color:#3d3a35}
+  .datos{display:flex;gap:5mm;margin-top:3.5mm;flex-wrap:wrap}
+  .datos div{font-size:8.2pt;color:var(--gris)}
+  .datos b{display:block;font-size:10pt;color:var(--tinta)}
+  .qr{background:#fff;border:1px solid var(--linea);border-radius:10px;padding:2.5mm;text-align:center}
+  .qr svg{width:100%;height:auto;display:block}
+  .qr small{display:block;font-size:6.8pt;color:var(--gris);margin-top:1.5mm;line-height:1.3}
+
+  /* Pie */
+  .pie{margin-top:auto;border-top:1px solid var(--linea);padding:5mm 14mm;display:flex;justify-content:space-between;align-items:center;gap:6mm;background:var(--papel)}
+  .pie b{font-size:9.4pt}
+  .pie span{font-size:8.2pt;color:var(--gris)}
+  .pie .web{font-weight:800;color:var(--indigo);font-size:10.5pt}
+
+  @media screen{ body{padding:16px 0} .hoja{box-shadow:0 10px 40px rgba(0,0,0,.12)} }
+  @media screen and (max-width:230mm){ .hoja{width:100%;height:auto;min-height:297mm} }
+  @media print{ body{background:#fff} .hoja{box-shadow:none} }
+</style>
+</head>
+<body>
+<main class="hoja">
+
+  <header class="hero">
+    <div class="marca">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <polygon points="50,15 82,32 82,68 50,85 18,68 18,32" fill="none" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>
+        <path d="M50,50 L18,32 M50,50 L82,32 M50,50 L50,85" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+      </svg>
+      <div><b>Yo Aprendo</b><small>FORMACIÓN CONTINUA</small></div>
+    </div>
+    <h1>Talleres para docentes donde <em>sales con algo que usas mañana</em></h1>
+    <p>Sesiones prácticas y en vivo: construyes un recurso con el contenido de tu propia asignatura, lo pruebas con tus colegas y te vas con un plan para aplicarlo en el aula.</p>
+  </header>
+
+  <div class="cuerpo">
+
+    <section>
+      <h2>¿Cómo funciona?</h2>
+      <div class="pasos">
+        <div class="paso"><div class="n">1</div><h3>Entras con tu enlace</h3><p>Un enlace y un PIN. Sin instalar nada: funciona en la computadora y en el celular.</p></div>
+        <div class="paso"><div class="n">2</div><h3>Construyes en vivo</h3><p>Paso a paso, con tiempos claros, tu facilitador y tus colegas en la misma sala.</p></div>
+        <div class="paso"><div class="n">3</div><h3>Te llevas tu certificado</h3><p>Diploma en PDF con código y QR que cualquiera puede verificar.</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>¿Qué hace diferente la experiencia?</h2>
+      <div class="grid">
+        <div class="item"><i></i><div><b>Con tu contenido</b><span>Trabajas con el programa de TU asignatura, no con ejemplos ajenos.</span></div></div>
+        <div class="item"><i></i><div><b>Todo el material, en un solo lugar</b><span>Guías, hojas de referencia y formatos que se llenan en pantalla.</span></div></div>
+        <div class="item"><i></i><div><b>Participación en tiempo real</b><span>Encuestas en vivo, pedir la palabra y una frase final de todo el grupo.</span></div></div>
+        <div class="item"><i></i><div><b>Ritmo a la medida</b><span>Cronómetro por paso, para llegar al final con algo que funciona.</span></div></div>
+      </div>
+    </section>
+
+    <section class="destacado">
+      <div>
+        <span class="tag">PRÓXIMO TALLER</span>
+        <h3>Programación visual con Scratch</h3>
+        <p>Construye un recurso interactivo de tu asignatura que pregunta, responde y da retroalimentación. No necesitas saber programar.</p>
+        <div class="datos">
+          <div><b>Lunes 23 de noviembre</b>Fecha</div>
+          <div><b>2 horas</b>Una sola sesión</div>
+          <div><b>Virtual, en vivo</b>Modalidad</div>
+        </div>
+      </div>
+      <div class="qr" id="qr"><small>Escanea para entrar</small></div>
+    </section>
+
+  </div>
+
+  <footer class="pie">
+    <div><b>Billy Abraham Gómez Sac</b><br><span>Facilitador · Google Educator L1</span></div>
+    <div class="web">taller.yoaprendo.online</div>
+  </footer>
+</main>
+
+<script src="../vendor/qrcode.js"></script>
+<script>
+  // QR hacia el taller (generado localmente, sin servicios externos).
+  try {
+    var q = qrcode(0, 'M');
+    q.addData('https://taller.yoaprendo.online/');
+    q.make();
+    var host = document.getElementById('qr');
+    host.insertAdjacentHTML('afterbegin', q.createSvgTag({ cellSize: 4, margin: 0, scalable: true }).replace(/ (width|height)="[^"]*"/g, ''));
+  } catch (e) {}
+</script>
+</body>
+</html>
